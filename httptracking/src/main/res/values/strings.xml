@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="txt_copy_success">복사되었습니다.</string>
+    <string name="txt_list">목록</string>
+    <string name="txt_request">Request</string>
+    <string name="txt_response">Response</string>
+</resources>
