@@ -16,8 +16,8 @@ class MyApplication : MultiDexApplication() {
         initTimber()
 
         TrackingManager.getInstance()
-            .setBuild(true)
-            .setLogMaxSize(50)
+            .setBuildType(true)
+            .setLogMaxSize(1000)
             .build(this)
     }
 

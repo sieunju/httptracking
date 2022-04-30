@@ -36,12 +36,9 @@ class TrackingManager private constructor() {
         }
     }
 
-    private var deviceHeight: Int = 0
-
     // [s] Variable
     private var isDebug = false
     private var logMaxSize = 1000
-    private var updateCnt = 10L // 갱신 처리하는 Take Cnt
     // [e] Variable
 
     // Tracking List
@@ -97,6 +94,10 @@ class TrackingManager private constructor() {
 
     private val shakeDetector: ShakeDetector by lazy { ShakeDetector().setListener(shakeListener) }
 
+    /**
+     * Builder
+     * @param context Application Context
+     */
     fun build(context: Application) {
         if (isDebug()) {
             context.registerActivityLifecycleCallbacks(activityListener)
@@ -109,18 +110,21 @@ class TrackingManager private constructor() {
         }
     }
 
-    fun setBuild(isDebug: Boolean): TrackingManager {
+    /**
+     * Set Build Type
+     * @param isDebug 디버그 모드 true, 릴리즈 모드 false
+     */
+    fun setBuildType(isDebug: Boolean): TrackingManager {
         this.isDebug = isDebug
         return this
     }
 
+    /**
+     * 로그를 저장할 사이즈
+     * @param size 사이즈
+     */
     fun setLogMaxSize(size: Int): TrackingManager {
         this.logMaxSize = size
-        return this
-    }
-
-    fun setUpdateCnt(cnt: Long): TrackingManager {
-        this.updateCnt = cnt
         return this
     }
 
@@ -138,6 +142,11 @@ class TrackingManager private constructor() {
 
     internal fun addTracking(entity: TrackingHttpEntity?) {
         if (entity == null) return
+        // UID 초기화 처리
+        if (trackingCnt > Long.MAX_VALUE.minus(10)) {
+            trackingCnt = 0
+        }
+
         entity.uid = trackingCnt
         httpTrackingList.add(0, entity)
         trackingCnt++
@@ -151,8 +160,6 @@ class TrackingManager private constructor() {
     internal fun dataClear() {
         httpTrackingList.clear()
     }
-
-    fun getUpdateTake() = updateCnt
 
     internal fun getGson() = gson
 }
