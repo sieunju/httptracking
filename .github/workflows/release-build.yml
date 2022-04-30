@@ -2,8 +2,7 @@ name: Libraray Generate Release
 
 on:
   push:
-    branches:
-      - 'master'
+    branches: [master]
 
 jobs:
   build:
