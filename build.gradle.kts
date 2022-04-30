@@ -1,7 +1,3 @@
-import java.io.ByteArrayOutputStream
-import java.text.SimpleDateFormat
-import java.util.*
-
 buildscript {
     repositories {
         google()
