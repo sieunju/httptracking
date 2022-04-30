@@ -11,7 +11,6 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.http.tracking.entity.TrackingHttpEntity
 import com.http.tracking.ui.TrackingBottomSheetDialog
-import timber.log.Timber
 import java.lang.ref.WeakReference
 
 /**
@@ -88,7 +87,6 @@ class TrackingManager private constructor() {
     private val shakeListener = object : ShakeDetector.OnShakeListener {
         override fun onShowDialog() {
             activityListener.currentActivity?.get()?.let { act ->
-                Timber.d("onShowDialog ${TrackingBottomSheetDialog.IS_SHOW}")
                 if (dialog != null) {
                     dialog?.dismiss()
                     dialog = null
@@ -150,7 +148,6 @@ class TrackingManager private constructor() {
             httpTrackingList.removeFirst()
         }
         dialog?.updateTrackingData()
-        Timber.d("Tracking ${httpTrackingList.size}")
     }
 
     internal fun dataClear() {

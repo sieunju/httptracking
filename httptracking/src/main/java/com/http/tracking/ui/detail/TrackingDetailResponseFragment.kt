@@ -17,7 +17,6 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.addTo
 import io.reactivex.rxjava3.schedulers.Schedulers
-import timber.log.Timber
 
 /**
  * Description : 상세 > Response Fragment
@@ -75,7 +74,6 @@ internal class TrackingDetailResponseFragment : Fragment() {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                Timber.d("Request Data ${it.size}")
                 adapter.submitList(it)
             }, {
 

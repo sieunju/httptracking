@@ -163,7 +163,6 @@ internal object Extensions {
     fun parseBodyUiModel(body: String): BaseTrackingUiModel {
         val je = JsonParser.parseString(body)
         return TrackingBodyUiModel(TrackingManager.getInstance().getGson().toJson(je))
-//        return TrackingBodyUiModel(body)
     }
 
     /**

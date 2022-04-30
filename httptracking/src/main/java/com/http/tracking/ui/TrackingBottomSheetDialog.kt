@@ -133,15 +133,6 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
             }, {
 
             }).addTo(disposable)
-//        val uiList = mutableListOf<BaseTrackingUiModel>()
-//        TrackingManager.getInstance().getTrackingList().forEach {
-//            runCatching {
-//                uiList.add(TrackingListUiModel(it))
-//            }.onFailure {
-//                Timber.d("ERROR $it")
-//            }
-//        }
-//        trackingAdapter.submitList(uiList)
     }
 
     override fun dismiss() {
