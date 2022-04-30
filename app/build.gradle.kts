@@ -56,6 +56,11 @@ dependencies {
     implementation(AndroidX.multidex)
 
     /**
+     * Kotlinx Serialization
+     */
+    implementation(KotlinX.serialization)
+
+    /**
      * Rx
      */
     implementation(Rx.java)
