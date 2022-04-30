@@ -58,6 +58,7 @@ dependencies {
      * Network
      */
     implementation(Retrofit.okhttp)
+    implementation("com.google.code.gson:gson:2.8.9")
 
     implementation(Log.timber)
 

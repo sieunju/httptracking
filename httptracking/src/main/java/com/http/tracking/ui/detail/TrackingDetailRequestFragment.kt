@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import com.google.gson.GsonBuilder
 import com.http.tracking.R
 import com.http.tracking.databinding.FTrackingDetailRequestBinding
 import com.http.tracking.Extensions

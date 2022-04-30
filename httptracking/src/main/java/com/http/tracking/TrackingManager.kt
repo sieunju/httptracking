@@ -7,8 +7,9 @@ import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.http.tracking.entity.TrackingHttpEntity
-import com.http.tracking.rx.TrackingNotifyChangeEvent
 import com.http.tracking.ui.TrackingBottomSheetDialog
 import timber.log.Timber
 import java.lang.ref.WeakReference
@@ -44,7 +45,21 @@ class TrackingManager private constructor() {
     private var updateCnt = 10L // 갱신 처리하는 Take Cnt
     // [e] Variable
 
+    // Tracking List
     private val httpTrackingList: MutableList<TrackingHttpEntity> by lazy { mutableListOf() }
+
+    // Gson
+    private val gson: Gson by lazy {
+        GsonBuilder()
+            .disableHtmlEscaping()
+            .setPrettyPrinting()
+            .serializeNulls()
+            .create()
+//        .newBuilder()
+//        .serializeNulls().create()
+    }
+
+    private var dialog: TrackingBottomSheetDialog? = null
 
     private val activityListener = object : Application.ActivityLifecycleCallbacks {
         var currentActivity: WeakReference<FragmentActivity>? = null
@@ -74,12 +89,12 @@ class TrackingManager private constructor() {
         override fun onShowDialog() {
             activityListener.currentActivity?.get()?.let { act ->
                 Timber.d("onShowDialog ${TrackingBottomSheetDialog.IS_SHOW}")
-                if (!TrackingBottomSheetDialog.IS_SHOW) {
-                    TrackingBottomSheetDialog().show(
-                        act.supportFragmentManager,
-                        "TrackingBottomSheetDialog"
-                    )
+                if (dialog != null) {
+                    dialog?.dismiss()
+                    dialog = null
                 }
+                dialog = TrackingBottomSheetDialog()
+                dialog?.show(act.supportFragmentManager, "TrackingBottomSheetDialog")
             }
         }
     }
@@ -134,7 +149,7 @@ class TrackingManager private constructor() {
         if (logMaxSize < httpTrackingList.size) {
             httpTrackingList.removeFirst()
         }
-        TrackingNotifyChangeEvent.publish(trackingCnt)
+        dialog?.updateTrackingData()
         Timber.d("Tracking ${httpTrackingList.size}")
     }
 
@@ -143,4 +158,6 @@ class TrackingManager private constructor() {
     }
 
     fun getUpdateTake() = updateCnt
+
+    internal fun getGson() = gson
 }
