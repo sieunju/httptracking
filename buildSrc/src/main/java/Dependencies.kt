@@ -1,4 +1,5 @@
 object Apps {
+    const val libraryName = "httptracking"
     const val compileSdkVersion = 31
     const val buildToolsVersion = "31.0.0"
     const val minSdkVersion = 23

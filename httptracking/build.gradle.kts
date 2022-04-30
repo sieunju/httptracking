@@ -1,17 +1,31 @@
 plugins {
     id("com.android.library")
+    id("maven-publish")
     kotlin("android")
     kotlin("kapt")
+}
+
+publishing {
+    publications {
+        create("maven_public",MavenPublication::class) {
+            groupId = Apps.libraryName
+            artifactId = "library"
+            version = Apps.versionName
+        }
+    }
 }
 
 android {
     compileSdk = Apps.compileSdkVersion
 
+    // ktlint
+    lint {
+        abortOnError = false
+    }
+
     defaultConfig {
         minSdk = Apps.minSdkVersion
         targetSdk = Apps.targetSdkVersion
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -21,7 +35,7 @@ android {
         }
 
         getByName("release") {
-            isMinifyEnabled = true
+            isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
     }
@@ -34,6 +48,9 @@ android {
     }
     buildFeatures {
         dataBinding = true
+    }
+    kapt {
+        correctErrorTypes = true
     }
 }
 
