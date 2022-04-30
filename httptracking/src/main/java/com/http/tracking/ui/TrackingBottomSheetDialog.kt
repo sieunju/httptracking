@@ -156,12 +156,16 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
         updateTrackingData()
     }
 
+    /**
+     * HTTP Tracking 자세한 화면으로 이동하는 함수
+     * @param entity 표시할 데이터 모델
+     */
     fun performDetail(entity: TrackingHttpEntity) {
+        moveToDetailViewPager()
         Single.just(entity)
             .delay(200, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                moveViewPager(0)
                 childFragmentManager.runCatching {
                     val requestFragment = findFragmentByTag("f0")
                     val responseFragment = findFragmentByTag("f1")
@@ -177,11 +181,14 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
             }).addTo(disposable)
     }
 
-    private fun moveViewPager(pos: Int) {
+    /**
+     * 상세 화면으로 이동하는 함수
+     */
+    private fun moveToDetailViewPager() {
         runCatching {
             position.value = 1
             binding.vp.post {
-                binding.vp.setCurrentItem(pos, true)
+                binding.vp.setCurrentItem(0, true)
             }
         }
     }
