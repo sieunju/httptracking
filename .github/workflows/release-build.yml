@@ -56,16 +56,3 @@ jobs:
             ${{steps.get_release.outputs.val}}
           draft: false
           prerelease: false
-
-      # Android SDK 설정
-      # - name: SetUp Android SDK
-      #  uses: android-actions/setup-android@v2
-
-      # gradlew 권한 획득
-      # - name: Grant execute permission for gradlew
-      #  run: chmod +x gradlew
-
-      # 릴리즈 노트 작성
-      # - name: Generate Release Note
-      #   run: |
-      #    ./gradlew generateReleaseNote --stacktrace
