@@ -1,5 +1,6 @@
 plugins {
     id("com.android.application")
+    id("kotlinx-serialization")
     kotlin("android")
     kotlin("kapt")
 }
@@ -42,6 +43,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":httptracking"))
+
     /**
      * Android X
      */
@@ -53,6 +56,11 @@ dependencies {
     implementation(AndroidX.multidex)
 
     /**
+     * Kotlinx Serialization
+     */
+    implementation(KotlinX.serialization)
+
+    /**
      * Rx
      */
     implementation(Rx.java)
@@ -62,6 +70,14 @@ dependencies {
      * Timber
      */
     implementation(Log.timber)
+
+    /**
+     * Retrofit
+     */
+    implementation(Retrofit.base)
+    implementation(Retrofit.okhttp)
+    implementation(Retrofit.rxjava)
+    implementation(Retrofit.kotlinx)
 
     androidTestImplementation(UnitTest.runner)
     androidTestImplementation(UnitTest.junit)

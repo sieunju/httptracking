@@ -7,7 +7,6 @@ import okhttp3.*
 import okio.Buffer
 import okio.GzipSource
 import okio.IOException
-import timber.log.Timber
 import java.nio.charset.Charset
 
 /**
@@ -25,7 +24,6 @@ class TrackingHttpInterceptor : Interceptor {
             return chain.proceed(request)
         }
         val tracking = try {
-            Timber.d("TrackingURL ${request.url}")
             TrackingHttpEntity(
                 headerMap = toHeaderMap(request.headers),
                 path = request.url.encodedPath,

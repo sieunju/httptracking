@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import com.google.gson.GsonBuilder
 import com.http.tracking.R
 import com.http.tracking.databinding.FTrackingDetailRequestBinding
 import com.http.tracking.Extensions
@@ -18,7 +19,6 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.addTo
 import io.reactivex.rxjava3.schedulers.Schedulers
-import timber.log.Timber
 
 /**
  * Description : HTTP 요청 상세 Fragment
@@ -60,7 +60,6 @@ internal class TrackingDetailRequestFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Timber.d("Request onDestroy??")
         disposable.clear()
         if (!disposable.isDisposed) {
             disposable.dispose()
@@ -77,7 +76,6 @@ internal class TrackingDetailRequestFragment : Fragment() {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                Timber.d("Request Data ${it.size}")
                 adapter.submitList(it)
             }, {
 

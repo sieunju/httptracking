@@ -1,17 +1,31 @@
 plugins {
     id("com.android.library")
+    id("maven-publish")
     kotlin("android")
     kotlin("kapt")
+}
+
+publishing {
+    publications {
+        create("maven_public",MavenPublication::class) {
+            groupId = Apps.libraryName
+            artifactId = "library"
+            version = Apps.versionName
+        }
+    }
 }
 
 android {
     compileSdk = Apps.compileSdkVersion
 
+    // ktlint
+    lint {
+        abortOnError = false
+    }
+
     defaultConfig {
         minSdk = Apps.minSdkVersion
         targetSdk = Apps.targetSdkVersion
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -21,7 +35,7 @@ android {
         }
 
         getByName("release") {
-            isMinifyEnabled = true
+            isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
     }
@@ -35,31 +49,36 @@ android {
     buildFeatures {
         dataBinding = true
     }
+    kapt {
+        correctErrorTypes = true
+    }
 }
 
 dependencies {
     /**
      * Android X
      */
-    implementation(AndroidX.ktx)
-    implementation(AndroidX.appCompat)
-    implementation(AndroidX.activity)
-    implementation(AndroidX.material)
-    implementation(AndroidX.constraintLayout)
+    implementation("androidx.core:core-ktx:1.7.0")
+    implementation("androidx.appcompat:appcompat:1.4.1")
+    implementation("com.google.android.material:material:1.5.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.3")
 
     /**
      * Rx
      */
-    implementation(Rx.java)
-    implementation(Rx.kotlin)
-    implementation(Rx.android)
+    implementation("io.reactivex.rxjava3:rxjava:3.1.2")
+    implementation("io.reactivex.rxjava3:rxandroid:3.0.0")
+    implementation("io.reactivex.rxjava3:rxkotlin:3.0.1")
 
     /**
      * Network
      */
-    implementation(Retrofit.okhttp)
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
 
-    implementation(Log.timber)
+    /**
+     * Gson Builder
+     */
+    implementation("com.google.code.gson:gson:2.8.9")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")

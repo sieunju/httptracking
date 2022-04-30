@@ -15,7 +15,7 @@ internal object BindingAdapter {
     ) {
         if (!newTxt.isNullOrEmpty()) {
             val htmlText = HtmlCompat.fromHtml(newTxt, HtmlCompat.FROM_HTML_MODE_LEGACY)
-            tv.text = htmlText
+            tv.text = newTxt
         } else {
             tv.visibility = View.GONE
         }

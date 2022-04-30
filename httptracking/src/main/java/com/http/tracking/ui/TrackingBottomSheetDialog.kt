@@ -32,7 +32,6 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.addTo
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 /**
@@ -121,16 +120,19 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
     /**
      * 데이터 업데이트 처리 함수
      */
-    private fun updateTrackingData() {
-        val uiList = mutableListOf<BaseTrackingUiModel>()
-        TrackingManager.getInstance().getTrackingList().forEach {
-            runCatching {
-                uiList.add(TrackingListUiModel(it))
-            }.onFailure {
-                Timber.d("ERROR $it")
+    fun updateTrackingData() {
+        Single.just(TrackingManager.getInstance().getTrackingList())
+            .map { list ->
+                val uiList = mutableListOf<BaseTrackingUiModel>()
+                list.map { uiList.add(TrackingListUiModel(it)) }
+                return@map uiList
             }
-        }
-        trackingAdapter.submitList(uiList)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                trackingAdapter.submitList(it)
+            }, {
+
+            }).addTo(disposable)
     }
 
     override fun dismiss() {
@@ -154,8 +156,12 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
         updateTrackingData()
     }
 
+    /**
+     * HTTP Tracking 자세한 화면으로 이동하는 함수
+     * @param entity 표시할 데이터 모델
+     */
     fun performDetail(entity: TrackingHttpEntity) {
-        position.value = 1
+        moveToDetailViewPager()
         Single.just(entity)
             .delay(200, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
@@ -173,6 +179,18 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
             }, {
 
             }).addTo(disposable)
+    }
+
+    /**
+     * 상세 화면으로 이동하는 함수
+     */
+    private fun moveToDetailViewPager() {
+        runCatching {
+            position.value = 1
+            binding.vp.post {
+                binding.vp.setCurrentItem(0, true)
+            }
+        }
     }
 
     /**

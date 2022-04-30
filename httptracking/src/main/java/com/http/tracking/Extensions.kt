@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.JsonParser
 import com.http.tracking.models.*
 import com.http.tracking.ui.TrackingBottomSheetDialog
 import com.http.tracking.ui.viewholder.*
@@ -160,7 +161,8 @@ internal object Extensions {
     }
 
     fun parseBodyUiModel(body: String): BaseTrackingUiModel {
-        return TrackingBodyUiModel(body)
+        val je = JsonParser.parseString(body)
+        return TrackingBodyUiModel(TrackingManager.getInstance().getGson().toJson(je))
     }
 
     /**
