@@ -54,8 +54,6 @@ class TrackingManager private constructor() {
             .setPrettyPrinting()
             .serializeNulls()
             .create()
-//        .newBuilder()
-//        .serializeNulls().create()
     }
 
     private var dialog: TrackingBottomSheetDialog? = null
