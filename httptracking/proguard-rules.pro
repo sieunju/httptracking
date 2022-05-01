@@ -19,3 +19,7 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+#Model Module Proguard
+-keep class com.http.tracking.entity.** {*;}
+-keep class com.http.tracking.entity.**$* {*;}

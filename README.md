@@ -9,6 +9,29 @@
 
 > 앱을 사용하다가 단말기를 흔들면 트래킹한 로그들을 간단히 볼수 있습니다.
 
+## 라이브러리 추가 하는 방법
+
+- Project Gradle (kts)
+
+```groovy
+allprojects {
+	    repositories {
+		    ...
+		    maven { url = URI("https://jitpack.io") }
+	    }
+}
+```
+
+- App Module Gradle
+
+```groovy
+dependencies {
+    	implementation("com.github.sieunju:httptracking:$latestVersion")
+}
+```
+
+## 사용방법
+
 Builder 패턴으로 Application Class 에서 간단히 빌드 타입을 설정합니다.
 
 ```kotlin
@@ -20,9 +43,9 @@ TrackingManager.getInstance()
             .build(this)
 ```
 
-OkHttpClient 에서 ‘addInterceptor’ 를 통해 TrackingHttpInterceptor 를 추가합니다. 
+OkHttpClient 에서 ‘addInterceptor’ 를 통해 TrackingHttpInterceptor 를 추가합니다.
 
-해당 라이브러리는 되도록이면 디버그모드에만 처리하도록 지향합니다. 
+해당 라이브러리는 되도록이면 디버그모드에만 처리하도록 지향합니다.
 
 ```kotlin
 OkHttpClient.Builder().apply{
