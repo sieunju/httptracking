@@ -5,13 +5,11 @@ import androidx.appcompat.app.AppCompatActivity
 import com.http.tracking.TrackingHttpInterceptor
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.reactivex.rxjava3.core.Flowable
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
-import okhttp3.Response
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import timber.log.Timber
@@ -29,25 +27,34 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        Flowable.interval(1000, TimeUnit.MILLISECONDS)
-            .onBackpressureBuffer()
-            .subscribe({
-                Timber.d("TICK $it")
-                randomApi()
-            }, {
-            })
+//        Flowable.interval(300, TimeUnit.MILLISECONDS)
+//            .onBackpressureBuffer()
+//            .subscribe({
+//                Timber.d("TICK $it")
+//                randomApi()
+//            }, {
+//            })
     }
 
-    private fun randomApi(){
-        val api = if (Random.nextBoolean()) apiService.fetchTest() else apiService.fetchGoods(
-            Random.nextInt(
-                1,
-                11
-            ), 25
-        )
+    private fun randomApi() {
+        val ran = Random.nextInt(0, 20)
+        val api = if (ran < 3) {
+            apiService.fetchTest()
+        } else if (ran < 5) {
+            apiService.fetchGoods(
+                Random.nextInt(
+                    1,
+                    11
+                ), 25
+            )
+        } else if (ran < 10) {
+            apiService.addLike("efefefefef")
+        } else {
+            apiService.fetchJsendList()
+        }
         api.subscribe({
             Timber.d("SUCC $it")
-        },{
+        }, {
             Timber.d("ERROR $it")
         })
     }

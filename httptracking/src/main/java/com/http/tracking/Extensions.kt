@@ -4,20 +4,31 @@ import android.annotation.SuppressLint
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.JsonParser
 import com.http.tracking.models.*
 import com.http.tracking.ui.TrackingBottomSheetDialog
 import com.http.tracking.ui.viewholder.*
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 import java.net.URLDecoder
 import java.text.SimpleDateFormat
 
 internal object Extensions {
 
     @SuppressLint("SimpleDateFormat")
-    private val minDate = SimpleDateFormat("HH:mm:ss")
+    private val simpleDate = SimpleDateFormat("HH:mm:ss")
 
     fun Long.toDate(): String {
-        return minDate.format(this)
+        return simpleDate.format(this)
+    }
+
+    private val json = Json {
+        isLenient = true // Json 큰따옴표 느슨하게 체크.
+        ignoreUnknownKeys = true // Field 값이 없는 경우 무시
+        coerceInputValues = true // "null" 이 들어간경우 default Argument 값으로 대체
+        prettyPrint = true
     }
 
     class TrackingDetailDiffUtil<out T : BaseTrackingUiModel>(
@@ -160,9 +171,14 @@ internal object Extensions {
         return uiList
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     fun parseBodyUiModel(body: String): BaseTrackingUiModel {
-        val je = JsonParser.parseString(body)
-        return TrackingBodyUiModel(TrackingManager.getInstance().getGson().toJson(je))
+        return try {
+            val je = json.decodeFromString<JsonElement>(body)
+            TrackingBodyUiModel(json.encodeToString(je))
+        } catch (ex: Exception) {
+            TrackingBodyUiModel(body)
+        }
     }
 
     /**
@@ -197,7 +213,7 @@ internal object Extensions {
 
     internal class TrackingAdapter : RecyclerView.Adapter<BaseTrackingViewHolder<*>>() {
 
-        val dataList = mutableListOf<BaseTrackingUiModel>()
+        private val dataList = mutableListOf<BaseTrackingUiModel>()
 
         private var dialog: TrackingBottomSheetDialog? = null
 
