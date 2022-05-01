@@ -1,0 +1,88 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'kotlinx-serialization'
+}
+
+android {
+    compileSdkVersion buildVersions.compileSdk
+    buildToolsVersion buildVersions.buildTools
+
+    defaultConfig {
+        applicationId "com.hmju.httptracking"
+        minSdkVersion buildVersions.minSdk
+        targetSdkVersion buildVersions.targetSdk
+        versionCode 1
+        versionName "1.0"
+        archivesBaseName = "httptracking" + versionName + "_" + versionCode
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+    buildFeatures {
+        dataBinding = true
+    }
+}
+
+dependencies {
+    implementation(project(':httptracking'))
+
+    /**
+     * Android X
+     */
+    implementation(deps.kotlin.core)
+    implementation(deps.androidx.appCompat)
+    implementation(deps.androidx.activity)
+    implementation(deps.androidx.material)
+    implementation(deps.androidx.constraintLayout)
+    implementation(deps.androidx.multidex)
+
+    /**
+     * Kotlinx Serialization
+     */
+    implementation(deps.kotlinx.serialization)
+
+    /**
+     * Rx
+     */
+    implementation(deps.rx.base)
+    implementation(deps.rx.kotlin)
+    implementation(deps.rx.android)
+
+    /**
+     * Timber
+     */
+    implementation(deps.timber)
+
+    /**
+     * Retrofit
+     */
+    implementation(deps.retrofit.base)
+    implementation(deps.retrofit.okhttp)
+    implementation(deps.retrofit.rxjava)
+    implementation(deps.retrofit.kotlinx)
+
+
+    testImplementation 'junit:junit:4.+'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+}
