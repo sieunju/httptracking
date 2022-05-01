@@ -6,13 +6,11 @@ plugins {
     kotlin("kapt")
 }
 
-repositories {
-    mavenCentral()
-}
+group = "com.github.sieunju"
 
 publishing {
     publications {
-        create("maven_public",MavenPublication::class) {
+        create("maven_public", MavenPublication::class) {
             groupId = "com.github.sieunju"
             artifactId = "httptracking"
             version = Apps.versionName
@@ -31,13 +29,10 @@ android {
     defaultConfig {
         minSdk = Apps.minSdkVersion
         targetSdk = Apps.targetSdkVersion
-         consumerProguardFiles("consumer-rules.pro")
+        // consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
-        getByName("debug") {
-            isMinifyEnabled = false
-        }
         getByName("release") {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
