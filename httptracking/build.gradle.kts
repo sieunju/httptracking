@@ -1,6 +1,7 @@
 plugins {
     id("com.android.library")
     id("maven-publish")
+    id("kotlinx-serialization")
     kotlin("android")
     kotlin("kapt")
 }
@@ -75,9 +76,9 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
 
     /**
-     * Gson Builder
+     * Kotlinx Serialization
      */
-    implementation("com.google.code.gson:gson:2.8.9")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")

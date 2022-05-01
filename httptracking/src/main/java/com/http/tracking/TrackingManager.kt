@@ -7,8 +7,6 @@ import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.http.tracking.entity.TrackingHttpEntity
 import com.http.tracking.ui.TrackingBottomSheetDialog
 import java.lang.ref.WeakReference
@@ -43,15 +41,6 @@ class TrackingManager private constructor() {
 
     // Tracking List
     private val httpTrackingList: MutableList<TrackingHttpEntity> by lazy { mutableListOf() }
-
-    // Gson
-    private val gson: Gson by lazy {
-        GsonBuilder()
-            .disableHtmlEscaping()
-            .setPrettyPrinting()
-            .serializeNulls()
-            .create()
-    }
 
     private var dialog: TrackingBottomSheetDialog? = null
 
@@ -160,6 +149,4 @@ class TrackingManager private constructor() {
     internal fun dataClear() {
         httpTrackingList.clear()
     }
-
-    internal fun getGson() = gson
 }
