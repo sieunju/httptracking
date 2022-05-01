@@ -27,7 +27,7 @@ android {
     defaultConfig {
         minSdk = Apps.minSdkVersion
         targetSdk = Apps.targetSdkVersion
-        consumerProguardFiles("consumer-rules.pro")
+        // consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
