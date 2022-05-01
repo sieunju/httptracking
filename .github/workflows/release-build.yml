@@ -19,27 +19,33 @@ jobs:
           distribution: 'adopt'
           check-latest: true
 
-      # Dependency 에 버전 및 릴리즈 메시지 가져오기
-      - name: Release Version
+      # Release Note 정보 가져오기
+      - name: Get Release Info
         id: release
         run: |
-          echo ::set-output name=code::$(grep versionCode buildSrc/src/main/java/Dependencies.kt | awk '{print $5}')
-          echo ::set-output name=name::$(grep versionName buildSrc/src/main/java/Dependencies.kt | awk '{print $5}')
-          echo ::set-output name=title::$(sed -n -e '1,1p' httptracking/release_note.txt)
-      # Tag 명 "" 제거해서 가져오기
-      - name: Get Tag Name
-        id: get_tag
-        run: echo ::set-output name=name::${{steps.release.outputs.name}}
+          echo ::set-output name=version::$(grep Version: httptracking/release_note.txt | awk '{print $2}')
+          echo ::set-output name=title::$(grep Title: httptracking/release_note.txt | awk '{print $2,$NF}')
+
+      # Release Version 명 가져오기
+      - name: Get Version Name
+        id: versionName
+        run: echo ::set-output name=val::${{steps.release.outputs.version}}
+
+      # Release Title 가져오기
+      - name: Get Release Title Name
+        id: releaseTitle
+        run: echo ::set-output name=val::${{steps.release.outputs.title}}
 
       # Release Message 가져오기
       - name: Get Release Message
-        id: get_release
+        id: releaseMessage
         run: |
-          RELEASE_BODY=$(sed -n '2,$p' httptracking/release_note.txt | less)
+          RELEASE_BODY=$(sed -n '3,$p' httptracking/release_note.txt | less)
           RELEASE_BODY="${RELEASE_BODY//'%'/'%25'}"
           RELEASE_BODY="${RELEASE_BODY//$'\n'/'%0A'}"
           RELEASE_BODY="${RELEASE_BODY//$'\r'/'%0D'}"
           echo ::set-output name=val::${RELEASE_BODY}
+
       # 릴리즈 생성
       # release_name: 릴리즈 제목
       # tag_name: 버전 이름
@@ -49,9 +55,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          release_name: ${{steps.release.outputs.title}}
-          tag_name: ${{steps.get_tag.outputs.name}}
+          release_name: ${{steps.releaseTitle.outputs.val}}
+          tag_name: ${{steps.versionName.outputs.val}}
           body: |
-            ${{steps.get_release.outputs.val}}
+            ${{steps.releaseMessage.outputs.val}}
           draft: false
           prerelease: false

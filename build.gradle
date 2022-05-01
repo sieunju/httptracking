@@ -1,0 +1,18 @@
+buildscript {
+    apply from: 'version.gradle'
+    addRepos(repositories)
+    dependencies {
+        classpath deps.androidPlugin
+        classpath deps.kotlinPlugin
+        classpath deps.kotlinxSerializationPlugin
+        classpath "com.github.dcendents:android-maven-gradle-plugin:2.1"
+    }
+}
+
+allprojects {
+    addRepos(repositories)
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

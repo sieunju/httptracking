@@ -27,13 +27,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-//        Flowable.interval(300, TimeUnit.MILLISECONDS)
-//            .onBackpressureBuffer()
-//            .subscribe({
-//                Timber.d("TICK $it")
-//                randomApi()
-//            }, {
-//            })
+
+        Flowable.interval(300, TimeUnit.MILLISECONDS)
+            .onBackpressureBuffer()
+            .subscribe({
+                Timber.d("TICK $it")
+                randomApi()
+            }, {
+            })
     }
 
     private fun randomApi() {
