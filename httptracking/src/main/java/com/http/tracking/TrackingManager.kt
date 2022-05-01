@@ -42,15 +42,6 @@ class TrackingManager private constructor() {
     // Tracking List
     private val httpTrackingList: MutableList<TrackingHttpEntity> by lazy { mutableListOf() }
 
-    // Gson
-//    private val gson: Gson by lazy {
-//        GsonBuilder()
-//            .disableHtmlEscaping()
-//            .setPrettyPrinting()
-//            .serializeNulls()
-//            .create()
-//    }
-
     private var dialog: TrackingBottomSheetDialog? = null
 
     private val activityListener = object : Application.ActivityLifecycleCallbacks {
@@ -158,6 +149,4 @@ class TrackingManager private constructor() {
     internal fun dataClear() {
         httpTrackingList.clear()
     }
-
-//    internal fun getGson() = gson
 }

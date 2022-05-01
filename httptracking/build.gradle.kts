@@ -76,11 +76,6 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
 
     /**
-     * Gson Builder
-     */
-    // implementation("com.google.code.gson:gson:2.8.9")
-
-    /**
      * Kotlinx Serialization
      */
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
