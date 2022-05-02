@@ -4,6 +4,8 @@
 
     <data>
 
+        <import type="android.graphics.Color" />
+
         <variable
             name="model"
             type="com.http.tracking.models.TrackingListUiModel" />
@@ -18,19 +20,18 @@
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="80dp"
             android:layout_height="match_parent"
-            android:background="@{model.item.isSuccess == true ? @color/blue : @color/red}"
+            android:background='@{model.item.isSuccess == true ? Color.parseColor("#03A9F4") : Color.parseColor("#C62828")}'
             android:gravity="center"
             android:orientation="vertical"
-            tools:background="@color/blue">
+            tools:background="#03A9F4">
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="@{model.item.resTimeDate}"
-                android:textColor="@color/white"
+                android:textColor="#FFFFFF"
                 android:textSize="12dp"
-                tools:background="@color/blue"
                 tools:text="23:24:00" />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -38,9 +39,8 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="@{model.item.takenTimeTxt}"
-                android:textColor="@color/white"
+                android:textColor="#FFFFFF"
                 android:textSize="11dp"
-                tools:background="@color/blue"
                 tools:text="500MS" />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -48,9 +48,8 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="@{model.item.codeTxt}"
-                android:textColor="@color/white"
+                android:textColor="#FFFFFF"
                 android:textSize="11dp"
-                tools:background="@color/blue"
                 tools:text="200" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
@@ -60,7 +59,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/gray"
+            android:background="#fafafa"
             android:foreground="?attr/selectableItemBackground"
             android:orientation="vertical"
             android:paddingLeft="5dp">
@@ -71,7 +70,7 @@
                 android:layout_height="wrap_content"
                 android:maxLines="1"
                 android:text="@{model.item.baseUrl}"
-                android:textColor="@color/black"
+                android:textColor="#222222"
                 android:textSize="12dp"
                 tools:text="til.qtzz.synology.me" />
 

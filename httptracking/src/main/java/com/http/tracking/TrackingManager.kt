@@ -76,6 +76,11 @@ class TrackingManager private constructor() {
                     dialog = null
                 }
                 dialog = TrackingBottomSheetDialog()
+                    .setListener(object : TrackingBottomSheetDialog.DismissListener {
+                        override fun onDismiss() {
+                            dialog = null
+                        }
+                    })
                 dialog?.show(act.supportFragmentManager, "TrackingBottomSheetDialog")
             }
         }

@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        Flowable.interval(300, TimeUnit.MILLISECONDS)
+        Flowable.interval(1000, TimeUnit.MILLISECONDS)
             .onBackpressureBuffer()
             .subscribe({
                 Timber.d("TICK $it")

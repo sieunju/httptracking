@@ -5,6 +5,8 @@
 
     <data>
 
+        <import type="android.graphics.Color" />
+
         <import type="android.view.View" />
 
         <variable
@@ -39,7 +41,7 @@
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
                 android:text="@string/txt_list"
-                android:textColor="@color/black"
+                android:textColor="#222222"
                 android:textSize="16dp"
                 android:visibility="@{dialog.position == 0 ? View.VISIBLE : View.GONE,default=visible}"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -64,7 +66,7 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="@string/txt_request"
-                    android:textColor="@{dialog.position == 1 ? @color/black : @color/gray3,default=@color/black}"
+                    android:textColor='@{dialog.position == 1 ? Color.parseColor("#222222") : Color.parseColor("#cccccc")}'
                     android:textSize="16dp"
                     tools:visibility="visible" />
 
@@ -79,7 +81,7 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="@string/txt_response"
-                    android:textColor="@{dialog.position == 2 ? @color/black : @color/gray3,default=@color/gray3}"
+                    android:textColor='@{dialog.position == 2 ? Color.parseColor("#222222") : Color.parseColor("#cccccc")}'
                     android:textSize="16dp"
                     tools:visibility="visible" />
 
