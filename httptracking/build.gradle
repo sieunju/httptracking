@@ -10,10 +10,6 @@ android {
     compileSdkVersion buildVersions.compileSdk
     buildToolsVersion buildVersions.buildTools
 
-//    lint {
-//        abortOnError = false
-//    }
-
     defaultConfig {
         minSdkVersion buildVersions.minSdk
         targetSdkVersion buildVersions.targetSdk
@@ -78,7 +74,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.github.sieunju'
                 artifactId = 'httptracking'
-                version = '1.0.4-beta01'
+                version = '1.0.9'
             }
         }
     }
