@@ -13,6 +13,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -28,11 +29,10 @@ import com.http.tracking.models.BaseTrackingUiModel
 import com.http.tracking.models.TrackingListUiModel
 import com.http.tracking.ui.detail.TrackingDetailRequestFragment
 import com.http.tracking.ui.detail.TrackingDetailResponseFragment
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.addTo
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 /**
  * Description : HTTP 로그 정보 보여주는 BottomSheetDialog
@@ -41,16 +41,20 @@ import java.util.concurrent.TimeUnit
  */
 internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
 
+    internal interface DismissListener {
+        fun onDismiss()
+    }
+
     companion object {
         var IS_SHOW = false
     }
 
-    private val disposable: CompositeDisposable by lazy { CompositeDisposable() }
     val position: MutableLiveData<Int> by lazy { MutableLiveData<Int>().apply { value = 0 } }
 
     lateinit var binding: DTrackingBottomSheetBinding
     private lateinit var pagerAdapter: PagerAdapter
     private lateinit var trackingAdapter: Extensions.TrackingAdapter
+    private var listener: DismissListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -110,38 +114,38 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
             })
         }
 
-        updateTrackingData()
-
         dialog?.setOnDismissListener {
             dismiss()
         }
+        updateTrackingData()
+    }
+
+    fun setListener(listener: DismissListener): TrackingBottomSheetDialog {
+        this.listener = listener
+        return this
     }
 
     /**
      * 데이터 업데이트 처리 함수
      */
     fun updateTrackingData() {
-        Single.just(TrackingManager.getInstance().getTrackingList())
-            .map { list ->
-                val uiList = mutableListOf<BaseTrackingUiModel>()
-                list.map { uiList.add(TrackingListUiModel(it)) }
-                return@map uiList
-            }
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                trackingAdapter.submitList(it)
-            }, {
-
-            }).addTo(disposable)
+        lifecycleScope.launch(Dispatchers.Main) {
+            val uiList = flowOf(TrackingManager.getInstance().getTrackingList())
+                .map { list ->
+                    val uiList = mutableListOf<BaseTrackingUiModel>()
+                    list.map { uiList.add(TrackingListUiModel(it)) }
+                    return@map uiList
+                }
+                .flowOn(Dispatchers.IO)
+                .single()
+            trackingAdapter.submitList(uiList)
+        }
     }
 
     override fun dismiss() {
-        IS_SHOW = false
-        disposable.clear()
-        if (!disposable.isDisposed) {
-            disposable.dispose()
-        }
         super.dismiss()
+        IS_SHOW = false
+        this.listener?.onDismiss()
     }
 
     /**
@@ -162,23 +166,22 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
      */
     fun performDetail(entity: TrackingHttpEntity) {
         moveToDetailViewPager()
-        Single.just(entity)
-            .delay(200, TimeUnit.MILLISECONDS)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                childFragmentManager.runCatching {
-                    val requestFragment = findFragmentByTag("f0")
-                    val responseFragment = findFragmentByTag("f1")
-                    if (requestFragment is TrackingDetailRequestFragment) {
-                        requestFragment.performDetailEntity(it)
-                    }
-                    if (responseFragment is TrackingDetailResponseFragment) {
-                        responseFragment.performDetailEntity(it)
+        lifecycleScope.launch(Dispatchers.Main) {
+            flowOf(entity)
+                .onStart { delay(200) }
+                .collect {
+                    childFragmentManager.runCatching {
+                        val requestFragment = findFragmentByTag("f0")
+                        val responseFragment = findFragmentByTag("f1")
+                        if (requestFragment is TrackingDetailRequestFragment) {
+                            requestFragment.performDetailEntity(it)
+                        }
+                        if (responseFragment is TrackingDetailResponseFragment) {
+                            responseFragment.performDetailEntity(it)
+                        }
                     }
                 }
-            }, {
-
-            }).addTo(disposable)
+        }
     }
 
     /**
