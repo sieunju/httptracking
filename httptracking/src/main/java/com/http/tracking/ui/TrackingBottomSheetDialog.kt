@@ -137,7 +137,7 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
                     return@map uiList
                 }
                 .flowOn(Dispatchers.IO)
-                .single()
+                .singleOrNull()
             trackingAdapter.submitList(uiList)
         }
     }

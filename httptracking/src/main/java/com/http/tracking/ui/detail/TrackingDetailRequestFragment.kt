@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.http.tracking.Extensions
 import com.http.tracking.R
 import com.http.tracking.databinding.FTrackingDetailRequestBinding
@@ -13,11 +14,12 @@ import com.http.tracking.entity.TrackingHttpEntity
 import com.http.tracking.models.BaseTrackingUiModel
 import com.http.tracking.models.TrackingPathUiModel
 import com.http.tracking.models.TrackingTitleUiModel
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.addTo
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.singleOrNull
+import kotlinx.coroutines.launch
 
 /**
  * Description : HTTP 요청 상세 Fragment
@@ -29,8 +31,6 @@ internal class TrackingDetailRequestFragment : Fragment() {
     companion object {
         fun newInstance(): TrackingDetailRequestFragment = TrackingDetailRequestFragment()
     }
-
-    private val disposable: CompositeDisposable by lazy { CompositeDisposable() }
 
     private lateinit var binding: FTrackingDetailRequestBinding
     private val adapter: Extensions.TrackingAdapter by lazy { Extensions.TrackingAdapter() }
@@ -57,28 +57,18 @@ internal class TrackingDetailRequestFragment : Fragment() {
         binding.rvContents.adapter = adapter
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        disposable.clear()
-        if (!disposable.isDisposed) {
-            disposable.dispose()
-        }
-    }
-
     /**
      * Request Detail 처리
      * @param entity 트레킹 데이터 모델
      */
     fun performDetailEntity(entity: TrackingHttpEntity) {
-        Single.just(entity)
-            .map { parseUiModel(it) }
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                adapter.submitList(it)
-            }, {
-
-            }).addTo(disposable)
+        lifecycleScope.launch(Dispatchers.Main) {
+            val uiList = flowOf(entity)
+                .map { parseUiModel(it) }
+                .flowOn(Dispatchers.IO)
+                .singleOrNull()
+            adapter.submitList(uiList)
+        }
     }
 
     private fun parseUiModel(entity: TrackingHttpEntity): List<BaseTrackingUiModel> {

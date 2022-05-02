@@ -70,7 +70,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.github.sieunju'
                 artifactId = 'httptracking'
-                version = '1.0.10-beta01'
+                version = '1.0.10-beta02'
             }
         }
     }
