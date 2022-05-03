@@ -44,11 +44,11 @@ class TrackingHttpInterceptor : Interceptor {
             tracking?.error = ex
             throw ex
         }
-        tracking?.let {
-            it.responseTimeMs = response.receivedResponseAtMillis
-            it.res = TrackingResponseEntity(toResBodyString(request.headers, response.body))
-            it.takenTimeMs = response.receivedResponseAtMillis - response.sentRequestAtMillis
-            it.code = response.code
+        tracking?.runCatching {
+            responseTimeMs = response.receivedResponseAtMillis
+            res = TrackingResponseEntity(toResBodyString(request.headers, response.body))
+            takenTimeMs = response.receivedResponseAtMillis - response.sentRequestAtMillis
+            code = response.code
         }
         TrackingManager.getInstance().addTracking(tracking)
         return response

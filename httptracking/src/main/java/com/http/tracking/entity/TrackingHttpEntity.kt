@@ -15,12 +15,4 @@ internal data class TrackingHttpEntity(
     override fun toString(): String {
         return "${super.toString()}\nHeaders=$headerMap\nPath=$path\nReq=$req\nRes=${res?.body}"
     }
-
-    var uidTxt: String? = null
-        get() {
-            if (field == null) {
-                field = "_${uid}"
-            }
-            return field
-        }
 }

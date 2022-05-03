@@ -4,14 +4,13 @@ import android.annotation.SuppressLint
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonParser
 import com.http.tracking.models.*
 import com.http.tracking.ui.TrackingBottomSheetDialog
 import com.http.tracking.ui.viewholder.*
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
 import java.net.URLDecoder
 import java.text.SimpleDateFormat
 
@@ -24,11 +23,13 @@ internal object Extensions {
         return simpleDate.format(this)
     }
 
-    private val json = Json {
-        isLenient = true // Json 큰따옴표 느슨하게 체크.
-        ignoreUnknownKeys = true // Field 값이 없는 경우 무시
-        coerceInputValues = true // "null" 이 들어간경우 default Argument 값으로 대체
-        prettyPrint = true
+    // Gson
+    private val gson: Gson by lazy {
+        GsonBuilder()
+            .disableHtmlEscaping()
+            .setPrettyPrinting()
+            .serializeNulls()
+            .create()
     }
 
     class TrackingDetailDiffUtil<out T : BaseTrackingUiModel>(
@@ -171,11 +172,10 @@ internal object Extensions {
         return uiList
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
     fun parseBodyUiModel(body: String): BaseTrackingUiModel {
         return try {
-            val je = json.decodeFromString<JsonElement>(body)
-            TrackingBodyUiModel(json.encodeToString(je))
+            val je = JsonParser.parseString(body)
+            TrackingBodyUiModel(gson.toJson(je))
         } catch (ex: Exception) {
             TrackingBodyUiModel(body)
         }
