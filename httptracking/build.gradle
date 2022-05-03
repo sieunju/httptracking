@@ -7,12 +7,12 @@ plugins {
 }
 
 android {
-    compileSdkVersion buildVersions.compileSdk
-    buildToolsVersion buildVersions.buildTools
+    compileSdkVersion 31
+    buildToolsVersion "30.0.3"
 
     defaultConfig {
-        minSdkVersion buildVersions.minSdk
-        targetSdkVersion buildVersions.targetSdk
+        minSdkVersion 21
+        targetSdkVersion 30
 
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -70,7 +70,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.github.sieunju'
                 artifactId = 'httptracking'
-                version = '1.0.10-beta02'
+                version = '1.0.10'
             }
         }
     }
