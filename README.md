@@ -30,6 +30,18 @@ dependencies {
 }
 ```
 
+## 유의사항
+- 혹시나 머티리얼을 사용하시거나 프로젝트에 사용중인 라이브러리랑 충돌이 일어나는 경우에는 아래와 같이 사용해주시면 됩니다. 🙇‍♂️
+- A.K.A exclude
+```groovy
+
+implementation("com.github.sieunju:httptracking:${lateversion}") {
+        exclude("com.google.android.material")
+        exclude("androidx.appcompat:appcompat")
+        exclude("androidx.constraintlayout")
+    }
+```
+
 ## 사용방법
 
 Builder 패턴으로 Application Class 에서 간단히 빌드 타입을 설정합니다.
@@ -58,3 +70,10 @@ OkHttpClient.Builder().apply{
 추가적으로 Query, Path, Body 를 꾸욱 누르면 복사가 가능합니다 🥰
 
 (공유하기 기능이나 맥북으로 보낼수 있는 방법을 생각해보도록 하겠습니다)
+
+## 캡처화면
+|전체 화면|상세화면 1|상세화면 2|
+|-|-|-|   
+|![전체 화면](https://user-images.githubusercontent.com/33802191/166390208-4d42dbcc-b082-4f9f-94d4-4afc13901eb1.png)|![상세 화면 1](https://user-images.githubusercontent.com/33802191/166390217-ede0ee13-8b79-4c30-b603-0814b4f0f92e.png)|![상세 화면 2](https://user-images.githubusercontent.com/33802191/166390225-a0a1ad62-4855-4435-90c0-720585752bc8.png)
+
+
