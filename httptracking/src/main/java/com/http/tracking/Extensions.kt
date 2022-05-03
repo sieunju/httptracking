@@ -10,7 +10,6 @@ import com.google.gson.JsonParser
 import com.http.tracking.models.*
 import com.http.tracking.ui.TrackingBottomSheetDialog
 import com.http.tracking.ui.viewholder.*
-import kotlinx.serialization.json.Json
 import java.net.URLDecoder
 import java.text.SimpleDateFormat
 
