@@ -144,9 +144,9 @@ class TrackingManager private constructor() {
         entity.uid = trackingCnt
         httpTrackingList.add(0, entity)
         trackingCnt++
-        // 맥스 사이즈 맨 첫번째꺼 삭제
+        // 맥스 사이즈 맨 마지막 삭제
         if (logMaxSize < httpTrackingList.size) {
-            httpTrackingList.removeFirst()
+            httpTrackingList.removeLast()
         }
         dialog?.updateTrackingData()
     }
