@@ -8,8 +8,8 @@ package com.http.tracking.entity
 internal data class TrackingHttpEntity(
     var uid: Long = 0,
     val headerMap: Map<String, String>,
-    val path: String, // Path
-    val req: TrackingRequestEntity,
+    val path: String = "", // Path
+    val req: TrackingRequestEntity? = null,
     var res: TrackingResponseEntity? = null
 ) : BaseTrackingEntity() {
     override fun toString(): String {

@@ -50,7 +50,7 @@ dependencies {
     /**
      * Network
      */
-    implementation("com.squareup.okhttp3:okhttp:4.0.1")
+    implementation("com.squareup.okhttp3:okhttp:4.2.1")
 
     /**
      * Gson Builder

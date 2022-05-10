@@ -5,4 +5,5 @@ Title: v1.0.11-beta03 배포입니다.
 > 많은 애용 바랍니다. 그리고 추가 하고 싶은 기능이 있으면 이슈로 남겨주시기 바랍니다.
 
 ### 기능 개선을 했어요.
-- OkHttp, Material, appCompat.. 버전을 낮췄어요.
+- OkHttp, Material, appCompat 등등 버전을 낮췄어요.
+- NonNull Parameter 이슈에 대한 방어 코드 추가했어요.
