@@ -92,7 +92,7 @@ internal object Extensions {
                     compareInstance<TrackingListUiModel>(
                         oldItem,
                         newList[newPosition]
-                    ) { old, new -> old.item.uid == new.item.uid }
+                    ) { old, new -> old.item?.uid == new.item?.uid }
                 else -> false
             }
         }

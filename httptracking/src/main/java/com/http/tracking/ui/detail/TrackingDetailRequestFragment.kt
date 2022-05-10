@@ -81,15 +81,15 @@ internal class TrackingDetailRequestFragment : Fragment() {
             uiList.add(TrackingTitleUiModel("[Header]"))
             uiList.addAll(Extensions.parseHeaderUiModel(entity.headerMap))
         }
-        if (!entity.req.fullUrl.isNullOrEmpty()) {
-            val queryUiModelList = Extensions.parseQueryUiModel(entity.req.fullUrl)
+        if (!entity.req?.fullUrl.isNullOrEmpty()) {
+            val queryUiModelList = Extensions.parseQueryUiModel(entity.req?.fullUrl)
             if (queryUiModelList.isNotEmpty()) {
                 uiList.add(TrackingTitleUiModel("[Query]"))
                 uiList.addAll(queryUiModelList)
             }
         }
 
-        entity.req.body?.let { body ->
+        entity.req?.body?.let { body ->
             uiList.add(TrackingTitleUiModel("[Body]"))
             uiList.add(Extensions.parseBodyUiModel(body))
         }

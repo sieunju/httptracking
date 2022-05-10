@@ -164,7 +164,8 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
      * HTTP Tracking 자세한 화면으로 이동하는 함수
      * @param entity 표시할 데이터 모델
      */
-    fun performDetail(entity: TrackingHttpEntity) {
+    fun performDetail(entity: TrackingHttpEntity?) {
+        if (entity == null) return
         moveToDetailViewPager()
         lifecycleScope.launch(Dispatchers.Main) {
             flowOf(entity)

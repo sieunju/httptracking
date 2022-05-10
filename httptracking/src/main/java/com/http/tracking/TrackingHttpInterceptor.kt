@@ -6,7 +6,7 @@ import com.http.tracking.entity.TrackingResponseEntity
 import okhttp3.*
 import okio.Buffer
 import okio.GzipSource
-import okio.IOException
+import java.io.IOException
 import java.nio.charset.Charset
 
 /**
