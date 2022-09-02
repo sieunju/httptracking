@@ -2,7 +2,7 @@ package com.hmju.httptracking
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.http.tracking.TrackingHttpInterceptor
+import com.http.tracking_interceptor.TrackingHttpInterceptor
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.schedulers.Schedulers

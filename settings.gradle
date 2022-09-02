@@ -1,2 +1,3 @@
 rootProject.name = "httptracking"
 include(":app",":httptracking")
+include ':interceptor'

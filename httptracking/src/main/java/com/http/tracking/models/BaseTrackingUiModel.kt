@@ -7,4 +7,8 @@ import androidx.annotation.LayoutRes
  *
  * Created by juhongmin on 2022/04/03
  */
-internal open class BaseTrackingUiModel(@LayoutRes val layoutId: Int)
+internal abstract class BaseTrackingUiModel(@LayoutRes val layoutId: Int) {
+    abstract fun getClassName(): String
+    abstract fun areItemsTheSame(diffItem: Any): Boolean
+    abstract fun areContentsTheSame(diffItem: Any): Boolean
+}
