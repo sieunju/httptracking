@@ -21,7 +21,7 @@ afterEvaluate {
         publications {
             release(MavenPublication) {
                 groupId = 'com.github.sieunju'
-                artifactId = 'httptracking-interceptor'
+                artifactId = 'interceptor'
                 version = '0.0.1-alpha01'
             }
         }

@@ -75,8 +75,8 @@ afterEvaluate {
             release(MavenPublication) {
                 from components.release
                 groupId = 'com.github.sieunju'
-                artifactId = 'httptracking'
-                version = '1.0.12-alpha01'
+                artifactId = 'ui'
+                version = '1.0.12-alpha02'
             }
         }
     }
