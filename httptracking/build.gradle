@@ -76,7 +76,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.github.sieunju'
                 artifactId = 'ui'
-                version = '1.0.12-alpha02'
+                version = deps.release
             }
         }
     }
