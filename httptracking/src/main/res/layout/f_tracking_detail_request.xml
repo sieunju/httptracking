@@ -6,7 +6,7 @@
 
         <variable
             name="item"
-            type="com.http.tracking.entity.TrackingHttpEntity" />
+            type="com.http.tracking_interceptor.model.TrackingHttpEntity" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

@@ -10,7 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.http.tracking.Extensions
 import com.http.tracking.R
 import com.http.tracking.databinding.FTrackingDetailResponseBinding
-import com.http.tracking.entity.TrackingHttpEntity
+import com.http.tracking_interceptor.model.TrackingHttpEntity
 import com.http.tracking.models.BaseTrackingUiModel
 import com.http.tracking.models.TrackingTitleUiModel
 import kotlinx.coroutines.Dispatchers

@@ -7,8 +7,8 @@ import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
-import com.http.tracking.entity.TrackingHttpEntity
 import com.http.tracking.ui.TrackingBottomSheetDialog
+import com.http.tracking_interceptor.TrackingDataManager
 import java.lang.ref.WeakReference
 
 /**
@@ -36,11 +36,7 @@ class TrackingManager private constructor() {
 
     // [s] Variable
     private var isDebug = false
-    private var logMaxSize = 1000
     // [e] Variable
-
-    // Tracking List
-    private val httpTrackingList: MutableList<TrackingHttpEntity> by lazy { mutableListOf() }
 
     private var dialog: TrackingBottomSheetDialog? = null
 
@@ -71,17 +67,21 @@ class TrackingManager private constructor() {
     private val shakeListener = object : ShakeDetector.OnShakeListener {
         override fun onShowDialog() {
             activityListener.currentActivity?.get()?.let { act ->
-                if (dialog != null) {
-                    dialog?.dismiss()
-                    dialog = null
+                try {
+                    if (dialog != null) {
+                        dialog?.dismiss()
+                        dialog = null
+                    }
+                    dialog = TrackingBottomSheetDialog()
+                        .setListener(object : TrackingBottomSheetDialog.DismissListener {
+                            override fun onDismiss() {
+                                dialog = null
+                            }
+                        })
+                    dialog?.show(act.supportFragmentManager, "TrackingBottomSheetDialog")
+                } catch (ex: Exception) {
+
                 }
-                dialog = TrackingBottomSheetDialog()
-                    .setListener(object : TrackingBottomSheetDialog.DismissListener {
-                        override fun onDismiss() {
-                            dialog = null
-                        }
-                    })
-                dialog?.show(act.supportFragmentManager, "TrackingBottomSheetDialog")
             }
         }
     }
@@ -110,6 +110,7 @@ class TrackingManager private constructor() {
      */
     fun setBuildType(isDebug: Boolean): TrackingManager {
         this.isDebug = isDebug
+        TrackingDataManager.getInstance().setBuildType(isDebug)
         return this
     }
 
@@ -118,7 +119,7 @@ class TrackingManager private constructor() {
      * @param size 사이즈
      */
     fun setLogMaxSize(size: Int): TrackingManager {
-        this.logMaxSize = size
+        TrackingDataManager.getInstance().setLogMaxSize(size)
         return this
     }
 
@@ -126,32 +127,11 @@ class TrackingManager private constructor() {
 
     fun isRelease() = !isDebug
 
-    internal fun getTrackingList(): List<TrackingHttpEntity> {
-        val tmpList = mutableListOf<TrackingHttpEntity>()
-        httpTrackingList.forEach {
-            tmpList.add(it)
-        }
-        return tmpList
-    }
-
-    internal fun addTracking(entity: TrackingHttpEntity?) {
-        if (entity == null) return
-        // UID 초기화 처리
-        if (trackingCnt > Long.MAX_VALUE.minus(10)) {
-            trackingCnt = 0
-        }
-
-        entity.uid = trackingCnt
-        httpTrackingList.add(0, entity)
-        trackingCnt++
-        // 맥스 사이즈 맨 마지막 삭제
-        if (logMaxSize < httpTrackingList.size) {
-            httpTrackingList.removeLast()
-        }
-        dialog?.updateTrackingData()
-    }
-
-    internal fun dataClear() {
-        httpTrackingList.clear()
-    }
+//    internal fun getTrackingList(): List<com.http.tracking_interceptor.model.TrackingHttpEntity> {
+//        val tmpList = mutableListOf<com.http.tracking_interceptor.model.TrackingHttpEntity>()
+//        httpTrackingList.forEach {
+//            tmpList.add(it)
+//        }
+//        return tmpList
+//    }
 }
