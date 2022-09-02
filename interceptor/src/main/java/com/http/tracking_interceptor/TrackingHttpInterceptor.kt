@@ -1,8 +1,8 @@
-package com.http.tracking
+package com.http.tracking_interceptor
 
-import com.http.tracking.entity.TrackingHttpEntity
-import com.http.tracking.entity.TrackingRequestEntity
-import com.http.tracking.entity.TrackingResponseEntity
+import com.http.tracking_interceptor.model.TrackingHttpEntity
+import com.http.tracking_interceptor.model.TrackingRequestEntity
+import com.http.tracking_interceptor.model.TrackingResponseEntity
 import okhttp3.*
 import okio.Buffer
 import okio.GzipSource
@@ -20,7 +20,7 @@ class TrackingHttpInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
         // 릴리즈 Skip
-        if (TrackingManager.getInstance().isRelease()) {
+        if (TrackingDataManager.getInstance().isRelease()) {
             return chain.proceed(request)
         }
         val tracking = try {
@@ -50,7 +50,7 @@ class TrackingHttpInterceptor : Interceptor {
             takenTimeMs = response.receivedResponseAtMillis - response.sentRequestAtMillis
             code = response.code
         }
-        TrackingManager.getInstance().addTracking(tracking)
+        TrackingDataManager.getInstance().addTracking(tracking)
         return response
     }
 

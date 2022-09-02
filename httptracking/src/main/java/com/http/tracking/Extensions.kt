@@ -1,26 +1,20 @@
 package com.http.tracking
 
-import android.annotation.SuppressLint
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
-import com.http.tracking.models.*
+import com.http.tracking.models.BaseTrackingUiModel
+import com.http.tracking.models.TrackingBodyUiModel
+import com.http.tracking.models.TrackingHeaderUiModel
+import com.http.tracking.models.TrackingQueryUiModel
 import com.http.tracking.ui.TrackingBottomSheetDialog
 import com.http.tracking.ui.viewholder.*
 import java.net.URLDecoder
-import java.text.SimpleDateFormat
 
 internal object Extensions {
-
-    @SuppressLint("SimpleDateFormat")
-    private val simpleDate = SimpleDateFormat("HH:mm:ss")
-
-    fun Long.toDate(): String {
-        return simpleDate.format(this)
-    }
 
     // Gson
     private val gson: Gson by lazy {
@@ -36,23 +30,6 @@ internal object Extensions {
         private val newList: List<T>
     ) : DiffUtil.Callback() {
 
-        /**
-         * newItem 에 데이터 클래스를 oldItem 의 데이터 형을 비교하여 둘다 같은 데이터 형인경우
-         * 같은 형태로 형변환 하여 비교 처리하는 함수
-         * @return true 같은 데이터 형이고 같은 데이터, false 다른 데이터
-         */
-        private inline fun <reified R> compareInstance(
-            old: R,
-            new: T,
-            function: (R, R) -> Boolean
-        ): Boolean {
-            return if (new is R) {
-                function(old, new)
-            } else {
-                false
-            }
-        }
-
         override fun getOldListSize(): Int {
             return oldList.size
         }
@@ -62,75 +39,15 @@ internal object Extensions {
         }
 
         override fun areItemsTheSame(oldPosition: Int, newPosition: Int): Boolean {
-            return when (val oldItem = oldList[oldPosition]) {
-                is TrackingHeaderUiModel ->
-                    compareInstance<TrackingHeaderUiModel>(
-                        oldItem,
-                        newList[newPosition]
-                    ) { old, new -> old.key == new.key }
-                is TrackingPathUiModel ->
-                    compareInstance<TrackingPathUiModel>(
-                        oldItem,
-                        newList[newPosition]
-                    ) { old, new -> old.path == new.path }
-                is TrackingQueryUiModel ->
-                    compareInstance<TrackingQueryUiModel>(
-                        oldItem,
-                        newList[newPosition]
-                    ) { old, new -> old.key == new.key }
-                is TrackingBodyUiModel ->
-                    compareInstance<TrackingBodyUiModel>(
-                        oldItem,
-                        newList[newPosition]
-                    ) { old, new -> old.body == new.body }
-                is TrackingTitleUiModel ->
-                    compareInstance<TrackingTitleUiModel>(
-                        oldItem,
-                        newList[newPosition]
-                    ) { old, new -> old.title == new.title }
-                is TrackingListUiModel ->
-                    compareInstance<TrackingListUiModel>(
-                        oldItem,
-                        newList[newPosition]
-                    ) { old, new -> old.item?.uid == new.item?.uid }
-                else -> false
-            }
+            val oldItem = oldList[oldPosition]
+            val newItem = newList[newPosition]
+            return oldItem.areItemsTheSame(newItem)
         }
 
         override fun areContentsTheSame(oldPosition: Int, newPosition: Int): Boolean {
-            return when (val oldItem = oldList[oldPosition]) {
-                is TrackingHeaderUiModel ->
-                    compareInstance<TrackingHeaderUiModel>(
-                        oldItem,
-                        newList[newPosition]
-                    ) { old, new -> old.key == new.key && old.value == new.value }
-                is TrackingPathUiModel ->
-                    compareInstance<TrackingPathUiModel>(
-                        oldItem,
-                        newList[newPosition]
-                    ) { old, new -> old.path == new.path }
-                is TrackingQueryUiModel ->
-                    compareInstance<TrackingQueryUiModel>(
-                        oldItem,
-                        newList[newPosition]
-                    ) { old, new -> old.key == new.key && old.value == new.value }
-                is TrackingBodyUiModel ->
-                    compareInstance<TrackingBodyUiModel>(
-                        oldItem,
-                        newList[newPosition]
-                    ) { old, new -> old.body == new.body }
-                is TrackingTitleUiModel ->
-                    compareInstance<TrackingTitleUiModel>(
-                        oldItem,
-                        newList[newPosition]
-                    ) { old, new -> old.title == new.title }
-                is TrackingListUiModel ->
-                    compareInstance<TrackingListUiModel>(
-                        oldItem,
-                        newList[newPosition]
-                    ) { old, new -> old.item == new.item }
-                else -> false
-            }
+            val oldItem = oldList[oldPosition]
+            val newItem = newList[newPosition]
+            return oldItem.areContentsTheSame(newItem)
         }
     }
 

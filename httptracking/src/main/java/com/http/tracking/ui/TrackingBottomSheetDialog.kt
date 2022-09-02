@@ -22,13 +22,14 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.http.tracking.BR
 import com.http.tracking.Extensions
 import com.http.tracking.R
-import com.http.tracking.TrackingManager
 import com.http.tracking.databinding.DTrackingBottomSheetBinding
-import com.http.tracking.entity.TrackingHttpEntity
 import com.http.tracking.models.BaseTrackingUiModel
 import com.http.tracking.models.TrackingListUiModel
 import com.http.tracking.ui.detail.TrackingDetailRequestFragment
 import com.http.tracking.ui.detail.TrackingDetailResponseFragment
+import com.http.tracking_interceptor.TrackingDataManager
+import com.http.tracking_interceptor.model.BaseTrackingEntity
+import com.http.tracking_interceptor.model.TrackingHttpEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -55,6 +56,7 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
     private lateinit var pagerAdapter: PagerAdapter
     private lateinit var trackingAdapter: Extensions.TrackingAdapter
     private var listener: DismissListener? = null
+    private val dataList: MutableList<BaseTrackingUiModel> by lazy { mutableListOf() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -117,7 +119,14 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
         dialog?.setOnDismissListener {
             dismiss()
         }
-        updateTrackingData()
+
+        // 2초 단위로 업데이트 처리
+        lifecycleScope.launch(Dispatchers.Main) {
+            repeat(1000) {
+                setTrackingData(TrackingDataManager.getInstance().getTrackingList())
+                delay(2000)
+            }
+        }
     }
 
     fun setListener(listener: DismissListener): TrackingBottomSheetDialog {
@@ -128,18 +137,30 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
     /**
      * 데이터 업데이트 처리 함수
      */
-    fun updateTrackingData() {
+    private fun setTrackingData(newList: List<BaseTrackingEntity>) {
         lifecycleScope.launch(Dispatchers.Main) {
-            val uiList = flowOf(TrackingManager.getInstance().getTrackingList())
-                .map { list ->
-                    val uiList = mutableListOf<BaseTrackingUiModel>()
-                    list.map { uiList.add(TrackingListUiModel(it)) }
-                    return@map uiList
-                }
+            val uiList = flowOf(newList)
+                .map { it.toChildTrackingModel() }
                 .flowOn(Dispatchers.IO)
-                .singleOrNull()
-            trackingAdapter.submitList(uiList)
+                .singleOrNull() ?: listOf()
+
+            dataList.addAll(uiList)
+            trackingAdapter.submitList(dataList)
+            binding.rvContents.scrollToPosition(0)
         }
+    }
+
+    /**
+     * Converter BaseTrackingEntity to TrackingListUiModel
+     */
+    private inline fun <reified T : List<BaseTrackingEntity>> T.toChildTrackingModel(): List<BaseTrackingUiModel> {
+        val uiList = mutableListOf<BaseTrackingUiModel>()
+        this.forEach {
+            if (it is TrackingHttpEntity) {
+                uiList.add(TrackingListUiModel(it))
+            }
+        }
+        return uiList
     }
 
     override fun dismiss() {
@@ -156,8 +177,9 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
     }
 
     fun onClear() {
-        TrackingManager.getInstance().dataClear()
-        updateTrackingData()
+        TrackingDataManager.getInstance().clear()
+        dataList.clear()
+        setTrackingData(TrackingDataManager.getInstance().getTrackingList())
     }
 
     /**

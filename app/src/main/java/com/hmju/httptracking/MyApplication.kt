@@ -17,7 +17,7 @@ class MyApplication : MultiDexApplication() {
 
         TrackingManager.getInstance()
             .setBuildType(true)
-            .setLogMaxSize(10)
+            .setLogMaxSize(30)
             .build(this)
     }
 
