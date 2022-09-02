@@ -20,7 +20,7 @@ afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
-                groupId = 'com.github.sieunju'
+                groupId = 'com.github.sieunju.httptracking'
                 artifactId = 'interceptor'
                 version = deps.release
             }

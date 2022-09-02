@@ -74,7 +74,7 @@ afterEvaluate {
         publications {
             release(MavenPublication) {
                 from components.release
-                groupId = 'com.github.sieunju'
+                groupId = 'com.github.sieunju.httptracking'
                 artifactId = 'ui'
                 version = deps.release
             }
