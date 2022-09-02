@@ -1,9 +1,8 @@
-Version: 1.0.11-beta03
-Title: v1.0.11-beta03 배포입니다.
+Version: 1.0.12-alpha01
+Title: v1.0.12-alpha01 배포입니다.
 ### 소개
 > 앱을 사용하다가 단말기를 흔들면 트래킹한 로그들을 간단히 볼수 있습니다. 👨🏿‍💻🙇‍
 > 많은 애용 바랍니다. 그리고 추가 하고 싶은 기능이 있으면 이슈로 남겨주시기 바랍니다.
 
 ### 기능 개선을 했어요.
-- OkHttp, Material, appCompat 등등 버전을 낮췄어요.
-- NonNull Parameter 이슈에 대한 방어 코드 추가했어요.
+- tracking-ui 와 interceptor 클래스를 모듈로 나눴어요.
