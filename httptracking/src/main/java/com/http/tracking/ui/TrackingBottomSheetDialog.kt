@@ -138,6 +138,7 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
      * 데이터 업데이트 처리 함수
      */
     private fun setTrackingData(newList: List<BaseTrackingEntity>) {
+        if (dataList.size == newList.size) return
         lifecycleScope.launch(Dispatchers.Main) {
             val uiList = flowOf(newList)
                 .map { it.toChildTrackingModel() }
