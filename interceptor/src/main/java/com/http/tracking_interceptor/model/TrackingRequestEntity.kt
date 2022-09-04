@@ -1,5 +1,7 @@
 package com.http.tracking_interceptor.model
 
+import okhttp3.MediaType
+
 /**
  * Description : HTTP Request Data Entity
  *
@@ -7,5 +9,6 @@ package com.http.tracking_interceptor.model
  */
 data class TrackingRequestEntity(
     val fullUrl : String? = null,
+    val mediaType : MediaType? = null,
     val body : String? = null
 )

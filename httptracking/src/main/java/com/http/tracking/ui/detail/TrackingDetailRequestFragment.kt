@@ -89,9 +89,9 @@ internal class TrackingDetailRequestFragment : Fragment() {
             }
         }
 
-        entity.req?.body?.let { body ->
+        entity.req?.let { req ->
             uiList.add(TrackingTitleUiModel("[Body]"))
-            uiList.add(Extensions.parseBodyUiModel(body))
+            uiList.add(Extensions.parseBodyUiModel(req))
         }
         return uiList
     }

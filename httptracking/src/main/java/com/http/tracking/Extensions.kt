@@ -12,6 +12,7 @@ import com.http.tracking.models.TrackingHeaderUiModel
 import com.http.tracking.models.TrackingQueryUiModel
 import com.http.tracking.ui.TrackingBottomSheetDialog
 import com.http.tracking.ui.viewholder.*
+import com.http.tracking_interceptor.model.TrackingRequestEntity
 import java.net.URLDecoder
 
 internal object Extensions {
@@ -88,12 +89,18 @@ internal object Extensions {
         return uiList
     }
 
-    fun parseBodyUiModel(body: String): BaseTrackingUiModel {
+    fun parseBodyUiModel(req: TrackingRequestEntity): BaseTrackingUiModel {
         return try {
-            val je = JsonParser.parseString(body)
-            TrackingBodyUiModel(gson.toJson(je))
+            val je = JsonParser.parseString(req.body)
+            val imageType = req.mediaType?.type == "image"
+            TrackingBodyUiModel(
+                isImageType = imageType,
+                body = gson.toJson(je)
+            )
         } catch (ex: Exception) {
-            TrackingBodyUiModel(body)
+            TrackingBodyUiModel(
+                body = req.body ?: ""
+            )
         }
     }
 

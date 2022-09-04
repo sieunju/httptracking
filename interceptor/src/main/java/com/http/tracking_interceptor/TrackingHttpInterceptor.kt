@@ -27,10 +27,7 @@ class TrackingHttpInterceptor : Interceptor {
             TrackingHttpEntity(
                 headerMap = toHeaderMap(request.headers),
                 path = request.url.encodedPath,
-                req = TrackingRequestEntity(
-                    fullUrl = request.url.toString(),
-                    body = toReqBodyStr(request.body)
-                )
+                req = toReqEntity(request)
             ).apply {
                 baseUrl = request.url.host
                 method = request.method
@@ -46,7 +43,7 @@ class TrackingHttpInterceptor : Interceptor {
         }
         tracking?.runCatching {
             responseTimeMs = response.receivedResponseAtMillis
-            res = TrackingResponseEntity(toResBodyString(request.headers, response.body))
+            res = toResEntity(request, response)
             takenTimeMs = response.receivedResponseAtMillis - response.sentRequestAtMillis
             code = response.code
         }
@@ -66,6 +63,28 @@ class TrackingHttpInterceptor : Interceptor {
     }
 
     /**
+     * Converter TrackingRequestEntity 변환 함수
+     */
+    private fun toReqEntity(req: Request): TrackingRequestEntity {
+        val bodyString = toReqBodyStr(req.body)
+        return TrackingRequestEntity(
+            fullUrl = req.url.toString(),
+            mediaType = req.body?.contentType(),
+            body = bodyString
+        )
+    }
+
+    /**
+     * Converter TrackingResponseEntity 변환 함수
+     */
+    private fun toResEntity(req: Request, res: Response): TrackingResponseEntity {
+        val bodyString = toResBodyStr(req.headers, res.body)
+        return TrackingResponseEntity(
+            body = bodyString
+        )
+    }
+
+    /**
      * Request Body to String
      */
     private fun toReqBodyStr(body: RequestBody?): String? {
@@ -82,7 +101,7 @@ class TrackingHttpInterceptor : Interceptor {
     /**
      * Response Body to String
      */
-    private fun toResBodyString(headers: Headers, body: ResponseBody?): String? {
+    private fun toResBodyStr(headers: Headers, body: ResponseBody?): String? {
         if (body == null) return null
         return try {
             val contentLength = body.contentLength()
