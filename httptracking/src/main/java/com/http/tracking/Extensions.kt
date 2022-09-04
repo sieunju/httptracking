@@ -1,8 +1,5 @@
 package com.http.tracking
 
-import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
@@ -10,8 +7,6 @@ import com.http.tracking.models.BaseTrackingUiModel
 import com.http.tracking.models.TrackingBodyUiModel
 import com.http.tracking.models.TrackingHeaderUiModel
 import com.http.tracking.models.TrackingQueryUiModel
-import com.http.tracking.ui.TrackingBottomSheetDialog
-import com.http.tracking.ui.viewholder.*
 import com.http.tracking_interceptor.model.TrackingRequestEntity
 import java.net.URLDecoder
 
@@ -24,32 +19,6 @@ internal object Extensions {
             .setPrettyPrinting()
             .serializeNulls()
             .create()
-    }
-
-    class TrackingDetailDiffUtil<out T : BaseTrackingUiModel>(
-        private val oldList: List<T>,
-        private val newList: List<T>
-    ) : DiffUtil.Callback() {
-
-        override fun getOldListSize(): Int {
-            return oldList.size
-        }
-
-        override fun getNewListSize(): Int {
-            return newList.size
-        }
-
-        override fun areItemsTheSame(oldPosition: Int, newPosition: Int): Boolean {
-            val oldItem = oldList[oldPosition]
-            val newItem = newList[newPosition]
-            return oldItem.areItemsTheSame(newItem)
-        }
-
-        override fun areContentsTheSame(oldPosition: Int, newPosition: Int): Boolean {
-            val oldItem = oldList[oldPosition]
-            val newItem = newList[newPosition]
-            return oldItem.areContentsTheSame(newItem)
-        }
     }
 
     /**
@@ -91,16 +60,31 @@ internal object Extensions {
 
     fun parseBodyUiModel(req: TrackingRequestEntity): BaseTrackingUiModel {
         return try {
-            val je = JsonParser.parseString(req.body)
-            val imageType = req.mediaType?.type == "image"
-            TrackingBodyUiModel(
-                isImageType = imageType,
-                body = gson.toJson(je)
-            )
+            if (req.mediaType?.type == "multipart") {
+                TrackingBodyUiModel(
+                    isImageType = true,
+                    body = req.body ?: ""
+                )
+            } else {
+                val je = JsonParser.parseString(req.body)
+                TrackingBodyUiModel(
+                    isImageType = false,
+                    body = gson.toJson(je)
+                )
+            }
         } catch (ex: Exception) {
             TrackingBodyUiModel(
                 body = req.body ?: ""
             )
+        }
+    }
+
+    fun parseBodyUiModel(body: String): BaseTrackingUiModel {
+        return try {
+            val je = JsonParser.parseString(body)
+            TrackingBodyUiModel(body = gson.toJson(je))
+        } catch (ex: Exception) {
+            TrackingBodyUiModel(body = body)
         }
     }
 
@@ -131,58 +115,6 @@ internal object Extensions {
             key to value
         } else {
             null
-        }
-    }
-
-    internal class TrackingAdapter : RecyclerView.Adapter<BaseTrackingViewHolder<*>>() {
-
-        private val dataList = mutableListOf<BaseTrackingUiModel>()
-
-        private var dialog: TrackingBottomSheetDialog? = null
-
-        fun submitList(newList: List<BaseTrackingUiModel>?) {
-            if (newList == null) return
-            val diffResult = DiffUtil.calculateDiff(TrackingDetailDiffUtil(dataList, newList))
-            dataList.clear()
-            dataList.addAll(newList)
-            diffResult.dispatchUpdatesTo(this)
-        }
-
-        fun setBottomSheetDialog(dialog: TrackingBottomSheetDialog) {
-            this.dialog = dialog
-        }
-
-        override fun onCreateViewHolder(
-            parent: ViewGroup,
-            viewType: Int
-        ): BaseTrackingViewHolder<*> {
-            return when (viewType) {
-                R.layout.vh_tracking_header -> TrackingHeaderViewHolder(parent)
-                R.layout.vh_tracking_path -> TrackingPathViewHolder(parent)
-                R.layout.vh_tracking_query -> TrackingQueryViewHolder(parent)
-                R.layout.vh_tracking_body -> TrackingBodyViewHolder(parent)
-                R.layout.vh_tracking_title -> TrackingTitleViewHolder(parent)
-                R.layout.vh_child_tracking -> TrackingListViewHolder(parent, dialog)
-                else -> throw IllegalArgumentException("Invalid ViewType")
-            }
-        }
-
-        override fun onBindViewHolder(holder: BaseTrackingViewHolder<*>, pos: Int) {
-            runCatching {
-                holder.onBindView(dataList[pos])
-            }
-        }
-
-        override fun getItemViewType(pos: Int): Int {
-            return if (dataList.size > pos) {
-                dataList[pos].layoutId
-            } else {
-                return super.getItemViewType(pos)
-            }
-        }
-
-        override fun getItemCount(): Int {
-            return dataList.size
         }
     }
 }

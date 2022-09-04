@@ -10,9 +10,10 @@ import androidx.lifecycle.lifecycleScope
 import com.http.tracking.Extensions
 import com.http.tracking.R
 import com.http.tracking.databinding.FTrackingDetailResponseBinding
-import com.http.tracking_interceptor.model.TrackingHttpEntity
 import com.http.tracking.models.BaseTrackingUiModel
 import com.http.tracking.models.TrackingTitleUiModel
+import com.http.tracking.ui.adapter.TrackingAdapter
+import com.http.tracking_interceptor.model.TrackingHttpEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -32,7 +33,7 @@ internal class TrackingDetailResponseFragment : Fragment() {
     }
 
     private lateinit var binding: FTrackingDetailResponseBinding
-    private val adapter: Extensions.TrackingAdapter by lazy { Extensions.TrackingAdapter() }
+    private val adapter: TrackingAdapter by lazy { TrackingAdapter() }
 
     override fun onCreateView(
         inflater: LayoutInflater,

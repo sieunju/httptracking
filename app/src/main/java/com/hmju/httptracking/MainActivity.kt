@@ -10,9 +10,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.widget.Button
-import androidx.activity.ComponentActivity
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import com.http.tracking_interceptor.TrackingHttpInterceptor
@@ -20,23 +18,21 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.addTo
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import timber.log.Timber
-import java.io.File
+import java.io.ByteArrayOutputStream
 import kotlin.random.Random
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -50,14 +46,6 @@ class MainActivity : ComponentActivity() {
 
     private val trackingHttpInterceptor: TrackingHttpInterceptor by lazy { TrackingHttpInterceptor() }
 
-    private val galleryCallback =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            Timber.d("GalleryCallback ${it.data?.dataString}")
-            performUpload(it.data?.dataString)
-        }
-
-    private val MAX_IMAGE_WIDTH = 1080
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -66,12 +54,12 @@ class MainActivity : ComponentActivity() {
             moveGallery()
         }
 
-        lifecycleScope.async(Dispatchers.IO) {
-            repeat(1000) {
-                randomApi()
-                delay(5000)
-            }
-        }
+//        lifecycleScope.async(Dispatchers.IO) {
+//            repeat(1000) {
+//                randomApi()
+//                delay(5000)
+//            }
+//        }
     }
 
     private fun moveGallery() {
@@ -80,15 +68,22 @@ class MainActivity : ComponentActivity() {
             action = Intent.ACTION_GET_CONTENT
             type = "image/*"
         }
-        galleryCallback.launch(intent)
+        startActivityForResult(intent, 3000)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 3000) {
+            performUpload(data?.dataString)
+        }
     }
 
     private fun performUpload(contentsUri: String?) {
         if (contentsUri == null) return
         lifecycleScope.launch(Dispatchers.Default) {
-            val buffer = uriToBytes(contentsUri)
-            if (buffer != null) {
-                uploadApiService.uploads(bitmapToMultiPart(buffer)).subscribe(
+            val bitmap = uriToBitmap(contentsUri)
+            if (bitmap != null) {
+                uploadApiService.uploads(bitmapToMultiPart(bitmap)).subscribe(
                     {
                         Timber.d("SUCC $it")
                     }, {
@@ -101,11 +96,13 @@ class MainActivity : ComponentActivity() {
     private fun bitmapToMultiPart(vararg reqBuffers: ByteArray): List<MultipartBody.Part> {
         val fileList = mutableListOf<MultipartBody.Part>()
         reqBuffers.forEach { buffer ->
-            val body = buffer.toRequestBody("image/*".toMediaType())
+            val body = buffer.toRequestBody(
+                contentType = "image/jpg".toMediaType()
+            )
             fileList.add(
                 MultipartBody.Part.createFormData(
                     name = "files",
-                    filename = null,
+                    filename = "${System.currentTimeMillis()}.jpg",
                     body = body
                 )
             )
@@ -113,8 +110,61 @@ class MainActivity : ComponentActivity() {
         return fileList
     }
 
-    private fun uriToBytes(uri: String): ByteArray? =
-        contentResolver.openInputStream(uri.toUri())?.buffered()?.use { it.readBytes() }
+    private fun uriToBitmap(path: String?): ByteArray? {
+        if (path == null) return null
+        val uri = Uri.parse(path)
+        var bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, uri))
+        } else {
+            BitmapFactory.decodeStream(contentResolver.openInputStream(uri))
+        }
+
+        // 이미지 회전 이슈 처리.
+        val matrix = Matrix()
+        contentResolver.openInputStream(uri)?.let {
+            val exif = ExifInterface(it)
+            val orientation = exif.getAttributeInt(
+                ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_NORMAL
+            )
+            setRotate(
+                orientation = orientation,
+                matrix = matrix
+            )
+
+            it.close()
+        }
+
+        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+        return stream.toByteArray()
+    }
+
+    /**
+     * set Image Rotate Func.
+     * @param orientation ExifInterface Orientation
+     * @param matrix Image Matrix
+     *
+     */
+    private fun setRotate(orientation: Int, matrix: Matrix): Boolean {
+        return when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> {
+                matrix.postRotate(0F)
+                true
+            }
+            ExifInterface.ORIENTATION_ROTATE_180 -> {
+                matrix.postRotate(180f)
+                true
+            }
+            ExifInterface.ORIENTATION_ROTATE_270 -> {
+                matrix.postRotate(270f)
+                true
+            }
+            else -> false
+        }
+    }
 
     private fun randomApi() {
         val ran = Random.nextInt(0, 20)

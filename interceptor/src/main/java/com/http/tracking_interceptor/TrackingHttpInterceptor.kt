@@ -39,8 +39,10 @@ class TrackingHttpInterceptor : Interceptor {
             chain.proceed(request)
         } catch (ex: Exception) {
             tracking?.error = ex
+            println("JLOGGER ERROR $ex")
             throw ex
         }
+        println("JLOGGER SUCC ${response.code} ${response.message}")
         tracking?.runCatching {
             responseTimeMs = response.receivedResponseAtMillis
             res = toResEntity(request, response)
