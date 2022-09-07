@@ -1,5 +1,6 @@
 package com.http.tracking.models
 
+import android.graphics.Bitmap
 import com.http.tracking.R
 import okhttp3.MediaType
 
@@ -7,6 +8,8 @@ internal data class TrackingMultipartBodyUiModel(
     val mediaType: MediaType? = null,
     val binary: String = ""
 ) : BaseTrackingUiModel(R.layout.vh_tracking_multipart_body) {
+
+    var bitmap: Bitmap? = null
 
     override fun getClassName() = "TrackingMultipartBodyUiModel"
 

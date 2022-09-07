@@ -128,12 +128,4 @@ class TrackingManager private constructor() {
     fun isDebug() = isDebug
 
     fun isRelease() = !isDebug
-
-//    internal fun getTrackingList(): List<com.http.tracking_interceptor.model.TrackingHttpEntity> {
-//        val tmpList = mutableListOf<com.http.tracking_interceptor.model.TrackingHttpEntity>()
-//        httpTrackingList.forEach {
-//            tmpList.add(it)
-//        }
-//        return tmpList
-//    }
 }

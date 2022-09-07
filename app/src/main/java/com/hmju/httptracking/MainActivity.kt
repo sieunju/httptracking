@@ -57,9 +57,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         lifecycleScope.async(Dispatchers.IO) {
-            repeat(1000) {
+            repeat(30) {
                 randomApi()
-                delay(5000)
+                delay(500)
             }
         }
     }
@@ -142,6 +142,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+
+        // 이미지 리사이징 처리 필요에 따라 사용할지 말지 정의.
+        if (1080 < bitmap.width) {
+            // 비율에 맞게 높이값 계산
+            val height = 1080 * bitmap.height / bitmap.width
+            bitmap = Bitmap.createScaledBitmap(bitmap, 1080, height, true)
+        }
 
         val stream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)

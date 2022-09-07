@@ -24,13 +24,13 @@ internal class TrackingMultipartBodyViewHolder(
     private fun performUiModel(model: TrackingMultipartBodyUiModel) {
         // Image Type 만 지원
         if (model.mediaType?.type == "image") {
-            val bitmap = strToBitmap(model.binary)
-            if (bitmap != null) {
-                binding.ivThumb.changeVisible(true)
-                binding.ivThumb.setImageBitmap(bitmap)
-            } else {
-                binding.ivThumb.changeVisible(false)
+            if(model.bitmap == null) {
+                model.bitmap = strToBitmap(model.binary)
             }
+
+            binding.ivThumb.changeVisible(true)
+            binding.ivThumb.setImageBitmap(model.bitmap)
+
         } else {
             binding.ivThumb.changeVisible(false)
         }
