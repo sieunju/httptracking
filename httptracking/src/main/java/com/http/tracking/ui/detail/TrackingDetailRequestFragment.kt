@@ -7,13 +7,16 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.http.tracking.Extensions
 import com.http.tracking.R
 import com.http.tracking.databinding.FTrackingDetailRequestBinding
-import com.http.tracking_interceptor.model.TrackingHttpEntity
 import com.http.tracking.models.BaseTrackingUiModel
 import com.http.tracking.models.TrackingPathUiModel
 import com.http.tracking.models.TrackingTitleUiModel
+import com.http.tracking.ui.adapter.TrackingAdapter
+import com.http.tracking_interceptor.model.TrackingHttpEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -32,8 +35,17 @@ internal class TrackingDetailRequestFragment : Fragment() {
         fun newInstance(): TrackingDetailRequestFragment = TrackingDetailRequestFragment()
     }
 
+    // Gson
+    private val gson: Gson by lazy {
+        GsonBuilder()
+            .disableHtmlEscaping()
+            .setPrettyPrinting()
+            .serializeNulls()
+            .create()
+    }
+
     private lateinit var binding: FTrackingDetailRequestBinding
-    private val adapter: Extensions.TrackingAdapter by lazy { Extensions.TrackingAdapter() }
+    private val adapter: TrackingAdapter by lazy { TrackingAdapter() }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -89,9 +101,9 @@ internal class TrackingDetailRequestFragment : Fragment() {
             }
         }
 
-        entity.req?.body?.let { body ->
+        entity.req?.let { req ->
             uiList.add(TrackingTitleUiModel("[Body]"))
-            uiList.add(Extensions.parseBodyUiModel(body))
+            uiList.addAll(Extensions.toReqBodyUiModels(req))
         }
         return uiList
     }

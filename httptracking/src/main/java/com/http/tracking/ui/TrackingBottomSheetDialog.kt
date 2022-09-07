@@ -20,11 +20,11 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.http.tracking.BR
-import com.http.tracking.Extensions
 import com.http.tracking.R
 import com.http.tracking.databinding.DTrackingBottomSheetBinding
 import com.http.tracking.models.BaseTrackingUiModel
 import com.http.tracking.models.TrackingListUiModel
+import com.http.tracking.ui.adapter.TrackingAdapter
 import com.http.tracking.ui.detail.TrackingDetailRequestFragment
 import com.http.tracking.ui.detail.TrackingDetailResponseFragment
 import com.http.tracking_interceptor.TrackingDataManager
@@ -54,7 +54,7 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
 
     lateinit var binding: DTrackingBottomSheetBinding
     private lateinit var pagerAdapter: PagerAdapter
-    private lateinit var trackingAdapter: Extensions.TrackingAdapter
+    private lateinit var trackingAdapter: TrackingAdapter
     private var listener: DismissListener? = null
     private val dataList: MutableList<BaseTrackingUiModel> by lazy { mutableListOf() }
 
@@ -77,6 +77,7 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
         if (dialog is BottomSheetDialog) {
             (dialog as BottomSheetDialog).runCatching {
                 behavior.skipCollapsed = true
+                behavior.isDraggable = false
             }
         }
     }
@@ -103,7 +104,7 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         IS_SHOW = true
         pagerAdapter = PagerAdapter(this)
-        trackingAdapter = Extensions.TrackingAdapter()
+        trackingAdapter = TrackingAdapter()
         trackingAdapter.setBottomSheetDialog(this)
         with(binding) {
             rvContents.adapter = trackingAdapter
@@ -120,13 +121,13 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
             dismiss()
         }
 
-        // 2초 단위로 업데이트 처리
-        lifecycleScope.launch(Dispatchers.Main) {
-            repeat(1000) {
+        setTrackingData(TrackingDataManager.getInstance().getTrackingList())
+
+        TrackingDataManager.getInstance().setListener(object : TrackingDataManager.Listener {
+            override fun onNotificationTrackingEntity() {
                 setTrackingData(TrackingDataManager.getInstance().getTrackingList())
-                delay(2000)
             }
-        }
+        })
     }
 
     fun setListener(listener: DismissListener): TrackingBottomSheetDialog {
@@ -138,16 +139,15 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
      * 데이터 업데이트 처리 함수
      */
     private fun setTrackingData(newList: List<BaseTrackingEntity>) {
-        if (dataList.size == newList.size) return
         lifecycleScope.launch(Dispatchers.Main) {
             val uiList = flowOf(newList)
                 .map { it.toChildTrackingModel() }
                 .flowOn(Dispatchers.IO)
                 .singleOrNull() ?: listOf()
 
+            dataList.clear()
             dataList.addAll(uiList)
             trackingAdapter.submitList(dataList)
-            binding.rvContents.scrollToPosition(0)
         }
     }
 
@@ -237,7 +237,7 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
      * Height 85%
      */
     private fun getBottomSheetHeight(): Int {
-        return getDeviceHeight() * 70 / 100
+        return getDeviceHeight() * 80 / 100
     }
 
     @Suppress("DEPRECATION")

@@ -25,9 +25,14 @@ class TrackingDataManager private constructor() {
         }
     }
 
+    interface Listener {
+        fun onNotificationTrackingEntity()
+    }
+
     // [s] Variable
     private var isDebug = false
     private var logMaxSize = 1000
+    private var listener: Listener? = null
     // [e] Variable
 
     // Tracking List CopyOnWriteArrayList 고민해봐야함..
@@ -73,10 +78,15 @@ class TrackingDataManager private constructor() {
         if (logMaxSize < httpTrackingList.size) {
             httpTrackingList.pop()
         }
+        this.listener?.onNotificationTrackingEntity()
     }
 
     fun getTrackingList(): List<BaseTrackingEntity> {
         return httpTrackingList.toList()
+    }
+
+    fun setListener(l: Listener) {
+        this.listener = l
     }
 
     fun clear() {
