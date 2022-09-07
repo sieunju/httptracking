@@ -46,10 +46,6 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
         fun onDismiss()
     }
 
-    companion object {
-        var IS_SHOW = false
-    }
-
     val position: MutableLiveData<Int> by lazy { MutableLiveData<Int>().apply { value = 0 } }
 
     lateinit var binding: DTrackingBottomSheetBinding
@@ -77,7 +73,7 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
         if (dialog is BottomSheetDialog) {
             (dialog as BottomSheetDialog).runCatching {
                 behavior.skipCollapsed = true
-                behavior.isDraggable = false
+                behavior.isDraggable = true
             }
         }
     }
@@ -102,7 +98,8 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        IS_SHOW = true
+        binding.abl.elevation = 0F
+        binding.abl.outlineProvider = null
         pagerAdapter = PagerAdapter(this)
         trackingAdapter = TrackingAdapter()
         trackingAdapter.setBottomSheetDialog(this)
@@ -166,7 +163,6 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
 
     override fun dismiss() {
         super.dismiss()
-        IS_SHOW = false
         this.listener?.onDismiss()
     }
 
