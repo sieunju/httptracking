@@ -126,6 +126,9 @@ class TrackingHttpInterceptor : Interceptor {
         }
     }
 
+    /**
+     * Request Body to ByteArray
+     */
     private fun toReqBodyBytes(body: RequestBody?): ByteArray? {
         if (body == null) return null
         return try {
