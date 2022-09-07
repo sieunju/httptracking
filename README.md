@@ -26,7 +26,10 @@ allprojects {
 
 ```groovy
 dependencies {
-    	implementation("com.github.sieunju:httptracking:$latestVersion")
+	// UI
+    	implementation("com.github.sieunju.httptracking:ui:$latestVersion")
+	// Interceptor Java Module
+	implementation("com.github.sieunju.httptracking:interceptor:$latestVersion")
 }
 ```
 
@@ -35,7 +38,7 @@ dependencies {
 - A.K.A exclude
 ```groovy
 
-implementation("com.github.sieunju:httptracking:${lateversion}") {
+implementation("com.github.sieunju.httptracking:ui:${lateversion}") {
         exclude("com.google.android.material")
         exclude("androidx.appcompat:appcompat")
         exclude("androidx.constraintlayout")
