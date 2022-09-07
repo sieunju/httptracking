@@ -19,6 +19,8 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.addTo
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
@@ -54,12 +56,12 @@ class MainActivity : AppCompatActivity() {
             moveGallery()
         }
 
-//        lifecycleScope.async(Dispatchers.IO) {
-//            repeat(1000) {
-//                randomApi()
-//                delay(5000)
-//            }
-//        }
+        lifecycleScope.async(Dispatchers.IO) {
+            repeat(1000) {
+                randomApi()
+                delay(5000)
+            }
+        }
     }
 
     private fun moveGallery() {

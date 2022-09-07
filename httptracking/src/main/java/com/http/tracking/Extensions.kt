@@ -69,7 +69,7 @@ internal object Extensions {
                 uiList.add(
                     TrackingMultipartBodyUiModel(
                         mediaType = it.type,
-                        binary = Base64.encodeToString(it.binaryBytes,Base64.DEFAULT) ?: ""
+                        binary = Base64.encodeToString(it.bytes,Base64.DEFAULT) ?: ""
                     )
                 )
             }
