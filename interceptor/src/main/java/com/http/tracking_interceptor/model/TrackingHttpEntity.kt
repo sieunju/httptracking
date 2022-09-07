@@ -8,7 +8,7 @@ package com.http.tracking_interceptor.model
 data class TrackingHttpEntity(
     val headerMap: Map<String, String>,
     val path: String = "", // Path
-    val req: TrackingRequestEntity? = null,
+    val req: BaseTrackingRequestEntity? = null,
     var res: TrackingResponseEntity? = null
 ) : BaseTrackingEntity() {
     override fun toString(): String {

@@ -5,24 +5,24 @@
 
         <variable
             name="model"
-            type="com.http.tracking.models.TrackingBodyUiModel" />
+            type="com.http.tracking.models.TrackingMultipartBodyUiModel" />
     </data>
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingLeft="15dp"
-        android:paddingRight="15dp">
+        android:orientation="vertical">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvBody"
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivThumb"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{model.body}"
-            android:textColor="#222222"
-            android:textSize="12dp"
-            android:visibility="visible" />
+            android:adjustViewBounds="true"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:scaleType="fitCenter"
+            android:visibility="gone" />
+
     </androidx.appcompat.widget.LinearLayoutCompat>
 
 </layout>

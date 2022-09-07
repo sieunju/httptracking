@@ -1,13 +1,12 @@
 package com.http.tracking_interceptor
 
-import com.http.tracking_interceptor.model.TrackingHttpEntity
-import com.http.tracking_interceptor.model.TrackingRequestEntity
-import com.http.tracking_interceptor.model.TrackingResponseEntity
+import com.http.tracking_interceptor.model.*
 import okhttp3.*
 import okio.Buffer
 import okio.GzipSource
 import java.io.IOException
 import java.nio.charset.Charset
+import java.util.*
 
 /**
  * Description : Http 정보 추적하는 Interceptor
@@ -27,10 +26,7 @@ class TrackingHttpInterceptor : Interceptor {
             TrackingHttpEntity(
                 headerMap = toHeaderMap(request.headers),
                 path = request.url.encodedPath,
-                req = TrackingRequestEntity(
-                    fullUrl = request.url.toString(),
-                    body = toReqBodyStr(request.body)
-                )
+                req = toReqEntity(request)
             ).apply {
                 baseUrl = request.url.host
                 method = request.method
@@ -38,6 +34,7 @@ class TrackingHttpInterceptor : Interceptor {
         } catch (ex: Exception) {
             null
         }
+
         val response = try {
             chain.proceed(request)
         } catch (ex: Exception) {
@@ -46,7 +43,7 @@ class TrackingHttpInterceptor : Interceptor {
         }
         tracking?.runCatching {
             responseTimeMs = response.receivedResponseAtMillis
-            res = TrackingResponseEntity(toResBodyString(request.headers, response.body))
+            res = toResEntity(request, response)
             takenTimeMs = response.receivedResponseAtMillis - response.sentRequestAtMillis
             code = response.code
         }
@@ -66,6 +63,56 @@ class TrackingHttpInterceptor : Interceptor {
     }
 
     /**
+     * Converter TrackingRequestEntity 변환 함수
+     * @param req OkHttp Request
+     */
+    private fun toReqEntity(req: Request): BaseTrackingRequestEntity {
+        return if (req.body is MultipartBody) {
+            toMultipartReqEntity(req)
+        } else {
+            toDefaultReqEntity(req)
+        }
+    }
+
+    /**
+     * Request Entity Default Type
+     * @param req OkHttp Request
+     */
+    private fun toDefaultReqEntity(req: Request): TrackingRequestEntity {
+        return TrackingRequestEntity(
+            _fullUrl = req.url.toString(),
+            _mediaType = req.body?.contentType(),
+            body = toReqBodyStr(req.body)
+        )
+    }
+
+    /**
+     * Converter Multipart Request Entity
+     * @param req OkHttp Request
+     */
+    private fun toMultipartReqEntity(req: Request): TrackingRequestMultipartEntity {
+        val parts = mutableListOf<Part>()
+        (req.body as MultipartBody).parts.forEach { part ->
+            parts.add(Part(part.body.contentType(), toReqBodyBytes(part.body)))
+        }
+        return TrackingRequestMultipartEntity(
+            _fullUrl = req.url.toString(),
+            _mediaType = req.body?.contentType(),
+            binaryList = parts
+        )
+    }
+
+    /**
+     * Converter TrackingResponseEntity 변환 함수
+     */
+    private fun toResEntity(req: Request, res: Response): TrackingResponseEntity {
+        val bodyString = toResBodyStr(req.headers, res.body)
+        return TrackingResponseEntity(
+            body = bodyString
+        )
+    }
+
+    /**
      * Request Body to String
      */
     private fun toReqBodyStr(body: RequestBody?): String? {
@@ -80,9 +127,23 @@ class TrackingHttpInterceptor : Interceptor {
     }
 
     /**
+     * Request Body to ByteArray
+     */
+    private fun toReqBodyBytes(body: RequestBody?): ByteArray? {
+        if (body == null) return null
+        return try {
+            val buffer = Buffer()
+            body.writeTo(buffer)
+            buffer.readByteArray()
+        } catch (ex: Exception) {
+            null
+        }
+    }
+
+    /**
      * Response Body to String
      */
-    private fun toResBodyString(headers: Headers, body: ResponseBody?): String? {
+    private fun toResBodyStr(headers: Headers, body: ResponseBody?): String? {
         if (body == null) return null
         return try {
             val contentLength = body.contentLength()

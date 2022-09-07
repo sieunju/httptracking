@@ -1,8 +1,19 @@
-Version: 1.0.12-alpha06
-Title: v1.0.12-alpha06 배포입니다.
+Version: 1.0.12-beta01
+Title: v1.0.12-beta01 배포입니다.
+KO-KR
 ### 소개
 > 앱을 사용하다가 단말기를 흔들면 트래킹한 로그들을 간단히 볼수 있습니다. 👨🏿‍💻🙇‍
 > 많은 애용 바랍니다. 그리고 추가 하고 싶은 기능이 있으면 이슈로 남겨주시기 바랍니다.
 
 ### 기능 개선을 했어요.
 - tracking-ui 와 interceptor 클래스를 모듈로 나눴어요.
+- Request Multipart Type 이미지 타입을 추가 했어요.
+
+EN-US
+### Introduction
+> You can simply view the tracked logs by shaking your device while using the app. ‍💻🙇‍
+> Please use it a lot. And if there is a function you want to add, please leave it as an issue.
+
+### Improvements
+> Module "Tracking UI" and Module "Interceptor" were separated.
+> Add Feature Request OkHttp.Multipart Type

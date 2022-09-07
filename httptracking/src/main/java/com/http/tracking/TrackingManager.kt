@@ -6,6 +6,7 @@ import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.fragment.app.FragmentActivity
 import com.http.tracking.ui.TrackingBottomSheetDialog
 import com.http.tracking_interceptor.TrackingDataManager
@@ -41,17 +42,15 @@ class TrackingManager private constructor() {
     private var dialog: TrackingBottomSheetDialog? = null
 
     private val activityListener = object : Application.ActivityLifecycleCallbacks {
-        var currentActivity: WeakReference<FragmentActivity>? = null
+        var currentActivity: WeakReference<Activity>? = null
 
         override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
 
         override fun onActivityStarted(activity: Activity) {}
 
         override fun onActivityResumed(activity: Activity) {
-            if (activity is FragmentActivity) {
-                currentActivity?.clear()
-                currentActivity = WeakReference(activity)
-            }
+            currentActivity?.clear()
+            currentActivity = WeakReference(activity)
         }
 
         override fun onActivityPaused(activity: Activity) {}
@@ -77,8 +76,11 @@ class TrackingManager private constructor() {
                             override fun onDismiss() {
                                 dialog = null
                             }
-                        })
-                    dialog?.show(act.supportFragmentManager, "TrackingBottomSheetDialog")
+                        }).also {
+                            if (act is FragmentActivity) {
+                                it.show(act.supportFragmentManager, "TrackingBottomSheetDialog")
+                            }
+                        }
                 } catch (ex: Exception) {
 
                 }
@@ -126,12 +128,4 @@ class TrackingManager private constructor() {
     fun isDebug() = isDebug
 
     fun isRelease() = !isDebug
-
-//    internal fun getTrackingList(): List<com.http.tracking_interceptor.model.TrackingHttpEntity> {
-//        val tmpList = mutableListOf<com.http.tracking_interceptor.model.TrackingHttpEntity>()
-//        httpTrackingList.forEach {
-//            tmpList.add(it)
-//        }
-//        return tmpList
-//    }
 }
