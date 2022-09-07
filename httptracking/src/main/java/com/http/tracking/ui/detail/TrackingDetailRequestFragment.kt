@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.http.tracking.Extensions
 import com.http.tracking.R
 import com.http.tracking.databinding.FTrackingDetailRequestBinding
@@ -31,6 +33,15 @@ internal class TrackingDetailRequestFragment : Fragment() {
 
     companion object {
         fun newInstance(): TrackingDetailRequestFragment = TrackingDetailRequestFragment()
+    }
+
+    // Gson
+    private val gson: Gson by lazy {
+        GsonBuilder()
+            .disableHtmlEscaping()
+            .setPrettyPrinting()
+            .serializeNulls()
+            .create()
     }
 
     private lateinit var binding: FTrackingDetailRequestBinding
@@ -92,7 +103,7 @@ internal class TrackingDetailRequestFragment : Fragment() {
 
         entity.req?.let { req ->
             uiList.add(TrackingTitleUiModel("[Body]"))
-            uiList.add(Extensions.parseBodyUiModel(req))
+            uiList.addAll(Extensions.toReqBodyUiModels(req))
         }
         return uiList
     }

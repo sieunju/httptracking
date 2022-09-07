@@ -83,7 +83,11 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.Default) {
             val bitmap = uriToBitmap(contentsUri)
             if (bitmap != null) {
-                uploadApiService.uploads(bitmapToMultiPart(bitmap)).subscribe(
+                val list = mutableListOf<ByteArray>()
+                list.add(bitmap)
+                list.add(bitmap)
+                list.add(bitmap)
+                uploadApiService.uploads(bitmapToMultiPart(*list.toTypedArray())).subscribe(
                     {
                         Timber.d("SUCC $it")
                     }, {

@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory
 import android.util.Base64
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.MimeTypeMap
 import androidx.core.content.MimeTypeFilter
 import com.http.tracking.BR
 import com.http.tracking.R
@@ -12,11 +13,14 @@ import com.http.tracking.databinding.VhTrackingBodyBinding
 import com.http.tracking.models.TrackingBodyUiModel
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
+import okhttp3.MultipartReader
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody.Companion.toResponseBody
 import okio.Buffer
+import okio.BufferedSource
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.nio.charset.Charset
 
 internal class TrackingBodyViewHolder(parent: ViewGroup) :
@@ -34,37 +38,7 @@ internal class TrackingBodyViewHolder(parent: ViewGroup) :
     }
 
     override fun onBindView(model: Any) {
-        if (model is TrackingBodyUiModel) {
-            binding.setVariable(BR.model, model)
-            performBody(model)
-        }
-    }
-
-    private fun performBody(bodyUiModel: TrackingBodyUiModel) {
-        binding.runCatching {
-            if (bodyUiModel.isImageType) {
-                tvBody.changeVisible(false)
-                ivBody.changeVisible(true)
-                val bitmap = strToBitmap(bodyUiModel.body)
-                ivBody.setImageBitmap(bitmap)
-            } else {
-                tvBody.changeVisible(true)
-                ivBody.changeVisible(false)
-                tvBody.text = bodyUiModel.body
-            }
-        }
-    }
-
-    private fun View.changeVisible(isVisible: Boolean) {
-        if (isVisible) {
-            if (visibility == View.GONE) {
-                visibility = View.VISIBLE
-            }
-        } else {
-            if (visibility == View.VISIBLE) {
-                visibility = View.GONE
-            }
-        }
+        binding.setVariable(BR.model, model)
     }
 
     private fun strToBitmap(str: String?): Bitmap? {

@@ -1,13 +1,12 @@
 package com.http.tracking_interceptor
 
-import com.http.tracking_interceptor.model.TrackingHttpEntity
-import com.http.tracking_interceptor.model.TrackingRequestEntity
-import com.http.tracking_interceptor.model.TrackingResponseEntity
+import com.http.tracking_interceptor.model.*
 import okhttp3.*
 import okio.Buffer
 import okio.GzipSource
 import java.io.IOException
 import java.nio.charset.Charset
+import java.util.*
 
 /**
  * Description : Http 정보 추적하는 Interceptor
@@ -35,14 +34,13 @@ class TrackingHttpInterceptor : Interceptor {
         } catch (ex: Exception) {
             null
         }
+
         val response = try {
             chain.proceed(request)
         } catch (ex: Exception) {
             tracking?.error = ex
-            println("JLOGGER ERROR $ex")
             throw ex
         }
-        println("JLOGGER SUCC ${response.code} ${response.message}")
         tracking?.runCatching {
             responseTimeMs = response.receivedResponseAtMillis
             res = toResEntity(request, response)
@@ -66,13 +64,41 @@ class TrackingHttpInterceptor : Interceptor {
 
     /**
      * Converter TrackingRequestEntity 변환 함수
+     * @param req OkHttp Request
      */
-    private fun toReqEntity(req: Request): TrackingRequestEntity {
-        val bodyString = toReqBodyStr(req.body)
+    private fun toReqEntity(req: Request): BaseTrackingRequestEntity {
+        return if (req.body is MultipartBody) {
+            toMultipartReqEntity(req)
+        } else {
+            toDefaultReqEntity(req)
+        }
+    }
+
+    /**
+     * Request Entity Default Type
+     * @param req OkHttp Request
+     */
+    private fun toDefaultReqEntity(req: Request): TrackingRequestEntity {
         return TrackingRequestEntity(
-            fullUrl = req.url.toString(),
-            mediaType = req.body?.contentType(),
-            body = bodyString
+            _fullUrl = req.url.toString(),
+            _mediaType = req.body?.contentType(),
+            body = toReqBodyStr(req.body)
+        )
+    }
+
+    /**
+     * Converter Multipart Request Entity
+     * @param req OkHttp Request
+     */
+    private fun toMultipartReqEntity(req: Request): TrackingRequestMultipartEntity {
+        val parts = mutableListOf<Part>()
+        (req.body as MultipartBody).parts.forEach { part ->
+            parts.add(Part(part.body.contentType(), toReqBodyBytes(part.body)))
+        }
+        return TrackingRequestMultipartEntity(
+            _fullUrl = req.url.toString(),
+            _mediaType = req.body?.contentType(),
+            binaryList = parts
         )
     }
 
@@ -95,6 +121,17 @@ class TrackingHttpInterceptor : Interceptor {
             val buffer = Buffer()
             body.writeTo(buffer)
             buffer.readString(Charsets.UTF_8)
+        } catch (ex: Exception) {
+            null
+        }
+    }
+
+    private fun toReqBodyBytes(body: RequestBody?): ByteArray? {
+        if (body == null) return null
+        return try {
+            val buffer = Buffer()
+            body.writeTo(buffer)
+            buffer.readByteArray()
         } catch (ex: Exception) {
             null
         }

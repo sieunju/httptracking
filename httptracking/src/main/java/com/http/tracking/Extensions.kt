@@ -1,13 +1,13 @@
 package com.http.tracking
 
+import android.util.Base64
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
-import com.http.tracking.models.BaseTrackingUiModel
-import com.http.tracking.models.TrackingBodyUiModel
-import com.http.tracking.models.TrackingHeaderUiModel
-import com.http.tracking.models.TrackingQueryUiModel
+import com.http.tracking.models.*
+import com.http.tracking_interceptor.model.BaseTrackingRequestEntity
 import com.http.tracking_interceptor.model.TrackingRequestEntity
+import com.http.tracking_interceptor.model.TrackingRequestMultipartEntity
 import java.net.URLDecoder
 
 internal object Extensions {
@@ -58,33 +58,44 @@ internal object Extensions {
         return uiList
     }
 
-    fun parseBodyUiModel(req: TrackingRequestEntity): BaseTrackingUiModel {
-        return try {
-            if (req.mediaType?.type == "multipart") {
-                TrackingBodyUiModel(
-                    isImageType = true,
-                    body = req.body ?: ""
-                )
-            } else {
-                val je = JsonParser.parseString(req.body)
-                TrackingBodyUiModel(
-                    isImageType = false,
-                    body = gson.toJson(je)
+    /**
+     * Converter RequestEntity to Request BodyUiModel
+     * @param req Base Request Entity
+     */
+    fun toReqBodyUiModels(req: BaseTrackingRequestEntity): List<BaseTrackingUiModel> {
+        val uiList = mutableListOf<BaseTrackingUiModel>()
+        if (req is TrackingRequestMultipartEntity) {
+            req.binaryList.forEach {
+                uiList.add(
+                    TrackingMultipartBodyUiModel(
+                        mediaType = it.type,
+                        binary = Base64.encodeToString(it.binaryBytes,Base64.DEFAULT) ?: ""
+                    )
                 )
             }
-        } catch (ex: Exception) {
-            TrackingBodyUiModel(
-                body = req.body ?: ""
-            )
+        } else if (req is TrackingRequestEntity) {
+            uiList.add(TrackingBodyUiModel(toJsonBody(req.body)))
         }
+        return uiList
     }
 
-    fun parseBodyUiModel(body: String): BaseTrackingUiModel {
+    /**
+     * Converter ResponseEntity to Response BodyUiModel
+     * @param body Response String
+     */
+    fun parseResBodyUiModel(body: String): List<BaseTrackingUiModel> {
+        val uiList = mutableListOf<BaseTrackingUiModel>()
+        uiList.add(TrackingBodyUiModel(toJsonBody(body)))
+        return uiList
+    }
+
+    private fun toJsonBody(body: String?): String {
+        if (body == null) return ""
         return try {
             val je = JsonParser.parseString(body)
-            TrackingBodyUiModel(body = gson.toJson(je))
+            gson.toJson(je)
         } catch (ex: Exception) {
-            TrackingBodyUiModel(body = body)
+            ""
         }
     }
 
