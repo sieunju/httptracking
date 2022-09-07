@@ -98,8 +98,6 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.abl.elevation = 0F
-        binding.abl.outlineProvider = null
         pagerAdapter = PagerAdapter(this)
         trackingAdapter = TrackingAdapter()
         trackingAdapter.setBottomSheetDialog(this)

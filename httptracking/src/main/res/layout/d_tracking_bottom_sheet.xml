@@ -14,118 +14,107 @@
             type="com.http.tracking.ui.TrackingBottomSheetDialog" />
     </data>
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/abl"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/clTop"
-                android:layout_width="match_parent"
-                android:layout_height="40dp">
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="40dp"
-                    android:layout_height="match_parent"
-                    android:adjustViewBounds="true"
-                    android:onClick="@{()->dialog.onBack()}"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/ic_left_arrow"
-                    android:visibility="@{dialog.position != 0 ? View.VISIBLE : View.GONE,default=gone}"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    tools:visibility="visible" />
-
-                <!-- List TItle -->
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center_vertical"
-                    android:text="@string/txt_list"
-                    android:textColor="#222222"
-                    android:textSize="16dp"
-                    android:visibility="@{dialog.position == 0 ? View.VISIBLE : View.GONE,default=visible}"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    tools:text="목록"
-                    tools:visibility="gone" />
-
-                <!-- Detail Title -->
-                <androidx.appcompat.widget.LinearLayoutCompat
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:paddingLeft="30dp"
-                    android:paddingRight="30dp"
-                    android:visibility="@{dialog.position > 0 ? View.VISIBLE : View.GONE,default=gone}"
-                    android:weightSum="2"
-                    tools:visibility="visible">
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:text="@string/txt_request"
-                        android:textColor='@{dialog.position == 1 ? Color.parseColor("#222222") : Color.parseColor("#cccccc")}'
-                        android:textSize="16dp"
-                        tools:visibility="visible" />
-
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="match_parent"
-                        android:background="#eeeeee" />
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:text="@string/txt_response"
-                        android:textColor='@{dialog.position == 2 ? Color.parseColor("#222222") : Color.parseColor("#cccccc")}'
-                        android:textSize="16dp"
-                        tools:visibility="visible" />
-
-                </androidx.appcompat.widget.LinearLayoutCompat>
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="40dp"
-                    android:layout_height="match_parent"
-                    android:adjustViewBounds="true"
-                    android:onClick="@{()->dialog.onClear()}"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/ic_delete"
-                    android:visibility="@{dialog.position == 0 ? View.VISIBLE : View.GONE,default=visible}"
-                    app:layout_constraintRight_toRightOf="parent" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </com.google.android.material.appbar.AppBarLayout>
-
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clTop"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+            android:layout_height="40dp"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvContents"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:onClick="@{()->dialog.onBack()}"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_left_arrow"
+                android:visibility="@{dialog.position != 0 ? View.VISIBLE : View.GONE,default=gone}"
+                app:layout_constraintLeft_toLeftOf="parent"
+                tools:visibility="visible" />
+
+            <!-- List TItle -->
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:text="@string/txt_list"
+                android:textColor="#222222"
+                android:textSize="16dp"
                 android:visibility="@{dialog.position == 0 ? View.VISIBLE : View.GONE,default=visible}"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                tools:text="목록"
+                tools:visibility="gone" />
 
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/vp"
+            <!-- Detail Title -->
+            <androidx.appcompat.widget.LinearLayoutCompat
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
-                android:visibility="@{dialog.position != 0 ? View.VISIBLE : View.GONE,default=gone}" />
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                android:visibility="@{dialog.position > 0 ? View.VISIBLE : View.GONE,default=gone}"
+                android:weightSum="2"
+                tools:visibility="visible">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/txt_request"
+                    android:textColor='@{dialog.position == 1 ? Color.parseColor("#222222") : Color.parseColor("#cccccc")}'
+                    android:textSize="16dp"
+                    tools:visibility="visible" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#eeeeee" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/txt_response"
+                    android:textColor='@{dialog.position == 2 ? Color.parseColor("#222222") : Color.parseColor("#cccccc")}'
+                    android:textSize="16dp"
+                    tools:visibility="visible" />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:onClick="@{()->dialog.onClear()}"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_delete"
+                android:visibility="@{dialog.position == 0 ? View.VISIBLE : View.GONE,default=visible}"
+                app:layout_constraintRight_toRightOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvContents"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:visibility="@{dialog.position == 0 ? View.VISIBLE : View.GONE,default=visible}"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/clTop" />
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/vp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            android:visibility="@{dialog.position != 0 ? View.VISIBLE : View.GONE,default=gone}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/clTop" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
