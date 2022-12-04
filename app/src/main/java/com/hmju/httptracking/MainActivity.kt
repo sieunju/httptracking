@@ -5,13 +5,12 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.graphics.Matrix
-import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.net.toUri
+import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.lifecycleScope
 import com.http.tracking_interceptor.TrackingHttpInterceptor
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -34,16 +33,20 @@ import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import kotlin.random.Random
 
-class MainActivity : AppCompatActivity() {
+internal class MainActivity : AppCompatActivity() {
 
     private val compositeDisposable = CompositeDisposable()
 
     private val apiService: TestApiService by lazy {
-        createApiService(createOkHttpClient())
+        createApiService(BuildConfig.TIL_URL, createOkHttpClient())
     }
 
     private val uploadApiService: UploadApiService by lazy {
-        createUploadApiService(createOkHttpClient())
+        createApiService(BuildConfig.CDN_URL, createOkHttpClient())
+    }
+
+    private val memoApiService: MemoApiService by lazy {
+        createApiService(BuildConfig.MEMO_URL, createOkHttpClient())
     }
 
     private val trackingHttpInterceptor: TrackingHttpInterceptor by lazy { TrackingHttpInterceptor() }
@@ -182,7 +185,12 @@ class MainActivity : AppCompatActivity() {
     private fun randomApi() {
         val ran = Random.nextInt(0, 20)
         val api = if (ran < 3) {
-            apiService.fetchTest()
+            val queryMap = mapOf<String, String>(
+                "pageNo" to "1",
+                "pageSize" to "${Random.nextInt()}",
+                "hi" to "helllloqweqweqweqweqweqwe"
+            )
+            memoApiService.fetchAndroid(queryMap)
         } else if (ran < 5) {
             apiService.fetchGoods(
                 Random.nextInt(
@@ -208,33 +216,21 @@ class MainActivity : AppCompatActivity() {
             .build()
     }
 
+    /**
+     * ApiService 에 따라서 생성하는 함수
+     */
     @OptIn(ExperimentalSerializationApi::class)
-    private fun createApiService(client: OkHttpClient): TestApiService {
+    private inline fun <reified T> createApiService(url: String, client: OkHttpClient): T {
         val json = Json {
             isLenient = true // Json 큰따옴표 느슨하게 체크.
             ignoreUnknownKeys = true // Field 값이 없는 경우 무시
             coerceInputValues = true // "null" 이 들어간경우 default Argument 값으로 대체
         }
         return Retrofit.Builder().apply {
-            baseUrl("https://til.qtzz.synology.me")
+            baseUrl(url)
             client(client)
             addCallAdapterFactory(RxJava3CallAdapterFactory.createWithScheduler(Schedulers.io()))
             addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-        }.build().create(TestApiService::class.java)
-    }
-
-    @OptIn(ExperimentalSerializationApi::class)
-    private fun createUploadApiService(client: OkHttpClient): UploadApiService {
-        val json = Json {
-            isLenient = true // Json 큰따옴표 느슨하게 체크.
-            ignoreUnknownKeys = true // Field 값이 없는 경우 무시
-            coerceInputValues = true // "null" 이 들어간경우 default Argument 값으로 대체
-        }
-        return Retrofit.Builder().apply {
-            baseUrl("https://cdn.qtzz.synology.me")
-            client(client)
-            addCallAdapterFactory(RxJava3CallAdapterFactory.createWithScheduler(Schedulers.io()))
-            addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-        }.build().create(UploadApiService::class.java)
+        }.build().create(T::class.java)
     }
 }
