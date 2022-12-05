@@ -5,6 +5,7 @@ plugins {
     id 'kotlinx-serialization'
 }
 
+// set Local Properties Load
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 

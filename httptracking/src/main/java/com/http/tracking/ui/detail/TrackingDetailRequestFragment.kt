@@ -13,10 +13,13 @@ import com.http.tracking.Extensions
 import com.http.tracking.R
 import com.http.tracking.databinding.FTrackingDetailRequestBinding
 import com.http.tracking.models.BaseTrackingUiModel
+import com.http.tracking.models.TrackingAllCopyUiModel
 import com.http.tracking.models.TrackingPathUiModel
 import com.http.tracking.models.TrackingTitleUiModel
 import com.http.tracking.ui.adapter.TrackingAdapter
 import com.http.tracking_interceptor.model.TrackingHttpEntity
+import com.http.tracking_interceptor.model.TrackingRequestEntity
+import com.http.tracking_interceptor.model.TrackingRequestMultipartEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -78,8 +81,16 @@ internal class TrackingDetailRequestFragment : Fragment() {
             val uiList = flowOf(entity)
                 .map { parseUiModel(it) }
                 .flowOn(Dispatchers.IO)
-                .singleOrNull()
+                .singleOrNull() ?: return@launch
             adapter.submitList(uiList)
+            val allCopyUiModel = flowOf(entity)
+                .map { parseAllCopyUiModel(it) }
+                .flowOn(Dispatchers.IO)
+                .singleOrNull() ?: return@launch
+            val addList = mutableListOf<BaseTrackingUiModel>()
+            addList.add(allCopyUiModel)
+            addList.addAll(uiList)
+            adapter.submitList(addList)
         }
     }
 
@@ -106,5 +117,25 @@ internal class TrackingDetailRequestFragment : Fragment() {
             uiList.addAll(Extensions.toReqBodyUiModels(req))
         }
         return uiList
+    }
+
+    private fun parseAllCopyUiModel(entity: TrackingHttpEntity): BaseTrackingUiModel {
+        val str = StringBuilder()
+        if (entity.headerMap.isNotEmpty()) {
+            str.append(entity.headerMap.toString())
+            str.append("\n")
+        }
+        val req = entity.req
+        if (req is TrackingRequestEntity) {
+            str.append(req.fullUrl)
+            str.append("\n")
+            str.append("Body\n")
+            str.append(req.body)
+        } else if (req is TrackingRequestMultipartEntity) {
+            str.append(req.fullUrl)
+            str.append("\n")
+            str.append("MultiPart")
+        }
+        return TrackingAllCopyUiModel(str.toString())
     }
 }

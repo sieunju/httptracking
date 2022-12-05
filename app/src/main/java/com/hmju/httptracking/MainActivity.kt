@@ -23,10 +23,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import timber.log.Timber
@@ -199,7 +201,9 @@ internal class MainActivity : AppCompatActivity() {
                 ), 25
             )
         } else if (ran < 10) {
-            apiService.addLike("efefefefef")
+            val json = JSONObject()
+            json.put("id","efefefefef")
+            apiService.addLike(json.toString())
         } else {
             apiService.fetchJsendList()
         }
