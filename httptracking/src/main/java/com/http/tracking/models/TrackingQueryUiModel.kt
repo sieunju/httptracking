@@ -3,9 +3,7 @@ package com.http.tracking.models
 import com.http.tracking.R
 
 internal data class TrackingQueryUiModel(
-    val query: String,
-    val key: String = "",
-    val value: String = ""
+    val query: String
 ) : BaseTrackingUiModel(R.layout.vh_tracking_query) {
 
     override fun getClassName() = "TrackingQueryUiModel"
