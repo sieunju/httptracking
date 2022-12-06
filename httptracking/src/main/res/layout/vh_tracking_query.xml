@@ -21,9 +21,11 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:lineSpacingExtra="5dp"
             android:text="@{model.query}"
             android:textColor="#222222"
-            android:textIsSelectable="true" />
+            android:textIsSelectable="true"
+            tools:text="@android:string/unsupported_compile_sdk_message" />
     </androidx.appcompat.widget.LinearLayoutCompat>
 
 </layout>

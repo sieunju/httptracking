@@ -25,7 +25,7 @@ jobs:
         id: release
         run: |
           echo ::set-output name=version::$(grep Version: release_note.txt | awk '{print $2}')
-          echo ::set-output name=title::$(grep Title: release_note.txt | awk '{print $2,$NF}')
+          echo ::set-output name=title::$(grep Title: release_note.txt | awk '{print $2}')
 
       # Release Version 명 가져오기
       - name: Get Version Name
