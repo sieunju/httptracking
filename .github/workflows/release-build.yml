@@ -23,8 +23,8 @@ jobs:
       - name: Get Release Info
         id: release
         run: |
-          echo ::set-output name=version::$(grep Version: httptracking/release_note.txt | awk '{print $2}')
-          echo ::set-output name=title::$(grep Title: httptracking/release_note.txt | awk '{print $2,$NF}')
+          echo ::set-output name=version::$(grep Version: release_note.txt | awk '{print $2}')
+          echo ::set-output name=title::$(grep Title: release_note.txt | awk '{print $2,$NF}')
 
       # Release Version 명 가져오기
       - name: Get Version Name
@@ -40,7 +40,7 @@ jobs:
       - name: Get Release Message
         id: releaseMessage
         run: |
-          RELEASE_BODY=$(sed -n '3,$p' httptracking/release_note.txt | less)
+          RELEASE_BODY=$(sed -n '3,$p' release_note.txt | less)
           RELEASE_BODY="${RELEASE_BODY//'%'/'%25'}"
           RELEASE_BODY="${RELEASE_BODY//$'\n'/'%0A'}"
           RELEASE_BODY="${RELEASE_BODY//$'\r'/'%0D'}"

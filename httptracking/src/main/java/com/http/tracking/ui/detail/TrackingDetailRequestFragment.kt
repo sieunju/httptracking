@@ -78,32 +78,49 @@ internal class TrackingDetailRequestFragment : Fragment() {
             val uiList = flowOf(entity)
                 .map { parseUiModel(it) }
                 .flowOn(Dispatchers.IO)
-                .singleOrNull()
+                .singleOrNull() ?: return@launch
             adapter.submitList(uiList)
         }
     }
 
+    /**
+     * Request UiModel 변환 함수
+     */
     private fun parseUiModel(entity: TrackingHttpEntity): List<BaseTrackingUiModel> {
         val uiList = mutableListOf<BaseTrackingUiModel>()
-        uiList.add(TrackingTitleUiModel("[Host]"))
-        uiList.add(TrackingPathUiModel(entity.baseUrl))
-        uiList.add(TrackingTitleUiModel("[Path]"))
-        uiList.add(TrackingPathUiModel(entity.path))
+        // All Copy
+        val req = entity.req
+        if (req != null) {
+            val fullCopy = StringBuilder()
+            fullCopy.append(req.fullUrl)
+            uiList.add(TrackingPathUiModel(fullCopy.toString()))
+        }
+
+        // host and path
+        uiList.add(TrackingTitleUiModel("[url]"))
+        val url = StringBuilder(entity.baseUrl)
+        url.append(entity.path)
+        uiList.add(TrackingPathUiModel(url.toString()))
+
+        // 헤더값 셋팅
         if (entity.headerMap.isNotEmpty()) {
-            uiList.add(TrackingTitleUiModel("[Header]"))
+            uiList.add(TrackingTitleUiModel("[header]"))
             uiList.addAll(Extensions.parseHeaderUiModel(entity.headerMap))
         }
+        // 쿼리 파라미터 셋팅
         if (!entity.req?.fullUrl.isNullOrEmpty()) {
             val queryUiModelList = Extensions.parseQueryUiModel(entity.req?.fullUrl)
             if (queryUiModelList.isNotEmpty()) {
-                uiList.add(TrackingTitleUiModel("[Query]"))
+                uiList.add(TrackingTitleUiModel("[query]"))
                 uiList.addAll(queryUiModelList)
             }
         }
 
-        entity.req?.let { req ->
-            uiList.add(TrackingTitleUiModel("[Body]"))
-            uiList.addAll(Extensions.toReqBodyUiModels(req))
+        // 바디 값 셋팅
+        val bodyModels = Extensions.toReqBodyUiModels(req)
+        if (bodyModels.isNotEmpty()) {
+            uiList.add(TrackingTitleUiModel("[body]"))
+            uiList.addAll(bodyModels)
         }
         return uiList
     }

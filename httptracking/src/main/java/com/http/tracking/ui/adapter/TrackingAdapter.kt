@@ -8,6 +8,9 @@ import com.http.tracking.models.BaseTrackingUiModel
 import com.http.tracking.ui.TrackingBottomSheetDialog
 import com.http.tracking.ui.diffutil.TrackingDetailDiffUtil
 import com.http.tracking.ui.viewholder.*
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
+import kotlin.reflect.KClass
 
 /**
  * Description : HttpTracking 공통 어댑터

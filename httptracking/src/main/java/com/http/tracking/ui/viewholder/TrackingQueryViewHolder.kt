@@ -12,12 +12,12 @@ internal class TrackingQueryViewHolder(
     R.layout.vh_tracking_query
 ) {
     init {
-        itemView.setOnLongClickListener {
-            binding.model?.runCatching {
-                simpleLongClickCopy(value)
-            }
-            return@setOnLongClickListener true
-        }
+//        itemView.setOnLongClickListener {
+//            binding.model?.runCatching {
+//                simpleLongClickCopy(value)
+//            }
+//            return@setOnLongClickListener true
+//        }
     }
 
     override fun onBindView(model: Any) {

@@ -5,6 +5,10 @@ plugins {
     id 'kotlinx-serialization'
 }
 
+// set Local Properties Load
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
 android {
     compileSdkVersion 32
     buildToolsVersion "32.0.0"
@@ -24,6 +28,10 @@ android {
         debug {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            buildConfigField "String", "TIL_URL", properties["TIL_URL"]
+            buildConfigField "String", "CDN_URL", properties["CDN_URL"]
+            buildConfigField "String", "MEMO_URL", properties["MEMO_URL"]
         }
 
         release {
@@ -56,6 +64,7 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:1.4.1")
     implementation("com.google.android.material:material:1.3.0")
     implementation("androidx.constraintlayout:constraintlayout:2.0.4")
+    implementation("androidx.exifinterface:exifinterface:1.3.5")
     implementation("androidx.multidex:multidex:2.0.1")
 
     /**
@@ -87,3 +96,4 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 }
+

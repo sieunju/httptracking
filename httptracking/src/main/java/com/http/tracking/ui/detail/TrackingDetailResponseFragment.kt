@@ -74,7 +74,7 @@ internal class TrackingDetailResponseFragment : Fragment() {
     private fun parseUiModel(entity: TrackingHttpEntity): List<BaseTrackingUiModel> {
         val uiList = mutableListOf<BaseTrackingUiModel>()
         entity.res?.body?.let { body ->
-            uiList.add(TrackingTitleUiModel("[Body]"))
+            uiList.add(TrackingTitleUiModel("[body]"))
             uiList.addAll(Extensions.parseResBodyUiModel(body))
         }
         return uiList

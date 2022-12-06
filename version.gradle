@@ -5,14 +5,14 @@ def versions = [:]
 
 def buildVersions = [:]
 buildVersions.minSdk = 21
-buildVersions.compileSdk = 31
-buildVersions.targetSdk = 31
-buildVersions.buildTools = "31.0.0"
+buildVersions.compileSdk = 32
+buildVersions.targetSdk = 32
+buildVersions.buildTools = "32.0.0"
 ext.buildVersions = buildVersions
 
 def deps = [:]
 
-deps.release = "1.0.13"
+deps.release = "1.0.14-beta01"
 
 versions.kotlin = "1.5.0"
 versions.androidPlugin = "7.1.3"

@@ -46,14 +46,19 @@ internal object Extensions {
         val startIdx = fullUrl.indexOf("?")
         if (startIdx != -1) {
             val pathOrQuery = fullUrl.substring(startIdx.plus(1))
+            val strBuilder = StringBuilder()
             pathOrQuery.split("&").forEach { str ->
                 str.runCatching {
                     val pair = splitQuery(this)
                     if (pair != null) {
-                        uiList.add(TrackingQueryUiModel(key = pair.first, value = pair.second))
+                        strBuilder.append(pair.first)
+                            .append("=")
+                            .append(pair.second)
+                            .append("\n")
                     }
                 }
             }
+            uiList.add(TrackingQueryUiModel(strBuilder.toString()))
         }
         return uiList
     }
@@ -62,19 +67,22 @@ internal object Extensions {
      * Converter RequestEntity to Request BodyUiModel
      * @param req Base Request Entity
      */
-    fun toReqBodyUiModels(req: BaseTrackingRequestEntity): List<BaseTrackingUiModel> {
+    fun toReqBodyUiModels(req: BaseTrackingRequestEntity?): List<BaseTrackingUiModel> {
+        if (req == null) return emptyList()
         val uiList = mutableListOf<BaseTrackingUiModel>()
         if (req is TrackingRequestMultipartEntity) {
             req.binaryList.forEach {
                 uiList.add(
                     TrackingMultipartBodyUiModel(
                         mediaType = it.type,
-                        binary = Base64.encodeToString(it.bytes,Base64.DEFAULT) ?: ""
+                        binary = Base64.encodeToString(it.bytes, Base64.DEFAULT) ?: ""
                     )
                 )
             }
         } else if (req is TrackingRequestEntity) {
-            uiList.add(TrackingBodyUiModel(toJsonBody(req.body)))
+            if (!req.body.isNullOrEmpty()) {
+                uiList.add(TrackingBodyUiModel(toJsonBody(req.body)))
+            }
         }
         return uiList
     }
