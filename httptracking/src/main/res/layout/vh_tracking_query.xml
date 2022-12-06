@@ -10,34 +10,20 @@
             type="com.http.tracking.models.TrackingQueryUiModel" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="15dp"
-        android:paddingRight="15dp">
+        android:paddingTop="5dp"
+        android:paddingRight="15dp"
+        android:paddingBottom="5dp">
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{model.key}"
-            android:textColor="#999999"
-            android:textIsSelectable="true"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Title" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvContents"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:text="@{model.value}"
+            android:text="@{model.query}"
             android:textColor="#222222"
-            android:textIsSelectable="true"
-            android:textSize="14dp"
-            app:layout_constraintTop_toBottomOf="@+id/tvTitle"
-            tools:text="Value" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:textIsSelectable="true" />
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
 </layout>

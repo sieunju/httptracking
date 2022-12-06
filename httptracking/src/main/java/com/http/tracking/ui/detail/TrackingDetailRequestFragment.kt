@@ -13,13 +13,10 @@ import com.http.tracking.Extensions
 import com.http.tracking.R
 import com.http.tracking.databinding.FTrackingDetailRequestBinding
 import com.http.tracking.models.BaseTrackingUiModel
-import com.http.tracking.models.TrackingAllCopyUiModel
 import com.http.tracking.models.TrackingPathUiModel
 import com.http.tracking.models.TrackingTitleUiModel
 import com.http.tracking.ui.adapter.TrackingAdapter
 import com.http.tracking_interceptor.model.TrackingHttpEntity
-import com.http.tracking_interceptor.model.TrackingRequestEntity
-import com.http.tracking_interceptor.model.TrackingRequestMultipartEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -83,59 +80,48 @@ internal class TrackingDetailRequestFragment : Fragment() {
                 .flowOn(Dispatchers.IO)
                 .singleOrNull() ?: return@launch
             adapter.submitList(uiList)
-            val allCopyUiModel = flowOf(entity)
-                .map { parseAllCopyUiModel(it) }
-                .flowOn(Dispatchers.IO)
-                .singleOrNull() ?: return@launch
-            val addList = mutableListOf<BaseTrackingUiModel>()
-            addList.add(allCopyUiModel)
-            addList.addAll(uiList)
-            adapter.submitList(addList)
         }
     }
 
+    /**
+     * Request UiModel 변환 함수
+     */
     private fun parseUiModel(entity: TrackingHttpEntity): List<BaseTrackingUiModel> {
         val uiList = mutableListOf<BaseTrackingUiModel>()
-        uiList.add(TrackingTitleUiModel("[Host]"))
-        uiList.add(TrackingPathUiModel(entity.baseUrl))
-        uiList.add(TrackingTitleUiModel("[Path]"))
-        uiList.add(TrackingPathUiModel(entity.path))
+        // All Copy
+        val req = entity.req
+        if (req != null) {
+            val fullCopy = StringBuilder()
+            fullCopy.append(req.fullUrl)
+            uiList.add(TrackingPathUiModel(fullCopy.toString()))
+        }
+
+        // host and path
+        uiList.add(TrackingTitleUiModel("[url]"))
+        val url = StringBuilder(entity.baseUrl)
+        url.append(entity.path)
+        uiList.add(TrackingPathUiModel(url.toString()))
+
+        // 헤더값 셋팅
         if (entity.headerMap.isNotEmpty()) {
-            uiList.add(TrackingTitleUiModel("[Header]"))
+            uiList.add(TrackingTitleUiModel("[header]"))
             uiList.addAll(Extensions.parseHeaderUiModel(entity.headerMap))
         }
+        // 쿼리 파라미터 셋팅
         if (!entity.req?.fullUrl.isNullOrEmpty()) {
             val queryUiModelList = Extensions.parseQueryUiModel(entity.req?.fullUrl)
             if (queryUiModelList.isNotEmpty()) {
-                uiList.add(TrackingTitleUiModel("[Query]"))
+                uiList.add(TrackingTitleUiModel("[query]"))
                 uiList.addAll(queryUiModelList)
             }
         }
 
-        entity.req?.let { req ->
-            uiList.add(TrackingTitleUiModel("[Body]"))
-            uiList.addAll(Extensions.toReqBodyUiModels(req))
+        // 바디 값 셋팅
+        val bodyModels = Extensions.toReqBodyUiModels(req)
+        if (bodyModels.isNotEmpty()) {
+            uiList.add(TrackingTitleUiModel("[body]"))
+            uiList.addAll(bodyModels)
         }
         return uiList
-    }
-
-    private fun parseAllCopyUiModel(entity: TrackingHttpEntity): BaseTrackingUiModel {
-        val str = StringBuilder()
-        if (entity.headerMap.isNotEmpty()) {
-            str.append(entity.headerMap.toString())
-            str.append("\n")
-        }
-        val req = entity.req
-        if (req is TrackingRequestEntity) {
-            str.append(req.fullUrl)
-            str.append("\n")
-            str.append("Body\n")
-            str.append(req.body)
-        } else if (req is TrackingRequestMultipartEntity) {
-            str.append(req.fullUrl)
-            str.append("\n")
-            str.append("MultiPart")
-        }
-        return TrackingAllCopyUiModel(str.toString())
     }
 }

@@ -1,5 +1,9 @@
 package com.http.tracking.models
 
+import android.graphics.Color
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
 import com.http.tracking.R
 
 internal class TrackingHeaderUiModel(
@@ -24,4 +28,23 @@ internal class TrackingHeaderUiModel(
             false
         }
     }
+
+    var contents: Spannable? = null
+        get() {
+            if (field == null) {
+                val str = StringBuilder()
+                str.append(key)
+                str.append(":")
+                str.append(value)
+                val ssb = SpannableStringBuilder(str)
+                ssb.setSpan(
+                    ForegroundColorSpan(Color.parseColor("#03A9F4")),
+                    0,
+                    key.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                field = ssb
+            }
+            return field
+        }
 }

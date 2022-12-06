@@ -9,15 +9,6 @@ internal class TrackingHeaderViewHolder(
     parent: ViewGroup
 ) : BaseTrackingViewHolder<VhTrackingHeaderBinding>(parent, R.layout.vh_tracking_header) {
 
-    init {
-        binding.tvContents.setOnLongClickListener {
-            binding.model?.runCatching {
-                simpleLongClickCopy(value)
-            }
-            return@setOnLongClickListener false
-        }
-    }
-
     override fun onBindView(model: Any) {
         binding.setVariable(BR.model, model)
     }

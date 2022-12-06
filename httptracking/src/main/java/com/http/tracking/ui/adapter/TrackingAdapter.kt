@@ -52,7 +52,6 @@ internal class TrackingAdapter : RecyclerView.Adapter<BaseTrackingViewHolder<*>>
             R.layout.vh_tracking_multipart_body -> TrackingMultipartBodyViewHolder(parent)
             R.layout.vh_tracking_title -> TrackingTitleViewHolder(parent)
             R.layout.vh_child_tracking -> TrackingListViewHolder(parent, dialog)
-            R.layout.vh_tracking_all_copy -> TrackingAllCopyViewHolder(parent)
             else -> throw IllegalArgumentException("Invalid ViewType")
         }
     }
