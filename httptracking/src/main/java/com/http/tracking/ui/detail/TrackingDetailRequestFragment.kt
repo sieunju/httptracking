@@ -97,10 +97,8 @@ internal class TrackingDetailRequestFragment : Fragment() {
         }
 
         // host and path
-        uiList.add(TrackingTitleUiModel("[url]"))
-        val url = StringBuilder(entity.baseUrl)
-        url.append(entity.path)
-        uiList.add(TrackingPathUiModel(url.toString()))
+        uiList.add(TrackingTitleUiModel("[path]"))
+        uiList.add(TrackingPathUiModel(entity.path))
 
         // 헤더값 셋팅
         if (entity.headerMap.isNotEmpty()) {
