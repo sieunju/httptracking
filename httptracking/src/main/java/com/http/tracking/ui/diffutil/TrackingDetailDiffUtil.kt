@@ -24,12 +24,20 @@ internal class TrackingDetailDiffUtil<out T : BaseTrackingUiModel>(
     override fun areItemsTheSame(oldPosition: Int, newPosition: Int): Boolean {
         val oldItem = oldList[oldPosition]
         val newItem = newList[newPosition]
-        return oldItem.areItemsTheSame(newItem)
+        return if (oldItem.getClassName() == newItem.getClassName()) {
+            oldItem.areItemsTheSame(newItem)
+        } else {
+            false
+        }
     }
 
     override fun areContentsTheSame(oldPosition: Int, newPosition: Int): Boolean {
         val oldItem = oldList[oldPosition]
         val newItem = newList[newPosition]
-        return oldItem.areContentsTheSame(newItem)
+        return if (oldItem.getClassName() == newItem.getClassName()) {
+            oldItem.areContentsTheSame(newItem)
+        } else {
+            false
+        }
     }
 }

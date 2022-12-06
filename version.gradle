@@ -5,9 +5,9 @@ def versions = [:]
 
 def buildVersions = [:]
 buildVersions.minSdk = 21
-buildVersions.compileSdk = 31
-buildVersions.targetSdk = 31
-buildVersions.buildTools = "31.0.0"
+buildVersions.compileSdk = 32
+buildVersions.targetSdk = 32
+buildVersions.buildTools = "32.0.0"
 ext.buildVersions = buildVersions
 
 def deps = [:]
