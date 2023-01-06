@@ -6,7 +6,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.http.tracking.R
 import com.http.tracking.models.BaseTrackingUiModel
-import com.http.tracking.ui.TrackingBottomSheetDialog
 import com.http.tracking.ui.diffutil.TrackingDetailDiffUtil
 import com.http.tracking.ui.viewholder.*
 
@@ -17,11 +16,9 @@ import com.http.tracking.ui.viewholder.*
  */
 internal class TrackingAdapter(
     private val fragment: Fragment
-) : RecyclerView.Adapter<BaseTrackingViewHolder<*>>() {
+) : RecyclerView.Adapter<BaseTrackingViewHolder>() {
 
     private val dataList = mutableListOf<BaseTrackingUiModel>()
-
-    private var dialog: TrackingBottomSheetDialog? = null
 
     fun submitList(newList: List<BaseTrackingUiModel>?) {
         if (newList == null) return
@@ -36,14 +33,10 @@ internal class TrackingAdapter(
         diffResult.dispatchUpdatesTo(this)
     }
 
-    fun setBottomSheetDialog(dialog: TrackingBottomSheetDialog) {
-        this.dialog = dialog
-    }
-
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): BaseTrackingViewHolder<*> {
+    ): BaseTrackingViewHolder {
         return when (viewType) {
             R.layout.vh_tracking_header -> TrackingHeaderViewHolder(parent)
             R.layout.vh_tracking_path -> TrackingPathViewHolder(parent)
@@ -56,7 +49,7 @@ internal class TrackingAdapter(
         }
     }
 
-    override fun onBindViewHolder(holder: BaseTrackingViewHolder<*>, pos: Int) {
+    override fun onBindViewHolder(holder: BaseTrackingViewHolder, pos: Int) {
         runCatching {
             holder.onBindView(dataList[pos])
         }

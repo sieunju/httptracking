@@ -183,7 +183,7 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
         val realContentsHeight = getDeviceHeight()
             .minus(getNavigationBarHeight())
             .minus(getStatusBarHeight())
-        return (realContentsHeight * 0.8F).toInt()
+        return (realContentsHeight * 0.9F).toInt()
     }
 
     private fun getDeviceHeight(): Int {

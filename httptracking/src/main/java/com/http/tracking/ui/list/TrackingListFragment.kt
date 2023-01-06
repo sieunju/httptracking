@@ -3,7 +3,7 @@ package com.http.tracking.ui.list
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.coroutineScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.http.tracking.R
@@ -50,7 +50,7 @@ internal class TrackingListFragment : Fragment(R.layout.f_tracking_list) {
      * 데이터 업데이트 처리 함수
      */
     private fun setTrackingData(newList: List<BaseTrackingEntity>) {
-        lifecycleScope.launch(Dispatchers.Main) {
+        lifecycle.coroutineScope.launch(Dispatchers.Main) {
             val uiList = flowOf(newList)
                 .map { it.toChildTrackingModel() }
                 .flowOn(Dispatchers.IO)

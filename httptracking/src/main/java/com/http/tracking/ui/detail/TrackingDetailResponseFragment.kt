@@ -45,7 +45,7 @@ internal class TrackingDetailResponseFragment : Fragment(R.layout.f_tracking_det
     /**
      * Request Detail 처리
      */
-    fun handleRequestDetailEntity() {
+    private fun handleRequestDetailEntity() {
         val dialogFragment = parentFragment?.parentFragment
         if (dialogFragment is TrackingBottomSheetDialog) {
             val detailEntity = dialogFragment.getTempDetailData()

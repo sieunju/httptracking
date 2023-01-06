@@ -1,9 +1,10 @@
 package com.http.tracking.ui.viewholder
 
 import android.view.ViewGroup
-import com.http.tracking.BR
+import androidx.appcompat.widget.AppCompatTextView
 import com.http.tracking.R
-import com.http.tracking.databinding.VhTrackingPathBinding
+import com.http.tracking.models.BaseTrackingUiModel
+import com.http.tracking.models.TrackingPathUiModel
 
 /**
  * Description : Http Path ViewHolder
@@ -12,11 +13,16 @@ import com.http.tracking.databinding.VhTrackingPathBinding
  */
 internal class TrackingPathViewHolder(
     parent: ViewGroup
-) : BaseTrackingViewHolder<VhTrackingPathBinding>(
+) : BaseTrackingViewHolder(
     parent,
     R.layout.vh_tracking_path
 ) {
-    override fun onBindView(model: Any) {
-        binding.setVariable(BR.model, model)
+
+    private val tvPath: AppCompatTextView by lazy { itemView.findViewById(R.id.tvPath) }
+
+    override fun onBindView(model: BaseTrackingUiModel) {
+        if (model is TrackingPathUiModel) {
+            tvPath.text = model.path
+        }
     }
 }
