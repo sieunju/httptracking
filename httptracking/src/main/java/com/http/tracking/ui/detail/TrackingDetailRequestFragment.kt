@@ -1,20 +1,19 @@
 package com.http.tracking.ui.detail
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.http.tracking.Extensions
 import com.http.tracking.R
-import com.http.tracking.databinding.FTrackingDetailRequestBinding
 import com.http.tracking.models.BaseTrackingUiModel
 import com.http.tracking.models.TrackingPathUiModel
 import com.http.tracking.models.TrackingTitleUiModel
+import com.http.tracking.ui.TrackingBottomSheetDialog
 import com.http.tracking.ui.adapter.TrackingAdapter
 import com.http.tracking_interceptor.model.TrackingHttpEntity
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +28,7 @@ import kotlinx.coroutines.launch
  *
  * Created by juhongmin on 2022/04/02
  */
-internal class TrackingDetailRequestFragment : Fragment() {
+internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_detail_request) {
 
     companion object {
         fun newInstance(): TrackingDetailRequestFragment = TrackingDetailRequestFragment()
@@ -44,42 +43,33 @@ internal class TrackingDetailRequestFragment : Fragment() {
             .create()
     }
 
-    private lateinit var binding: FTrackingDetailRequestBinding
-    private val adapter: TrackingAdapter by lazy { TrackingAdapter() }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return DataBindingUtil.inflate<FTrackingDetailRequestBinding>(
-            inflater,
-            R.layout.f_tracking_detail_request,
-            container,
-            false
-        ).run {
-            lifecycleOwner = this@TrackingDetailRequestFragment.viewLifecycleOwner
-            binding = this
-            return@run root
-        }
-    }
+    private lateinit var rvContents: RecyclerView
+    private val adapter: TrackingAdapter by lazy { TrackingAdapter(this) }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.rvContents.adapter = adapter
+        rvContents = view.findViewById(R.id.rvContents)
+        rvContents.layoutManager = LinearLayoutManager(view.context)
+        rvContents.adapter = adapter
+        handleRequestDetailEntity()
     }
 
     /**
      * Request Detail 처리
-     * @param entity 트레킹 데이터 모델
      */
-    fun performDetailEntity(entity: TrackingHttpEntity) {
-        lifecycleScope.launch(Dispatchers.Main) {
-            val uiList = flowOf(entity)
-                .map { parseUiModel(it) }
-                .flowOn(Dispatchers.IO)
-                .singleOrNull() ?: return@launch
-            adapter.submitList(uiList)
+    private fun handleRequestDetailEntity() {
+        val dialogFragment = parentFragment?.parentFragment
+        if (dialogFragment is TrackingBottomSheetDialog) {
+            val detailEntity = dialogFragment.getTempDetailData()
+            if (detailEntity != null) {
+                lifecycleScope.launch(Dispatchers.Main) {
+                    val uiList = flowOf(detailEntity)
+                        .map { parseUiModel(it) }
+                        .flowOn(Dispatchers.IO)
+                        .singleOrNull() ?: return@launch
+                    adapter.submitList(uiList)
+                }
+            }
         }
     }
 

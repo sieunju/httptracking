@@ -17,6 +17,7 @@ import java.lang.ref.WeakReference
  *
  * Created by juhongmin on 2022/03/29
  */
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 class TrackingManager private constructor() {
 
     companion object {

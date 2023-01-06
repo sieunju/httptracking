@@ -1,6 +1,7 @@
 package com.http.tracking.ui.adapter
 
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.http.tracking.R
@@ -8,16 +9,15 @@ import com.http.tracking.models.BaseTrackingUiModel
 import com.http.tracking.ui.TrackingBottomSheetDialog
 import com.http.tracking.ui.diffutil.TrackingDetailDiffUtil
 import com.http.tracking.ui.viewholder.*
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentMap
-import kotlin.reflect.KClass
 
 /**
  * Description : HttpTracking 공통 어댑터
  *
  * Created by juhongmin on 2022/09/04
  */
-internal class TrackingAdapter : RecyclerView.Adapter<BaseTrackingViewHolder<*>>() {
+internal class TrackingAdapter(
+    private val fragment: Fragment
+) : RecyclerView.Adapter<BaseTrackingViewHolder<*>>() {
 
     private val dataList = mutableListOf<BaseTrackingUiModel>()
 
@@ -51,7 +51,7 @@ internal class TrackingAdapter : RecyclerView.Adapter<BaseTrackingViewHolder<*>>
             R.layout.vh_tracking_body -> TrackingBodyViewHolder(parent)
             R.layout.vh_tracking_multipart_body -> TrackingMultipartBodyViewHolder(parent)
             R.layout.vh_tracking_title -> TrackingTitleViewHolder(parent)
-            R.layout.vh_child_tracking -> TrackingListViewHolder(parent, dialog)
+            R.layout.vh_child_tracking -> TrackingListViewHolder(parent, fragment)
             else -> throw IllegalArgumentException("Invalid ViewType")
         }
     }
