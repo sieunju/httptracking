@@ -6,7 +6,7 @@ KO-KR
 > 많은 애용 바랍니다. 그리고 추가 하고 싶은 기능이 있으면 이슈로 남겨주시기 바랍니다.
 
 ### 기능 개선을 했어요.
-- [Databinding 을 제거 하여 라이브러리 의존성을 제거 했어요.](https://github.com/sieunju/httptracking/issues/44)
+- [dataBinding 을 제거 하여 라이브러리 의존성을 제거 했어요.](https://github.com/sieunju/httptracking/issues/44)
 
 EN-US
 ### Introduction
@@ -14,4 +14,4 @@ EN-US
 > Please use it a lot. And if there is a function you want to add, please leave it as an issue.
 
 ### Improvements
-- [I removed the library dependency by removing "Databinding".](https://github.com/sieunju/httptracking/issues/44)
+- [I removed the library dependency by removing "dataBinding".](https://github.com/sieunju/httptracking/issues/44)
