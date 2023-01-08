@@ -1,13 +1,12 @@
-Version: 1.1.1
-Title: 1.1.1 릴리즈 배포입니다.
+Version: 1.2.0-beta01
+Title: 1.2.0-beta01 배포입니다.
 KO-KR
 ### 소개
 > 앱을 사용하다가 단말기를 흔들면 트래킹한 로그들을 간단히 볼수 있습니다. 👨🏿‍💻🙇‍
 > 많은 애용 바랍니다. 그리고 추가 하고 싶은 기능이 있으면 이슈로 남겨주시기 바랍니다.
 
 ### 기능 개선을 했어요.
-- Http Request UI 방식을 변경했어요.
-- 롱클릭시 복사하는 기능을 선택적으로 복사할수 있도록 변경했어요.
+- [Databinding 을 제거 하여 라이브러리 의존성을 제거 했어요.](https://github.com/sieunju/httptracking/issues/44)
 
 EN-US
 ### Introduction
@@ -15,5 +14,4 @@ EN-US
 > Please use it a lot. And if there is a function you want to add, please leave it as an issue.
 
 ### Improvements
-> I changed the 'Http Request' UI method.
-> I changed the copy function to selectively copy when I click long.
+- [I removed the library dependency by removing "Databinding".](https://github.com/sieunju/httptracking/issues/44)
