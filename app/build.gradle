@@ -29,12 +29,12 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
-//            buildConfigField "String", "TIL_URL", properties["TIL_URL"]
-//            buildConfigField "String", "CDN_URL", properties["CDN_URL"]
-//            buildConfigField "String", "MEMO_URL", properties["MEMO_URL"]
-            buildConfigField "String", "TIL_URL", '"https://www.test.com"'
-            buildConfigField "String", "CDN_URL", '"https://www.test.com"'
-            buildConfigField "String", "MEMO_URL", '"https://www.test.com"'
+            buildConfigField "String", "TIL_URL", properties["TIL_URL"]
+            buildConfigField "String", "CDN_URL", properties["CDN_URL"]
+            buildConfigField "String", "MEMO_URL", properties["MEMO_URL"]
+//            buildConfigField "String", "TIL_URL", '"https://www.test.com"'
+//            buildConfigField "String", "CDN_URL", '"https://www.test.com"'
+//            buildConfigField "String", "MEMO_URL", '"https://www.test.com"'
         }
 
         release {
