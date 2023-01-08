@@ -89,9 +89,11 @@ internal class TrackingDetailRootFragment : Fragment(R.layout.f_tracking_detail)
         try {
             val wifiAddress = WifiManager.getInstance().getWifiAddress()
             if (server == null && !wifiAddress.isNullOrEmpty()) {
-                server = HttpServer.create(InetSocketAddress(wifiAddress, port), 0)
-                server?.executor = Executors.newCachedThreadPool()
-                server?.createContext("/tracking", HttpTrackingRouter())
+                server = HttpServer.create(InetSocketAddress(wifiAddress, port), 0)?.run {
+                    executor = Executors.newCachedThreadPool()
+                    createContext("/tracking", HttpTrackingRouter())
+                    return@run this
+                }
                 server?.start()
             }
             Timber.d("ServerOn ${server?.address}")
@@ -153,9 +155,16 @@ internal class TrackingDetailRootFragment : Fragment(R.layout.f_tracking_detail)
                 headers.add("Content-Type", "text/html;charset=UTF-8")
                 headers.add("Content-Length",response.length.toString())
 
-                // Send Response Headers
                 exchange.sendResponseHeaders(200, response.length.toLong())
-                resBody.write(response.encodeToByteArray())
+                Timber.d("ResponseSize ${response.length}")
+
+                for (idx in response.indices step 8142) {
+                    val subString = response.substring(idx,idx.plus(8142))
+                    resBody.write(subString.encodeToByteArray())
+                }
+
+                resBody.flush()
+                // Send Response Headers
                 resBody.close()
             } catch (ex: Exception) {
                 Timber.d("Router Error $ex")
