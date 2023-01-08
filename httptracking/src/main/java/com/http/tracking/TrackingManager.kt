@@ -9,6 +9,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.fragment.app.FragmentActivity
 import com.http.tracking.ui.TrackingBottomSheetDialog
+import com.http.tracking.util.WifiManager
 import com.http.tracking_interceptor.TrackingDataManager
 import java.lang.ref.WeakReference
 
@@ -104,6 +105,9 @@ class TrackingManager private constructor() {
                 sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
                 SensorManager.SENSOR_DELAY_UI
             )
+
+            // Wifi Share Enable
+            WifiManager.getInstance().setApplication(context)
         }
     }
 

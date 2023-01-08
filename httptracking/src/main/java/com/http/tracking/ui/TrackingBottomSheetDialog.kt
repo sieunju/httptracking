@@ -111,6 +111,9 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
         }
     }
 
+    /**
+     * HTTP Tracking 상세 진입
+     */
     fun moveToDetailFragment(clickData: TrackingHttpEntity) {
         detailData?.clear()
         detailData = null

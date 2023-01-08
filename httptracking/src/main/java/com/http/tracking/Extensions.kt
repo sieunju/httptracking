@@ -97,7 +97,7 @@ internal object Extensions {
         return uiList
     }
 
-    private fun toJsonBody(body: String?): String {
+    fun toJsonBody(body: String?): String {
         if (body == null) return ""
         return try {
             val je = JsonParser.parseString(body)

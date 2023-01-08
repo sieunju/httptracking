@@ -31,7 +31,9 @@ android {
 }
 
 dependencies {
-
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+//    implementation files('libs/sun-common-server.jar')
+//    implementation files('libs/http-2.2.1.jar')
     implementation(project(":interceptor"))
     /**
      * Android X
