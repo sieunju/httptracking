@@ -87,12 +87,14 @@ internal class WifiManager private constructor() {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val linkAddresses = cm.getLinkProperties(cm.activeNetwork)?.linkAddresses
+            Timber.d("LinkAddress $linkAddresses")
             val ipV4Address = linkAddresses?.firstOrNull { linkAddress ->
                 linkAddress.address.hostAddress?.contains(".") ?: false
             }?.address?.hostAddress
             Timber.d("WifiAddress $ipV4Address")
             return ipV4Address
         } else {
+
             return null
         }
     }

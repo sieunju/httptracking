@@ -129,23 +129,31 @@ internal class TrackingDetailRootFragment : Fragment(R.layout.f_tracking_detail)
     }
 
     inner class HttpTrackingRouter : HttpHandler {
+
+        private val defaultCharBufferSize = 8 * 1024 // Char Write Limit Size
+
         override fun handle(exchange: HttpExchange?) {
             if (exchange == null) return
             val resBody = exchange.responseBody
             try {
                 val sb = StringBuilder()
-                sb.append("<!DOCTYPE html>")
-                sb.append("<html>")
-                sb.append("    <head>")
-                sb.append("         <meta charset=\"utf-8\"")
-                sb.append("         <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"")
-                sb.append("         <title>Android Http Tracking Log</title>")
-                sb.append("    </head>")
-                sb.append(" <body>")
-                sb.append("<br>")
+                sb.append(
+                    "<!DOCTYPE html>\n" +
+                            "<html lang=\"en\">\n" +
+                            "\n" +
+                            "<head>\n" +
+                            "    <meta charset=\"utf-8\">\n" +
+                            "    <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n" +
+                            "    <title>Memo</title>\n" +
+                            "</head>"
+                )
+                sb.append("\n")
+                sb.append("<body>")
+                sb.append("\n")
                 sb.append(getHttpTrackingJson())
-                sb.append("<br>")
-                sb.append(" </body>")
+                sb.append("\n")
+                sb.append("</body>")
+                sb.append("\n")
                 sb.append("</html>")
 
                 val response = sb.toString()
@@ -153,18 +161,21 @@ internal class TrackingDetailRootFragment : Fragment(R.layout.f_tracking_detail)
                 // Set Response Headers
                 val headers = exchange.responseHeaders
                 headers.add("Content-Type", "text/html;charset=UTF-8")
-                headers.add("Content-Length",response.length.toString())
-
-                exchange.sendResponseHeaders(200, response.length.toLong())
-                Timber.d("ResponseSize ${response.length}")
-
-                for (idx in response.indices step 8142) {
-                    val subString = response.substring(idx,idx.plus(8142))
-                    resBody.write(subString.encodeToByteArray())
+                exchange.sendResponseHeaders(200, response.encodeToByteArray().size.toLong())
+                var startIdx = 0
+                Timber.d("RouterInfo StartIdx: $startIdx ResponseLength: ${response.length}")
+                while (startIdx < response.length) {
+                    val endIdx =
+                        startIdx.plus(defaultCharBufferSize).coerceAtMost(response.length)
+                    Timber.d("StartIdx $startIdx EndIdx $endIdx")
+                    val subString = response.substring(startIdx, endIdx)
+                    val subByte = subString.encodeToByteArray()
+                    startIdx += defaultCharBufferSize
+                    resBody.write(subByte)
                 }
 
-                resBody.flush()
                 // Send Response Headers
+                resBody.flush()
                 resBody.close()
             } catch (ex: Exception) {
                 Timber.d("Router Error $ex")
@@ -188,35 +199,87 @@ internal class TrackingDetailRootFragment : Fragment(R.layout.f_tracking_detail)
 
     private fun getHttpTrackingJson(): String {
         val str = StringBuilder()
+        // Android Http Tracking Log
+        str.append("<h3>Android HTTP Tracking Log by.hmju</h3>")
         val data = getDetailData()
         if (data != null) {
+            // Log Print Format
+            // 1. {MethodType} {BaseUrl + Path}
+            // 2. {Request Query Parameter}
+            // 3. {Request Body}
+            // 4. {Headers}
+            // 5. Response Code
+            // 6. Response Body
+            // 7. Response Error
             val req = data.req
             // Request Setting
             if (req != null) {
-                // Full Url
-                str.append("[URL] : ")
-                str.append(req.fullUrl)
-                // Header Setting
-                str.append("[Headers]")
-                str.append("<br>")
-                data.headerMap.forEach { entry ->
-                    str.append(entry.key)
-                    str.append(" : ")
-                    str.append(entry.value)
-                    str.append("<br>")
+                // 1. {MethodType} {BaseUrl + Path}
+                str.append("<h4>[${data.method}] ${data.scheme}://${data.baseUrl}${data.path}</h4>")
+
+                // 2. {Request Query Parameter or Request Body}
+                val queryList = Extensions.toReqQueryList(req.fullUrl)
+                if (queryList.isNotEmpty()) {
+                    str.append("<h5>[Request Query Parameters]</h5>")
+                    queryList.forEach {
+                        str.append(it.plus("<br>"))
+                    }
                 }
 
-                // TrackingRequestMultipartEntity Skip
+                // 3. {Request Body}
                 if (req is TrackingRequestEntity) {
-                    str.append(req.body)
-                    str.append("<br>")
+                    if (!req.body.isNullOrEmpty()) {
+                        str.append("<h5>[Request Body - Json]</h5>")
+                        str.append("<pre>")
+                        str.append(Extensions.toJsonBody(req.body).replace("\n", "<br>"))
+                        str.append("</pre>")
+                    }
+                } else if (req is TrackingRequestMultipartEntity) {
+                    str.append("<h5>[Request Body - MultipartType]</h5>")
+                    req.binaryList.forEach {
+                        str.append("MultiPart-MediaType: ")
+                        str.append(it.type)
+                        str.append(" Length: ")
+                        str.append(it.bytes?.size)
+                        str.append("<br>")
+                    }
+                }
+
+                // 4. {Headers}
+                if (data.headerMap.isNotEmpty()) {
+                    str.append("<h5>[Headers]</h5>")
+                    data.headerMap.forEach { entry ->
+                        str.append(entry.key)
+                        str.append(" : ")
+                        str.append(entry.value)
+                        str.append("<br>")
+                    }
+                }
+
+                // 5. Response Code
+                if (data.isSuccess()) {
+                    str.append("<H4><font color=\"#03A9F4\">${data.code}</font></H4>")
+                } else {
+                    str.append("<H4><font color=\"#C62828\">${data.code}</font></H4>")
                 }
             }
+
             val res = data.res
+
             if (res != null) {
-                str.append("[Body]")
+                // 6. Response Body
+                str.append("<h5>[Body]</h5>")
+                str.append("<pre>")
+                str.append(Extensions.toJsonBody(res.body).replace("\n", "<br>"))
+                str.append("</pre>")
+            }
+
+            // 7. Response Error
+            if (data.error != null) {
                 str.append("<br>")
-                str.append(Extensions.toJsonBody(res.body))
+                str.append("<h5>[HTTP Error]</h5>")
+                str.append(data.error)
+                str.append("<br>")
             }
         }
         return str.toString()
