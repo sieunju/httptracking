@@ -12,12 +12,11 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.LayoutRes
-import androidx.databinding.DataBindingUtil
-import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import com.http.tracking.R
+import com.http.tracking.models.BaseTrackingUiModel
 
-internal abstract class BaseTrackingViewHolder<T : ViewDataBinding>(
+internal abstract class BaseTrackingViewHolder(
     parent: ViewGroup,
     @LayoutRes layoutId: Int
 ) : RecyclerView.ViewHolder(
@@ -25,10 +24,9 @@ internal abstract class BaseTrackingViewHolder<T : ViewDataBinding>(
 ) {
     private val clipboard =
         itemView.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-    val binding: T by lazy { DataBindingUtil.bind(itemView)!! }
 
     @Throws(Exception::class)
-    abstract fun onBindView(model: Any)
+    abstract fun onBindView(model: BaseTrackingUiModel)
 
     /**
      * 길게 눌렀을때 해당 내용 복사 되도록 처리

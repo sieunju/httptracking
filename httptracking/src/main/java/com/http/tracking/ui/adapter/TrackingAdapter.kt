@@ -1,27 +1,24 @@
 package com.http.tracking.ui.adapter
 
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.http.tracking.R
 import com.http.tracking.models.BaseTrackingUiModel
-import com.http.tracking.ui.TrackingBottomSheetDialog
 import com.http.tracking.ui.diffutil.TrackingDetailDiffUtil
 import com.http.tracking.ui.viewholder.*
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentMap
-import kotlin.reflect.KClass
 
 /**
  * Description : HttpTracking 공통 어댑터
  *
  * Created by juhongmin on 2022/09/04
  */
-internal class TrackingAdapter : RecyclerView.Adapter<BaseTrackingViewHolder<*>>() {
+internal class TrackingAdapter(
+    private val fragment: Fragment
+) : RecyclerView.Adapter<BaseTrackingViewHolder>() {
 
     private val dataList = mutableListOf<BaseTrackingUiModel>()
-
-    private var dialog: TrackingBottomSheetDialog? = null
 
     fun submitList(newList: List<BaseTrackingUiModel>?) {
         if (newList == null) return
@@ -36,14 +33,10 @@ internal class TrackingAdapter : RecyclerView.Adapter<BaseTrackingViewHolder<*>>
         diffResult.dispatchUpdatesTo(this)
     }
 
-    fun setBottomSheetDialog(dialog: TrackingBottomSheetDialog) {
-        this.dialog = dialog
-    }
-
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): BaseTrackingViewHolder<*> {
+    ): BaseTrackingViewHolder {
         return when (viewType) {
             R.layout.vh_tracking_header -> TrackingHeaderViewHolder(parent)
             R.layout.vh_tracking_path -> TrackingPathViewHolder(parent)
@@ -51,12 +44,12 @@ internal class TrackingAdapter : RecyclerView.Adapter<BaseTrackingViewHolder<*>>
             R.layout.vh_tracking_body -> TrackingBodyViewHolder(parent)
             R.layout.vh_tracking_multipart_body -> TrackingMultipartBodyViewHolder(parent)
             R.layout.vh_tracking_title -> TrackingTitleViewHolder(parent)
-            R.layout.vh_child_tracking -> TrackingListViewHolder(parent, dialog)
+            R.layout.vh_child_tracking -> TrackingListViewHolder(parent, fragment)
             else -> throw IllegalArgumentException("Invalid ViewType")
         }
     }
 
-    override fun onBindViewHolder(holder: BaseTrackingViewHolder<*>, pos: Int) {
+    override fun onBindViewHolder(holder: BaseTrackingViewHolder, pos: Int) {
         runCatching {
             holder.onBindView(dataList[pos])
         }

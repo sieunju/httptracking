@@ -9,31 +9,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import androidx.databinding.DataBindingUtil
+import android.widget.FrameLayout
+import androidx.appcompat.widget.AppCompatImageView
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.lifecycleScope
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.http.tracking.BR
 import com.http.tracking.R
-import com.http.tracking.databinding.DTrackingBottomSheetBinding
-import com.http.tracking.models.BaseTrackingUiModel
-import com.http.tracking.models.TrackingListUiModel
-import com.http.tracking.ui.adapter.TrackingAdapter
-import com.http.tracking.ui.detail.TrackingDetailRequestFragment
-import com.http.tracking.ui.detail.TrackingDetailResponseFragment
+import com.http.tracking.ui.detail.TrackingDetailRootFragment
+import com.http.tracking.ui.list.TrackingListFragment
 import com.http.tracking_interceptor.TrackingDataManager
-import com.http.tracking_interceptor.model.BaseTrackingEntity
 import com.http.tracking_interceptor.model.TrackingHttpEntity
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
 
 /**
  * Description : HTTP 로그 정보 보여주는 BottomSheetDialog
@@ -46,13 +34,17 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
         fun onDismiss()
     }
 
-    val position: MutableLiveData<Int> by lazy { MutableLiveData<Int>().apply { value = 0 } }
-
-    lateinit var binding: DTrackingBottomSheetBinding
-    private lateinit var pagerAdapter: PagerAdapter
-    private lateinit var trackingAdapter: TrackingAdapter
+    private val windowManager: WindowManager by lazy { requireContext().getSystemService(Context.WINDOW_SERVICE) as WindowManager }
     private var listener: DismissListener? = null
-    private val dataList: MutableList<BaseTrackingUiModel> by lazy { mutableListOf() }
+
+    private var detailData: WeakReference<TrackingHttpEntity>? = null
+
+    // [s] View
+    private lateinit var tvTitle: AppCompatTextView
+    private lateinit var ivBack: AppCompatImageView
+    private lateinit var ivClear: AppCompatImageView
+    private lateinit var rootContainer: FrameLayout
+    // [e] View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,46 +75,63 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return DataBindingUtil.inflate<DTrackingBottomSheetBinding>(
-            inflater,
-            R.layout.d_tracking_bottom_sheet,
-            container,
-            false
-        ).run {
-            lifecycleOwner = this@TrackingBottomSheetDialog
-            binding = this
-            binding.setVariable(BR.dialog, this@TrackingBottomSheetDialog)
-            return@run root
-        }
+        return inflater.inflate(R.layout.d_tracking_bottom_sheet, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        pagerAdapter = PagerAdapter(this)
-        trackingAdapter = TrackingAdapter()
-        trackingAdapter.setBottomSheetDialog(this)
-        with(binding) {
-            rvContents.adapter = trackingAdapter
-            vp.adapter = pagerAdapter
-            vp.offscreenPageLimit = 2
-            vp.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-                override fun onPageSelected(pos: Int) {
-                    position.value = pos.plus(1)
-                }
-            })
+
+        with(view) {
+            tvTitle = findViewById(R.id.tvTitle)
+            ivBack = findViewById(R.id.ivBack)
+            rootContainer = findViewById(R.id.fragment)
+            ivClear = findViewById(R.id.ivClear)
+
+            ivClear.setOnClickListener { handleClear() }
+            ivBack.setOnClickListener { handleBack() }
         }
 
-        dialog?.setOnDismissListener {
-            dismiss()
-        }
+        moveToListFragment()
+    }
 
-        setTrackingData(TrackingDataManager.getInstance().getTrackingList())
+    private fun moveToListFragment() {
+        setHeaderTitle("List")
+        ivBack.visibility = View.GONE
+        ivClear.visibility = View.VISIBLE
 
-        TrackingDataManager.getInstance().setListener(object : TrackingDataManager.Listener {
-            override fun onNotificationTrackingEntity() {
-                setTrackingData(TrackingDataManager.getInstance().getTrackingList())
+        val findFragment = childFragmentManager.fragments.firstOrNull { it is TrackingListFragment }
+        if (findFragment is TrackingListFragment) {
+            childFragmentManager.popBackStack()
+        } else {
+            childFragmentManager.beginTransaction().apply {
+                replace(R.id.fragment, TrackingListFragment.newInstance())
+                addToBackStack(null)
+                commit()
             }
-        })
+        }
+    }
+
+    fun moveToDetailFragment(clickData: TrackingHttpEntity) {
+        detailData?.clear()
+        detailData = null
+
+        detailData = WeakReference(clickData)
+
+        ivBack.visibility = View.VISIBLE
+        ivClear.visibility = View.GONE
+
+        childFragmentManager.beginTransaction().apply {
+            add(R.id.fragment, TrackingDetailRootFragment.newInstance())
+            addToBackStack(null)
+            commit()
+        }
+    }
+
+    /**
+     * set Header Title
+     */
+    fun setHeaderTitle(title: String) {
+        tvTitle.text = title
     }
 
     fun setListener(listener: DismissListener): TrackingBottomSheetDialog {
@@ -130,33 +139,8 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
         return this
     }
 
-    /**
-     * 데이터 업데이트 처리 함수
-     */
-    private fun setTrackingData(newList: List<BaseTrackingEntity>) {
-        lifecycleScope.launch(Dispatchers.Main) {
-            val uiList = flowOf(newList)
-                .map { it.toChildTrackingModel() }
-                .flowOn(Dispatchers.IO)
-                .singleOrNull() ?: listOf()
-
-            dataList.clear()
-            dataList.addAll(uiList)
-            trackingAdapter.submitList(dataList)
-        }
-    }
-
-    /**
-     * Converter BaseTrackingEntity to TrackingListUiModel
-     */
-    private inline fun <reified T : List<BaseTrackingEntity>> T.toChildTrackingModel(): List<BaseTrackingUiModel> {
-        val uiList = mutableListOf<BaseTrackingUiModel>()
-        this.forEach {
-            if (it is TrackingHttpEntity) {
-                uiList.add(TrackingListUiModel(it))
-            }
-        }
-        return uiList
+    fun getTempDetailData(): TrackingHttpEntity? {
+        return detailData?.get()
     }
 
     override fun dismiss() {
@@ -167,51 +151,16 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
     /**
      * 목록 화면으로 돌아가는 처리
      */
-    fun onBack() {
-        position.value = 0
+    private fun handleBack() {
+        moveToListFragment()
     }
 
-    fun onClear() {
+    /**
+     * 데이터 리스트 클리어
+     */
+    private fun handleClear() {
         TrackingDataManager.getInstance().clear()
-        dataList.clear()
-        setTrackingData(TrackingDataManager.getInstance().getTrackingList())
-    }
-
-    /**
-     * HTTP Tracking 자세한 화면으로 이동하는 함수
-     * @param entity 표시할 데이터 모델
-     */
-    fun performDetail(entity: TrackingHttpEntity?) {
-        if (entity == null) return
-        moveToDetailViewPager()
-        lifecycleScope.launch(Dispatchers.Main) {
-            flowOf(entity)
-                .onStart { delay(200) }
-                .collect {
-                    childFragmentManager.runCatching {
-                        val requestFragment = findFragmentByTag("f0")
-                        val responseFragment = findFragmentByTag("f1")
-                        if (requestFragment is TrackingDetailRequestFragment) {
-                            requestFragment.performDetailEntity(it)
-                        }
-                        if (responseFragment is TrackingDetailResponseFragment) {
-                            responseFragment.performDetailEntity(it)
-                        }
-                    }
-                }
-        }
-    }
-
-    /**
-     * 상세 화면으로 이동하는 함수
-     */
-    private fun moveToDetailViewPager() {
-        runCatching {
-            position.value = 1
-            binding.vp.post {
-                binding.vp.setCurrentItem(0, true)
-            }
-        }
+        moveToListFragment()
     }
 
     /**
@@ -231,32 +180,34 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
      * Height 85%
      */
     private fun getBottomSheetHeight(): Int {
-        return getDeviceHeight() * 80 / 100
+        val realContentsHeight = getDeviceHeight()
+            .minus(getNavigationBarHeight())
+            .minus(getStatusBarHeight())
+        return (realContentsHeight * 0.9F).toInt()
     }
 
-    @Suppress("DEPRECATION")
     private fun getDeviceHeight(): Int {
-        val windowManager: WindowManager =
-            requireContext().getSystemService(Context.WINDOW_SERVICE) as WindowManager
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             windowManager.currentWindowMetrics.bounds.height()
         } else {
             val displayMetrics = DisplayMetrics()
+            @Suppress("DEPRECATION")
             windowManager.defaultDisplay.getMetrics(displayMetrics)
             displayMetrics.heightPixels
         }
     }
 
-    class PagerAdapter(fa: Fragment) : FragmentStateAdapter(fa) {
-        override fun getItemCount(): Int {
-            return 2
-        }
+    private fun getNavigationBarHeight(): Int {
+        val id: Int = resources.getIdentifier("navigation_bar_height", "dimen", "android")
+        return if (id > 0) {
+            resources.getDimensionPixelSize(id)
+        } else 0
+    }
 
-        override fun createFragment(pos: Int): Fragment {
-            return when (pos) {
-                0 -> TrackingDetailRequestFragment.newInstance()
-                else -> TrackingDetailResponseFragment.newInstance()
-            }
-        }
+    private fun getStatusBarHeight(): Int {
+        val id: Int = resources.getIdentifier("status_bar_height", "dimen", "android")
+        return if (id > 0) {
+            resources.getDimensionPixelSize(id)
+        } else 0
     }
 }
