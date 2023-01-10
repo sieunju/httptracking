@@ -12,7 +12,7 @@ ext.buildVersions = buildVersions
 
 def deps = [:]
 
-deps.release = "1.2.0-beta01"
+deps.release = "1.2.0-beta02"
 
 versions.kotlin = "1.5.0"
 versions.androidPlugin = "7.1.3"
