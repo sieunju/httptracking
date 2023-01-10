@@ -2,13 +2,7 @@ package com.http.tracking.util
 
 import android.app.Application
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
-import android.net.wifi.WifiInfo
-import android.os.Build
-import timber.log.Timber
+import android.net.*
 
 /**
  * Description : Wifi Manager
@@ -29,6 +23,8 @@ internal class WifiManager private constructor() {
                 }
             }
         }
+
+        private const val PREF_KEY_PORT_NUM = "http_tracking_port_num"
     }
 
     private var application: Application? = null
@@ -39,7 +35,10 @@ internal class WifiManager private constructor() {
             .build()
     }
 
+    // [s] Variable
     private var wifiAddress: String? = null
+    private var isWifiEnabled = false
+    // [e] Variable
 
     /**
      * init WifiManager
@@ -64,38 +63,46 @@ internal class WifiManager private constructor() {
             network: Network,
             capabilities: NetworkCapabilities
         ) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val wifiInfo = capabilities.transportInfo as WifiInfo
-                val wifiIp = wifiInfo.ipAddress
-                Timber.d("OriginAddress $wifiIp")
-                val formattedIpAddress = String.format(
-                    "%d.%d.%d.%d",
-                    wifiIp and 0xff,
-                    wifiIp shr 8 and 0xff,
-                    wifiIp shr 16 and 0xff,
-                    wifiIp shr 24 and 0xff
-                )
-                Timber.d("WifiInfo Address $formattedIpAddress")
-            } else {
+            isWifiEnabled = true
+        }
 
-            }
+        override fun onLost(network: Network) {
+            isWifiEnabled = false
+        }
+
+        override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
+            val ipV4Address = linkProperties.linkAddresses.firstOrNull { linkAddress ->
+                linkAddress.address.hostAddress?.contains(".") ?: false
+            }?.address?.hostAddress
+            wifiAddress = ipV4Address
         }
     }
 
+    /**
+     * Get Wifi Address 172.30.1.23
+     */
     fun getWifiAddress(): String? {
-        val context = application?.applicationContext ?: return null
-        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val linkAddresses = cm.getLinkProperties(cm.activeNetwork)?.linkAddresses
-            Timber.d("LinkAddress $linkAddresses")
-            val ipV4Address = linkAddresses?.firstOrNull { linkAddress ->
-                linkAddress.address.hostAddress?.contains(".") ?: false
-            }?.address?.hostAddress
-            Timber.d("WifiAddress $ipV4Address")
-            return ipV4Address
-        } else {
+        return wifiAddress
+    }
 
-            return null
-        }
+    /**
+     * Wifi Share HTTP Port Settings
+     */
+    fun setPort(port: Int) {
+        val context = application?.applicationContext ?: return
+        val pref = context.getSharedPreferences("http_tracking_preference", Context.MODE_PRIVATE)
+        pref.edit()
+            .putInt(PREF_KEY_PORT_NUM, port)
+            .apply()
+    }
+
+    /**
+     * Wifi Share HTTP Port Getting
+     */
+    fun getPort(): Int {
+        val context = application?.applicationContext ?: return 50050
+
+        val pref = context.getSharedPreferences("http_tracking_preference", Context.MODE_PRIVATE)
+        return pref.getInt(PREF_KEY_PORT_NUM, 50050)
     }
 }

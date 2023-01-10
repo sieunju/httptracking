@@ -6,7 +6,6 @@ import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.fragment.app.FragmentActivity
 import com.http.tracking.ui.TrackingBottomSheetDialog
 import com.http.tracking.util.WifiManager
@@ -25,7 +24,10 @@ class TrackingManager private constructor() {
         @Volatile
         private var instance: TrackingManager? = null
 
-        private var trackingCnt: Long = 0L
+        // [s] Variable
+        internal var isDebugType = false // Debug Mode
+        internal var isWifiShare = true // Wifi Share Feature Enable / Disable
+        // [e] Variable
 
         @JvmStatic
         fun getInstance(): TrackingManager {
@@ -36,10 +38,6 @@ class TrackingManager private constructor() {
             }
         }
     }
-
-    // [s] Variable
-    private var isDebug = false
-    // [e] Variable
 
     private var dialog: TrackingBottomSheetDialog? = null
 
@@ -97,7 +95,7 @@ class TrackingManager private constructor() {
      * @param context Application Context
      */
     fun build(context: Application) {
-        if (isDebug()) {
+        if (isDebugType) {
             context.registerActivityLifecycleCallbacks(activityListener)
             val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
             sensorManager.registerListener(
@@ -107,7 +105,9 @@ class TrackingManager private constructor() {
             )
 
             // Wifi Share Enable
-            WifiManager.getInstance().setApplication(context)
+            if (isWifiShare) {
+                WifiManager.getInstance().setApplication(context)
+            }
         }
     }
 
@@ -116,7 +116,7 @@ class TrackingManager private constructor() {
      * @param isDebug 디버그 모드 true, 릴리즈 모드 false
      */
     fun setBuildType(isDebug: Boolean): TrackingManager {
-        this.isDebug = isDebug
+        isDebugType = isDebug
         TrackingDataManager.getInstance().setBuildType(isDebug)
         return this
     }
@@ -130,7 +130,11 @@ class TrackingManager private constructor() {
         return this
     }
 
-    fun isDebug() = isDebug
-
-    fun isRelease() = !isDebug
+    /**
+     * Wifi Share Feature Enable / Disabled
+     */
+    fun setWifiShare(isEnable: Boolean): TrackingManager {
+        isWifiShare = isEnable
+        return this
+    }
 }

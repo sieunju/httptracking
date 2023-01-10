@@ -4,13 +4,17 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.http.tracking.Extensions
 import com.http.tracking.R
+import com.http.tracking.TrackingManager
 import com.http.tracking.ui.TrackingBottomSheetDialog
 import com.http.tracking.util.WifiManager
 import com.http.tracking_interceptor.model.TrackingHttpEntity
@@ -36,7 +40,7 @@ internal class TrackingDetailRootFragment : Fragment(R.layout.f_tracking_detail)
     private lateinit var etPort: AppCompatEditText
 
     private var server: HttpServer? = null
-    private var port: Int = 5000
+    private var port: Int = WifiManager.getInstance().getPort() // 초기값 셋팅
 
     private val adapter: PagerAdapter by lazy { PagerAdapter() }
 
@@ -68,17 +72,27 @@ internal class TrackingDetailRootFragment : Fragment(R.layout.f_tracking_detail)
         viewPager = view.findViewById(R.id.vp)
         ivShare = view.findViewById(R.id.ivShare)
         etPort = view.findViewById(R.id.etPort)
+        if (TrackingManager.isWifiShare) {
+            view.findViewById<LinearLayoutCompat>(R.id.llWifiShare).visibility = View.VISIBLE
+        }
     }
 
     private fun handleEditText() {
+        etPort.setText(port.toString(), TextView.BufferType.EDITABLE)
+        // etPort.filters = arrayOf(InputFilterMinMax(0,65535))
         etPort.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 if (s == null) return
 
-                port = s.toString().toInt()
-                Timber.d("onTextChanged $port")
+                // Port Max Length 65535
+                try {
+                    Timber.d("onTextChanged ${s.toString()}")
+                    port = s.toString().toInt().coerceAtMost(65535)
+                } catch (ex: NumberFormatException) {
+                    port = 0
+                }
             }
 
             override fun afterTextChanged(s: Editable?) {}
@@ -95,10 +109,15 @@ internal class TrackingDetailRootFragment : Fragment(R.layout.f_tracking_detail)
                     return@run this
                 }
                 server?.start()
+                WifiManager.getInstance().setPort(port)
             }
             Timber.d("ServerOn ${server?.address}")
+            Toast.makeText(
+                requireContext(),
+                "Copy ${server?.address}/tracking",
+                Toast.LENGTH_LONG
+            ).show()
         } catch (ex: IOException) {
-
         }
     }
 
@@ -162,7 +181,11 @@ internal class TrackingDetailRootFragment : Fragment(R.layout.f_tracking_detail)
                 val headers = exchange.responseHeaders
                 headers.add("Content-Type", "text/html;charset=UTF-8")
                 exchange.sendResponseHeaders(200, response.encodeToByteArray().size.toLong())
-                var startIdx = 0
+                resBody.write(response.encodeToByteArray())
+
+                // 2023. 01. 10 기존에 IOException too many bytes to write to stream 발생해서 버퍼를 잘라서 보냈는데
+                // 계속 이슈가 발생해서 찾아보니 sendResponseHeaders Encode 된사이즈를 설정해줘야함 그래서 해당 로직은 사용 X
+                /* var startIdx = 0
                 Timber.d("RouterInfo StartIdx: $startIdx ResponseLength: ${response.length}")
                 while (startIdx < response.length) {
                     val endIdx =
@@ -172,7 +195,7 @@ internal class TrackingDetailRootFragment : Fragment(R.layout.f_tracking_detail)
                     val subByte = subString.encodeToByteArray()
                     startIdx += defaultCharBufferSize
                     resBody.write(subByte)
-                }
+                } */
 
                 // Send Response Headers
                 resBody.flush()
@@ -266,7 +289,7 @@ internal class TrackingDetailRootFragment : Fragment(R.layout.f_tracking_detail)
 
             val res = data.res
 
-            if (res != null) {
+            if (res != null && !res.body.isNullOrEmpty()) {
                 // 6. Response Body
                 str.append("<h5>[Body]</h5>")
                 str.append("<pre>")

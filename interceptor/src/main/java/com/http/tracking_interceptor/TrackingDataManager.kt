@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentLinkedDeque
  *
  * Created by juhongmin on 2022/09/02
  */
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 class TrackingDataManager private constructor() {
     companion object {
         @Volatile

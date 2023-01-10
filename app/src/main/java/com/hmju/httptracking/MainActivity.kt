@@ -69,6 +69,10 @@ internal class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onBackPressed() {
+        finishAffinity()
+    }
+
     private fun moveGallery() {
         val galleryUri = Uri.parse("content://media/external/images/media")
         val intent = Intent(Intent.ACTION_VIEW, galleryUri).apply {
