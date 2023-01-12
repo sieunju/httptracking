@@ -1,7 +1,7 @@
 package com.http.tracking_interceptor
 
 import com.http.tracking_interceptor.model.BaseTrackingEntity
-import java.util.concurrent.ConcurrentLinkedDeque
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * Description : Interceptor 로 트레킹한 데이터들을 가지고 있는 클래스
@@ -37,7 +37,7 @@ class TrackingDataManager private constructor() {
     // [e] Variable
 
     // Tracking List CopyOnWriteArrayList 고민해봐야함..
-    private val httpTrackingList: ConcurrentLinkedDeque<BaseTrackingEntity> by lazy { ConcurrentLinkedDeque() }
+    private val httpTrackingList: CopyOnWriteArrayList<BaseTrackingEntity> by lazy { CopyOnWriteArrayList() }
 
     fun isDebug() = isDebug
 
@@ -72,12 +72,12 @@ class TrackingDataManager private constructor() {
         }
 
         entity.uid = trackingCnt
-        httpTrackingList.push(entity)
+        httpTrackingList.add(0, entity)
         trackingCnt++
 
         // 맥스 사이즈면 맨 마지막 삭제
         if (logMaxSize < httpTrackingList.size) {
-            httpTrackingList.pop()
+            httpTrackingList.removeLast()
         }
         this.listener?.onNotificationTrackingEntity()
     }

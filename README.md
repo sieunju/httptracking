@@ -15,10 +15,10 @@
 
 ```groovy
 allprojects {
-	    repositories {
-		    ...
-		    maven { url = URI("https://jitpack.io") }
-	    }
+    repositories {
+        ...
+        maven { url = URI("https://jitpack.io") }
+    }
 }
 ```
 
@@ -26,10 +26,10 @@ allprojects {
 
 ```groovy
 dependencies {
-	// UI
-    	implementation("com.github.sieunju.httptracking:ui:$latestVersion")
-	// Interceptor Java Module
-	implementation("com.github.sieunju.httptracking:interceptor:$latestVersion")
+    // UI
+    implementation("com.github.sieunju.httptracking:ui:$latestVersion")
+    // Interceptor Java Module
+    implementation("com.github.sieunju.httptracking:interceptor:$latestVersion")
 }
 ```
 
@@ -39,10 +39,10 @@ dependencies {
 ```groovy
 
 implementation("com.github.sieunju.httptracking:ui:${lateversion}") {
-        exclude("com.google.android.material")
-        exclude("androidx.appcompat:appcompat")
-        exclude("androidx.constraintlayout")
-    }
+    exclude("com.google.android.material")
+    exclude("androidx.appcompat:appcompat")
+    exclude("androidx.constraintlayout")
+}
 ```
 
 ## 사용방법
@@ -53,9 +53,9 @@ Builder 패턴으로 Application Class 에서 간단히 빌드 타입을 설정�
 Application.kt
 
 TrackingManager.getInstance()
-            .setBuildType(isDebug)
-            .setLogMaxSize(1000)
-            .build(this)
+    .setBuildType(isDebug)
+    .setLogMaxSize(1000)
+    .build(this)
 ```
 
 OkHttpClient 에서 ‘addInterceptor’ 를 통해 TrackingHttpInterceptor 를 추가합니다.
@@ -64,15 +64,30 @@ OkHttpClient 에서 ‘addInterceptor’ 를 통해 TrackingHttpInterceptor 를 
 
 ```kotlin
 OkHttpClient.Builder().apply{
-	if(Debug) {
-	addInterceptor(TrackingHttpInterceptor)
-}
+    if(Debug) {
+        addInterceptor(TrackingHttpInterceptor)
+    }
 }
 ```
 
-추가적으로 Query, Path, Body 를 꾸욱 누르면 복사가 가능합니다 🥰
+## PC로 로그 확인 하는 방법
 
-(공유하기 기능이나 맥북으로 보낼수 있는 방법을 생각해보도록 하겠습니다)
+setWifiShare(true)
+```
+TrackingManager.getInstance()
+            .setBuildType(true)
+            .setWifiShare(true)
+            .setLogMaxSize(30)
+            .build(this)
+```
+|Step 1|Step 2|Step 3|
+|--|--|--|
+|![Step1](https://raw.githubusercontent.com/sieunju/httptracking/develop/storage/example_wifi_share_1.png)|![Step2](https://raw.githubusercontent.com/sieunju/httptracking/develop/storage/example_wifi_share_2.png)|![Step3](https://raw.githubusercontent.com/sieunju/httptracking/develop/storage/example_wifi_share_3.png)|
+
+위에 화면처럼 원하는 로그를 선택하시고 공유 하기 버튼을 선택하시면 http://{ip}:{port}/tracking 주소가 노출되는데 해당 주소를 PC에 입력하시면 선택한 로그를 볼수 있습니다. 🤩
+
+#### 🙏 공공장소에서 사용은 절대로 지양합니다. (본인의 HTTP 통신 로그를 누군가 볼수 있습니다..)
+
 
 ## 캡처화면
 |전체 화면|상세화면 1|상세화면 2|
