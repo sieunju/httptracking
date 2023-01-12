@@ -227,7 +227,7 @@ internal class TrackingDetailRootFragment : Fragment(R.layout.f_tracking_detail)
                             "<head>\n" +
                             "    <meta charset=\"utf-8\">\n" +
                             "    <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n" +
-                            "    <title>Memo</title>\n" +
+                            "    <title>Http Tracking</title>\n" +
                             "</head>"
                 )
                 sb.append("\n")
