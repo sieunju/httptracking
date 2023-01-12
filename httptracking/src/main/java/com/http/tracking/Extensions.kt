@@ -69,7 +69,9 @@ internal object Extensions {
                 }
             }
         }
-        uiList.add(TrackingQueryUiModel(strBuilder.toString()))
+        if (strBuilder.isNotEmpty()) {
+            uiList.add(TrackingQueryUiModel(strBuilder.toString()))
+        }
         return uiList
     }
 

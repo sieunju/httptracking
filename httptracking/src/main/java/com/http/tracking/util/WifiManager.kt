@@ -105,4 +105,6 @@ internal class WifiManager private constructor() {
         val pref = context.getSharedPreferences("http_tracking_preference", Context.MODE_PRIVATE)
         return pref.getInt(PREF_KEY_PORT_NUM, 50050)
     }
+
+    fun isWifiEnable() = isWifiEnabled
 }
