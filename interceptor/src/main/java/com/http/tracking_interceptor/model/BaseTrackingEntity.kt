@@ -13,6 +13,7 @@ open class BaseTrackingEntity {
     var responseTimeMs: Long = 0L
     var takenTimeMs: Long = 0L // 걸린 시간
     var code: Int = 0
+    var scheme: String = ""
     var baseUrl: String = "" // domain url
     var method: String = "" // POST, GET, PUT
     var error: Exception? = null

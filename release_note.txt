@@ -1,5 +1,5 @@
-Version: 1.2.0-beta03
-Title: 1.2.0-beta03 배포입니다.
+Version: 1.2.0-beta04
+Title: 1.2.0-beta04 배포입니다.
 KO-KR
 ### 소개
 > 앱을 사용하다가 단말기를 흔들면 트래킹한 로그들을 간단히 볼수 있습니다. 👨🏿‍💻🙇‍
@@ -8,6 +8,9 @@ KO-KR
 ### 기능 개선을 했어요.
 - [dataBinding 을 제거 하여 라이브러리 의존성을 제거 했어요.](https://github.com/sieunju/httptracking/issues/44)
 
+### 신규 기능 추가
+- [Wifi 상태에서 PC로 트레킹 로그를 볼수 있는 기능을 추가 했어요.](https://github.com/sieunju/httptracking/issues/46)
+
 EN-US
 ### Introduction
 > You can simply view the tracked logs by shaking your device while using the app. ‍💻🙇‍
@@ -15,3 +18,6 @@ EN-US
 
 ### Improvements
 - [I removed the library dependency by removing "dataBinding".](https://github.com/sieunju/httptracking/issues/44)
+
+### Add Features
+- [I added a function to view the trekking log on the PC in the Wifi state.](https://github.com/sieunju/httptracking/issues/46)
