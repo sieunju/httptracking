@@ -38,26 +38,38 @@ internal object Extensions {
     }
 
     /**
+     * Request Url to Query List
+     */
+    fun toReqQueryList(fullUrl: String?): List<String> {
+        if (fullUrl == null) return emptyList()
+        val list = mutableListOf<String>()
+        val startIdx = fullUrl.indexOf("?")
+        if (startIdx != -1) {
+            val pathOrQuery = fullUrl.substring(startIdx.plus(1))
+            list.addAll(pathOrQuery.split("&"))
+        }
+        return list
+    }
+
+    /**
      * Request Query 값 UiModel 변환 처리 함수
      */
     fun parseQueryUiModel(fullUrl: String?): List<BaseTrackingUiModel> {
         if (fullUrl == null) return emptyList()
         val uiList = mutableListOf<BaseTrackingUiModel>()
-        val startIdx = fullUrl.indexOf("?")
-        if (startIdx != -1) {
-            val pathOrQuery = fullUrl.substring(startIdx.plus(1))
-            val strBuilder = StringBuilder()
-            pathOrQuery.split("&").forEach { str ->
-                str.runCatching {
-                    val pair = splitQuery(this)
-                    if (pair != null) {
-                        strBuilder.append(pair.first)
-                            .append("=")
-                            .append(pair.second)
-                            .append("\n")
-                    }
+        val strBuilder = StringBuilder()
+        toReqQueryList(fullUrl).forEach { str ->
+            str.runCatching {
+                val pair = splitQuery(this)
+                if (pair != null) {
+                    strBuilder.append(pair.first)
+                        .append("=")
+                        .append(pair.second)
+                        .append("\n")
                 }
             }
+        }
+        if (strBuilder.isNotEmpty()) {
             uiList.add(TrackingQueryUiModel(strBuilder.toString()))
         }
         return uiList
@@ -97,7 +109,7 @@ internal object Extensions {
         return uiList
     }
 
-    private fun toJsonBody(body: String?): String {
+    fun toJsonBody(body: String?): String {
         if (body == null) return ""
         return try {
             val je = JsonParser.parseString(body)
