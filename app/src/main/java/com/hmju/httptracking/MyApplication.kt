@@ -17,6 +17,7 @@ class MyApplication : MultiDexApplication() {
 
         TrackingManager.getInstance()
             .setBuildType(true)
+            .setWifiShare(true)
             .setLogMaxSize(30)
             .build(this)
     }

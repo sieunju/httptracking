@@ -27,6 +27,7 @@ class TrackingHttpInterceptor : Interceptor {
                 path = request.url.encodedPath,
                 req = toReqEntity(request)
             ).apply {
+                scheme = request.url.scheme
                 baseUrl = request.url.host
                 method = request.method
             }

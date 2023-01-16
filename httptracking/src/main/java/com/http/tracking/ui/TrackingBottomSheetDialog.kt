@@ -21,6 +21,7 @@ import com.http.tracking.ui.detail.TrackingDetailRootFragment
 import com.http.tracking.ui.list.TrackingListFragment
 import com.http.tracking_interceptor.TrackingDataManager
 import com.http.tracking_interceptor.model.TrackingHttpEntity
+import timber.log.Timber
 import java.lang.ref.WeakReference
 
 /**
@@ -29,6 +30,10 @@ import java.lang.ref.WeakReference
  * Created by juhongmin on 2022/03/29
  */
 internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
+
+    companion object {
+        var IS_SHOW_WIFI_SHARE_MSG = false
+    }
 
     internal interface DismissListener {
         fun onDismiss()
@@ -99,6 +104,8 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
         ivBack.visibility = View.GONE
         ivClear.visibility = View.VISIBLE
 
+        Timber.d("moveToList")
+
         val findFragment = childFragmentManager.fragments.firstOrNull { it is TrackingListFragment }
         if (findFragment is TrackingListFragment) {
             childFragmentManager.popBackStack()
@@ -111,6 +118,9 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
         }
     }
 
+    /**
+     * HTTP Tracking 상세 진입
+     */
     fun moveToDetailFragment(clickData: TrackingHttpEntity) {
         detailData?.clear()
         detailData = null
@@ -119,6 +129,8 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
 
         ivBack.visibility = View.VISIBLE
         ivClear.visibility = View.GONE
+
+        Timber.d("moveToDetailFragment")
 
         childFragmentManager.beginTransaction().apply {
             add(R.id.fragment, TrackingDetailRootFragment.newInstance())
@@ -130,7 +142,7 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
     /**
      * set Header Title
      */
-    fun setHeaderTitle(title: String) {
+    fun setHeaderTitle(title: CharSequence) {
         tvTitle.text = title
     }
 
