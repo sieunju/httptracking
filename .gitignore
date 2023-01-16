@@ -15,4 +15,4 @@
 .externalNativeBuild
 .cxx
 local.properties
-/app/src/java/com/hmju/httptracking/MainActivity.kt
+/httptracking/app/src/main/java/com/hmju/httptracking/MainActivity.kt
