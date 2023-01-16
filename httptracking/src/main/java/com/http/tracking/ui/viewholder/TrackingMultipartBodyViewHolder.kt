@@ -9,7 +9,6 @@ import androidx.appcompat.widget.AppCompatImageView
 import com.http.tracking.R
 import com.http.tracking.models.BaseTrackingUiModel
 import com.http.tracking.models.TrackingMultipartBodyUiModel
-import timber.log.Timber
 
 internal class TrackingMultipartBodyViewHolder(
     parent: ViewGroup
@@ -46,7 +45,6 @@ internal class TrackingMultipartBodyViewHolder(
             val decode = Base64.decode(str, Base64.DEFAULT)
             BitmapFactory.decodeByteArray(decode, 0, decode.size)
         } catch (ex: Exception) {
-            Timber.d("ERROR $ex")
             null
         }
     }

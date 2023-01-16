@@ -28,7 +28,6 @@ import com.http.tracking_interceptor.model.TrackingRequestMultipartEntity
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
 import com.sun.net.httpserver.HttpServer
-import timber.log.Timber
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.util.concurrent.Executors
@@ -265,7 +264,6 @@ internal class TrackingDetailRootFragment : Fragment(R.layout.f_tracking_detail)
                 resBody.flush()
                 resBody.close()
             } catch (ex: Exception) {
-                Timber.d("Router Error $ex")
                 resBody.close()
             } finally {
                 exchange.close()
