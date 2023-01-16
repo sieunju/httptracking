@@ -32,8 +32,6 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-//    implementation files('libs/sun-common-server.jar')
-//    implementation files('libs/http-2.2.1.jar')
     implementation(project(":interceptor"))
     /**
      * Android X
@@ -52,11 +50,6 @@ dependencies {
      * Network
      */
     implementation("com.squareup.okhttp3:okhttp:4.2.1")
-
-    /**
-     * Timber
-     */
-    implementation(deps.timber)
 
     /**
      * Gson Builder
