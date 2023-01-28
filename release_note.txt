@@ -1,14 +1,12 @@
-Version: 1.2.0
-Title: 1.2.0 배포입니다.
+Version: 1.2.1-beta01
+Title: 1.2.1-beta01 배포입니다.
 KO-KR
 ### 소개
 > 앱을 사용하다가 단말기를 흔들면 트래킹한 로그들을 간단히 볼수 있습니다. 👨🏿‍💻🙇‍
 > 많은 애용 바랍니다. 그리고 추가 하고 싶은 기능이 있으면 이슈로 남겨주시기 바랍니다.
 
 ### 릴리즈 수정 내역
-- [FIX 로그가 가득차고 난후 로그 추가시 업데이트 안되는 이슈 처리했어요.](https://github.com/sieunju/httptracking/issues/47)
-- [FEATURE 와이파이 상태에서 PC로 로그 볼수 있는 기능을 추가 했어요. 단, 공용 와이파이에서 사용은 X](https://github.com/sieunju/httptracking/issues/46)
-- [REFACTOR DataBinding 제거](https://github.com/sieunju/httptracking/issues/44)
+- [FIX 릴리즈 모드에서 sun 패키지 에러를 처리 했어요.ㅠㅠ](https://github.com/sieunju/httptracking/issues/57)
 
 EN-US
 ### Introduction
@@ -16,6 +14,4 @@ EN-US
 > Please use it a lot. And if there is a function you want to add, please leave it as an issue.
 
 ### Release History
-- [FIX I dealt with issues that cannot be updated when adding logs after the logs are full.](https://github.com/sieunju/httptracking/issues/47)
-- [FEATURE Wifi Share](https://github.com/sieunju/httptracking/issues/46)
-- [REFACTOR Remove DataBinding](https://github.com/sieunju/httptracking/issues/44)
+- [FIX Sun package error handled in release mode.ㅠㅠ](https://github.com/sieunju/httptracking/issues/57)
