@@ -4,6 +4,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import kotlin.math.sqrt
 
 
 /**
@@ -11,6 +12,7 @@ import android.hardware.SensorManager
  *
  * Created by juhongmin on 2022/03/30
  */
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 internal class ShakeDetector : SensorEventListener {
 
     companion object {
@@ -47,7 +49,7 @@ internal class ShakeDetector : SensorEventListener {
         val gY = y / SensorManager.GRAVITY_EARTH
         val gZ = z / SensorManager.GRAVITY_EARTH
 
-        val gForce = Math.sqrt((gX * gX + gY * gY + gZ * gZ).toDouble()).toFloat()
+        val gForce = sqrt((gX * gX + gY * gY + gZ * gZ).toDouble()).toFloat()
 
         if (gForce > SHAKE_THRESHOLD_GRAVITY) {
             val now = System.currentTimeMillis()

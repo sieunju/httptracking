@@ -9,6 +9,7 @@ import android.net.*
  *
  * Created by juhongmin on 2023/01/08
  */
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 internal class WifiManager private constructor() {
 
     companion object {

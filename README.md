@@ -88,10 +88,3 @@ TrackingManager.getInstance()
 
 #### 🙏 공공장소에서 사용은 절대로 지양합니다. (본인의 HTTP 통신 로그를 누군가 볼수 있습니다..)
 
-
-## 캡처화면
-|전체 화면|상세화면 1|상세화면 2|
-|-|-|-|   
-|![전체 화면](https://user-images.githubusercontent.com/33802191/166390208-4d42dbcc-b082-4f9f-94d4-4afc13901eb1.png)|![상세 화면 1](https://user-images.githubusercontent.com/33802191/166390217-ede0ee13-8b79-4c30-b603-0814b4f0f92e.png)|![상세 화면 2](https://user-images.githubusercontent.com/33802191/166390225-a0a1ad62-4855-4435-90c0-720585752bc8.png)
-
-

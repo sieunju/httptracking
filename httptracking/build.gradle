@@ -31,7 +31,6 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation(project(":interceptor"))
     /**
      * Android X

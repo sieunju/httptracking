@@ -26,7 +26,7 @@ class TrackingManager private constructor() {
 
         // [s] Variable
         internal var isDebugType = false // Debug Mode
-        internal var isWifiShare = true // Wifi Share Feature Enable / Disable
+        internal var isWifiShare = false // Wifi Share Feature Enable / Disable
         // [e] Variable
 
         @JvmStatic
