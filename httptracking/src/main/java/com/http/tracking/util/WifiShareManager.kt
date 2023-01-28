@@ -1,6 +1,6 @@
-package com.http.tracking.wifi_share
+package com.http.tracking.util
 
-import android.util.Log
+import androidx.annotation.WorkerThread
 import com.http.tracking.Extensions
 import com.http.tracking_interceptor.model.TrackingHttpEntity
 import com.http.tracking_interceptor.model.TrackingRequestEntity
@@ -18,16 +18,27 @@ import java.util.concurrent.Executors
  *
  * Created by juhongmin on 2023/01/26
  */
-class WifiShareManager {
+@Suppress("unused", "MemberVisibilityCanBePrivate")
+internal class WifiShareManager {
 
     private var logData: TrackingHttpEntity? = null
-    private var sharedAddress: String = ""
-    private var serverThread: HttpThread? = null
+    private var workThread: WorkThread? = null
+    private var listener: Listener? = null
+
+    interface Listener {
+        /**
+         * Server Start Callback
+         *
+         * @param address ex.) 127.0.0.1:1111
+         */
+        @WorkerThread
+        fun onServerStart(address: String)
+    }
 
     companion object {
         const val PATH = "/tracking"
-        fun LogD(msg: String) {
-            // Log.d("JLOGGER", msg)
+        fun logD(str: String) {
+            // Log.d("JTracking", str)
         }
     }
 
@@ -35,11 +46,8 @@ class WifiShareManager {
      * WifiShare Start
      */
     fun start(ip: String, port: Int) {
-        if (serverThread == null) {
-            serverThread = HttpThread(ip, port).run {
-                start()
-                return@run this
-            }
+        if (workThread == null) {
+            workThread = WorkThread(ip, port)
         }
     }
 
@@ -47,9 +55,9 @@ class WifiShareManager {
      * WifiShare Stop
      */
     fun stop() {
-        if (serverThread != null) {
-            serverThread?.stop()
-            serverThread = null
+        if (workThread != null) {
+            workThread?.stop()
+            workThread = null
         }
     }
 
@@ -60,9 +68,12 @@ class WifiShareManager {
         logData = data
     }
 
-    fun getSharedAddress(): String = sharedAddress
+    fun setListener(l: Listener): WifiShareManager {
+        listener = l
+        return this
+    }
 
-    inner class HttpThread(
+    private inner class WorkThread(
         private val ip: String,
         private val port: Int
     ) : Runnable {
@@ -71,8 +82,8 @@ class WifiShareManager {
         private var bStart = true
         private val thread: ExecutorService by lazy { Executors.newFixedThreadPool(1) }
 
-        fun start() {
-            thread.execute(this)
+        init {
+            initServer()
         }
 
         fun stop() {
@@ -81,44 +92,57 @@ class WifiShareManager {
             serverSocket?.close()
         }
 
+        /**
+         * init Server Setting
+         */
+        private fun initServer() {
+            Executors.newCachedThreadPool().submit {
+                serverSocket = ServerSocket(port, 0, InetAddress.getByName(ip))
+                val shareUrl =
+                    "http:/${serverSocket?.inetAddress}:${serverSocket?.localPort}$PATH"
+                logD(shareUrl)
+                listener?.onServerStart(shareUrl)
+                thread.execute(this)
+            }
+        }
+
         override fun run() {
-            serverSocket = ServerSocket(port, 0, InetAddress.getByName(ip))
-            LogD("Address ${serverSocket?.inetAddress}:${serverSocket?.localPort}")
             while (bStart) {
                 try {
-                    Thread.sleep(200)
-                    val clientSocket = serverSocket?.accept()
-
-                    val bufferReader =
-                        BufferedReader(InputStreamReader(clientSocket?.getInputStream()))
+                    val client = serverSocket?.accept() ?: return
+                    logD("ClientConnected $client")
+                    val bufferReader = BufferedReader(InputStreamReader(client.getInputStream()))
                     // First Header Format -> {GET} {path} HTTP/1.1
                     val split = bufferReader.readLine().split(" ")
+                    logD("Client Headers $split")
                     val path = split[1]
                     // 유효한 EndPoint 값으로 오는 경우에만 처리
                     if (path == PATH) {
-                        val clientOutput = clientSocket?.getOutputStream()
+                        val clientOutput = client.getOutputStream()
+                        val prettyLog = getPrettyHttpLog()
                         val str = StringBuilder()
                         str.append("HTTP/1.1 200 OK\r\n")
-                        str.append("\r\n")
-                        str.append(getPrettyHttpLog().first)
+                        str.append("Content-Length: ${prettyLog.second}\n")
+                        str.append("Content-Type: text/html; charset=UTF-8")
+                        // End Headers Separator \r\n\r\n
                         str.append("\r\n\r\n")
+                        str.append(prettyLog.first)
                         clientOutput?.write(str.toString().encodeToByteArray())
                         clientOutput?.flush()
                         bufferReader.close()
                         clientOutput?.close()
                     } else {
                         // 유효하지 않는 EndPoint 값으로 오는 경우 Not Found 에러 처리
-                        val clientOutput = clientSocket?.getOutputStream()
+                        val clientOutput = client.getOutputStream()
                         val str = StringBuilder()
                         str.append("HTTP/1.1 404 Not Found\r\n")
                         str.append("\r\n")
-                        str.append("Tracking Path eg) $PATH")
-                        str.append("\r\n\r\n")
                         clientOutput?.write(str.toString().encodeToByteArray())
                         clientOutput?.flush()
                         bufferReader.close()
                     }
                 } catch (ex: Exception) {
+                    logD("Client Error $ex")
                     bStart = false
                 }
             }

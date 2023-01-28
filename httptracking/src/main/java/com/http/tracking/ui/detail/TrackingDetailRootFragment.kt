@@ -21,7 +21,7 @@ import com.http.tracking.R
 import com.http.tracking.TrackingManager
 import com.http.tracking.ui.TrackingBottomSheetDialog
 import com.http.tracking.util.WifiManager
-import com.http.tracking.wifi_share.WifiShareManager
+import com.http.tracking.util.WifiShareManager
 import com.http.tracking_interceptor.model.TrackingHttpEntity
 import java.io.IOException
 
@@ -30,14 +30,15 @@ import java.io.IOException
  *
  * Created by juhongmin on 2023/01/06
  */
-internal class TrackingDetailRootFragment : Fragment(R.layout.f_tracking_detail) {
+internal class TrackingDetailRootFragment : Fragment(R.layout.f_tracking_detail),
+    WifiShareManager.Listener {
 
     private lateinit var viewPager: ViewPager2
     private lateinit var ivShare: AppCompatImageView
     private lateinit var etPort: AppCompatEditText
     private lateinit var tvWifiShareStatus: AppCompatTextView
 
-    private val wifiShareManager: WifiShareManager by lazy { WifiShareManager() }
+    private val wifiShareManager: WifiShareManager by lazy { WifiShareManager().setListener(this) }
 
     private val adapter: PagerAdapter by lazy { PagerAdapter() }
 
@@ -82,6 +83,12 @@ internal class TrackingDetailRootFragment : Fragment(R.layout.f_tracking_detail)
     override fun onDestroyView() {
         stopWifiShare()
         super.onDestroyView()
+    }
+
+    override fun onServerStart(address: String) {
+        view?.post {
+            setWifiStatusText(address)
+        }
     }
 
     private fun initView(view: View) {
@@ -138,7 +145,6 @@ internal class TrackingDetailRootFragment : Fragment(R.layout.f_tracking_detail)
             try {
                 wifiShareManager.start(wifiAddress, WifiManager.getInstance().getPort())
                 wifiShareManager.setLogData(getDetailData())
-                setWifiStatusText(wifiShareManager.getSharedAddress())
             } catch (ex: IOException) {
                 setWifiStatusText(TXT_SERVER_OFF)
             }
@@ -147,6 +153,9 @@ internal class TrackingDetailRootFragment : Fragment(R.layout.f_tracking_detail)
         }
     }
 
+    /**
+     * Wifi 공유하기 기능 처리 함수
+     */
     private fun handleShare() {
         if (TrackingBottomSheetDialog.IS_SHOW_WIFI_SHARE_MSG) {
             startWifiShare()
@@ -167,6 +176,10 @@ internal class TrackingDetailRootFragment : Fragment(R.layout.f_tracking_detail)
         setWifiStatusText(TXT_SERVER_OFF)
     }
 
+    /**
+     * set Header Title
+     * @param txt Header Title
+     */
     private fun setHeaderTitle(txt: CharSequence) {
         if (parentFragment is TrackingBottomSheetDialog) {
             (parentFragment as TrackingBottomSheetDialog).setHeaderTitle(txt)
