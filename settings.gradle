@@ -1,3 +1,4 @@
 rootProject.name = "httptracking"
 include(":app",":httptracking")
 include ':interceptor'
+include ':disable_wifi_tracking'
