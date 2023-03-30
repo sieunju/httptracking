@@ -14,19 +14,19 @@ import retrofit2.http.Query
  * Created by juhongmin on 2022/04/30
  */
 interface TestApiService {
-    @GET("/api/goods")
+    @GET("/api/til/goods")
     fun fetchGoods(
         @Query("pageNo") pageNo: Int,
         @Query("pageSize") pageSize: Int
     ): Single<String>
 
-    @GET("/api/test")
+    @GET("/api/til/test")
     fun fetchTest(): Single<String>
 
-    @GET("/api/jsend/list/meta")
+    @GET("/api/til/jsend/list/meta")
     fun fetchJsendList(): Single<String>
 
-    @POST("/api/like")
+    @POST("/api/til/goods/like")
     fun addLike(
         @Body body : String
     ) : Single<String>

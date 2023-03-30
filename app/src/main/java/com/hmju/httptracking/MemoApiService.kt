@@ -13,6 +13,6 @@ import retrofit2.http.QueryMap
  */
 interface MemoApiService {
     @Headers("X-FOO: DDDD", "DDD: dfff")
-    @GET("api/android")
+    @GET("api/memo/android")
     fun fetchAndroid(@QueryMap queryMap: Map<String, String>): Single<String>
 }
