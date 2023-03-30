@@ -23,9 +23,9 @@ class TrackingHttpInterceptor : Interceptor {
         }
         val tracking = try {
             TrackingHttpEntity(
-                headerMap = toHeaderMap(request.headers),
+                headerMap = getHeaderMap(request.headers),
                 path = request.url.encodedPath,
-                req = toReqEntity(request)
+                req = getReqEntity(request)
             ).apply {
                 scheme = request.url.scheme
                 baseUrl = request.url.host
@@ -43,7 +43,7 @@ class TrackingHttpInterceptor : Interceptor {
         }
         tracking?.runCatching {
             responseTimeMs = response.receivedResponseAtMillis
-            res = toResEntity(request, response)
+            res = getResEntity(request, response)
             takenTimeMs = response.receivedResponseAtMillis - response.sentRequestAtMillis
             code = response.code
         }
@@ -52,25 +52,14 @@ class TrackingHttpInterceptor : Interceptor {
     }
 
     /**
-     * Request Header to Map
-     */
-    private fun toHeaderMap(headers: Headers): Map<String, String> {
-        val map = mutableMapOf<String, String>()
-        headers.forEach { pair ->
-            map[pair.first] = pair.second
-        }
-        return map
-    }
-
-    /**
      * Converter TrackingRequestEntity 변환 함수
      * @param req OkHttp Request
      */
-    private fun toReqEntity(req: Request): BaseTrackingRequestEntity {
+    private fun getReqEntity(req: Request): BaseTrackingRequestEntity {
         return if (req.body is MultipartBody) {
-            toMultipartReqEntity(req)
+            getMultipartReqEntity(req)
         } else {
-            toDefaultReqEntity(req)
+            getDefaultReqEntity(req)
         }
     }
 
@@ -78,7 +67,7 @@ class TrackingHttpInterceptor : Interceptor {
      * Request Entity Default Type
      * @param req OkHttp Request
      */
-    private fun toDefaultReqEntity(req: Request): TrackingRequestEntity {
+    private fun getDefaultReqEntity(req: Request): TrackingRequestEntity {
         return TrackingRequestEntity(
             _fullUrl = req.url.toString(),
             _mediaType = req.body?.contentType(),
@@ -90,7 +79,7 @@ class TrackingHttpInterceptor : Interceptor {
      * Converter Multipart Request Entity
      * @param req OkHttp Request
      */
-    private fun toMultipartReqEntity(req: Request): TrackingRequestMultipartEntity {
+    private fun getMultipartReqEntity(req: Request): TrackingRequestMultipartEntity {
         val parts = mutableListOf<Part>()
         (req.body as MultipartBody).parts.forEach { part ->
             parts.add(Part(part.body.contentType(), toReqBodyBytes(part.body)))
@@ -105,10 +94,10 @@ class TrackingHttpInterceptor : Interceptor {
     /**
      * Converter TrackingResponseEntity 변환 함수
      */
-    private fun toResEntity(req: Request, res: Response): TrackingResponseEntity {
-        val bodyString = toResBodyStr(req.headers, res.body)
+    private fun getResEntity(req: Request, res: Response): TrackingResponseEntity {
         return TrackingResponseEntity(
-            body = bodyString
+            body = getResBody(req.headers, res.body),
+            headerMap = getHeaderMap(res.headers)
         )
     }
 
@@ -141,9 +130,9 @@ class TrackingHttpInterceptor : Interceptor {
     }
 
     /**
-     * Response Body to String
+     * Response Body to JSON String
      */
-    private fun toResBodyStr(headers: Headers, body: ResponseBody?): String? {
+    private fun getResBody(headers: Headers, body: ResponseBody?): String? {
         if (body == null) return null
         return try {
             val contentLength = body.contentLength()
@@ -164,5 +153,16 @@ class TrackingHttpInterceptor : Interceptor {
         } catch (ex: Exception) {
             null
         }
+    }
+
+    /**
+     * Headers to Map Converter Function
+     */
+    private fun getHeaderMap(headers: Headers): Map<String, String> {
+        val map = mutableMapOf<String, String>()
+        headers.forEach { pair ->
+            map[pair.first] = pair.second
+        }
+        return map
     }
 }
