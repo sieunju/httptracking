@@ -1,12 +1,12 @@
-Version: 1.2.2
-Title: 1.2.2 배포입니다.
+Version: 1.2.3
+Title: 1.2.3 배포입니다.
 KO-KR
 ### 소개
 > 앱을 사용하다가 단말기를 흔들면 트래킹한 로그들을 간단히 볼수 있습니다. 👨🏿‍💻🙇‍
 > 많은 애용 바랍니다. 그리고 추가 하고 싶은 기능이 있으면 이슈로 남겨주시기 바랍니다.
 
 ### 릴리즈 수정 내역
-- [FEATURE Wifi 기능 없는 라이브러리 추가 했어요.](https://github.com/sieunju/httptracking/issues/61)
+- [FEATURE] 서버에서 전달 받은 Headers 정보도 트레킹 되도록 추가 했어요.
 
 EN-US
 ### Introduction
@@ -14,4 +14,4 @@ EN-US
 > Please use it a lot. And if there is a function you want to add, please leave it as an issue.
 
 ### Release History
-- [FEATURE Not Feature Wifi](https://github.com/sieunju/httptracking/issues/61)
+- [FEATURE] Response Headers Tracking
