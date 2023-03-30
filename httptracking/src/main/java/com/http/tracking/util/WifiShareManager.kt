@@ -182,10 +182,11 @@ internal class WifiShareManager {
             // 1. {MethodType} {BaseUrl + Path}
             // 2. {Request Query Parameter}
             // 3. {Request Body}
-            // 4. {Headers}
+            // 4. {Request Headers}
             // 5. Response Code
-            // 6. Response Body
-            // 7. Response Error
+            // 6. Response Header
+            // 7. Response Body
+            // 8. Response Error
             val req = data.req
             // Request Setting
             if (req != null) {
@@ -220,9 +221,9 @@ internal class WifiShareManager {
                     }
                 }
 
-                // 4. {Headers}
+                // 4. {Request Headers}
                 if (data.headerMap.isNotEmpty()) {
-                    str.append("<h5>[Headers]</h5>")
+                    str.append("<h5>[Request Headers]</h5>")
                     data.headerMap.forEach { entry ->
                         str.append(entry.key)
                         str.append(" : ")
@@ -241,15 +242,29 @@ internal class WifiShareManager {
 
             val res = data.res
 
-            if (res != null && !res.body.isNullOrEmpty()) {
-                // 6. Response Body
-                str.append("<h5>[Body]</h5>")
-                str.append("<pre>")
-                str.append(Extensions.toJsonBody(res.body).replace("\n", "<br>"))
-                str.append("</pre>")
+            if (res != null) {
+
+                if (res.headerMap.isNotEmpty()) {
+                    // 6. Response Header
+                    str.append("<h5>[Response Headers]</h5>")
+                    res.headerMap.forEach { entry ->
+                        str.append(entry.key)
+                        str.append(" : ")
+                        str.append(entry.value)
+                        str.append("<br>")
+                    }
+                }
+
+                if (!res.body.isNullOrEmpty()) {
+                    // 7. Response Body
+                    str.append("<h5>[Body]</h5>")
+                    str.append("<pre>")
+                    str.append(Extensions.toJsonBody(res.body).replace("\n", "<br>"))
+                    str.append("</pre>")
+                }
             }
 
-            // 7. Response Error
+            // 8. Response Error
             if (data.error != null) {
                 str.append("<br>")
                 str.append("<h5>[HTTP Error]</h5>")

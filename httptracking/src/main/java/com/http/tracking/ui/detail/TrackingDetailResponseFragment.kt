@@ -63,9 +63,18 @@ internal class TrackingDetailResponseFragment : Fragment(R.layout.f_tracking_det
 
     private fun parseUiModel(entity: TrackingHttpEntity): List<BaseTrackingUiModel> {
         val uiList = mutableListOf<BaseTrackingUiModel>()
-        entity.res?.body?.let { body ->
-            uiList.add(TrackingTitleUiModel("[body]"))
-            uiList.addAll(Extensions.parseResBodyUiModel(body))
+        val res = entity.res ?: return emptyList()
+
+        if (res.headerMap.isNotEmpty()) {
+            uiList.add(TrackingTitleUiModel("[header]"))
+            uiList.addAll(Extensions.parseHeaderUiModel(res.headerMap))
+        }
+
+        res.body?.let { body ->
+            if (body.isNotEmpty()) {
+                uiList.add(TrackingTitleUiModel("[body]"))
+                uiList.addAll(Extensions.parseResBodyUiModel(body))
+            }
         }
         return uiList
     }
