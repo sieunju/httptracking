@@ -32,6 +32,7 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
 
     companion object {
         var IS_SHOW_WIFI_SHARE_MSG = false
+        const val WIFI_SHARE_KEY = "isWifiShare"
     }
 
     internal interface DismissListener {
@@ -40,6 +41,7 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
 
     private val windowManager: WindowManager by lazy { requireContext().getSystemService(Context.WINDOW_SERVICE) as WindowManager }
     private var listener: DismissListener? = null
+    private var isWifiShare: Boolean = false
 
     private var detailData: WeakReference<TrackingHttpEntity>? = null
 
@@ -128,7 +130,9 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
         ivClear.visibility = View.GONE
 
         childFragmentManager.beginTransaction().apply {
-            add(R.id.fragment, TrackingDetailRootFragment.newInstance())
+            val data = Bundle()
+            data.putBoolean(WIFI_SHARE_KEY, isWifiShare)
+            add(R.id.fragment, TrackingDetailRootFragment.newInstance(data))
             addToBackStack(null)
             commit()
         }
@@ -143,6 +147,11 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
 
     fun setListener(listener: DismissListener): TrackingBottomSheetDialog {
         this.listener = listener
+        return this
+    }
+
+    fun setWifiShare(isWifiShare: Boolean): TrackingBottomSheetDialog {
+        this.isWifiShare = isWifiShare
         return this
     }
 

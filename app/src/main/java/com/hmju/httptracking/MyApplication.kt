@@ -1,11 +1,10 @@
 package com.hmju.httptracking
 
 import androidx.multidex.MultiDexApplication
-import com.http.tracking.TrackingManager
+import com.http.tracking.TrackingManagerBuilder
 import io.reactivex.rxjava3.exceptions.UndeliverableException
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import timber.log.Timber
-import java.io.IOException
 import java.net.SocketException
 
 class MyApplication : MultiDexApplication() {
@@ -15,7 +14,7 @@ class MyApplication : MultiDexApplication() {
         initRxJava()
         initTimber()
 
-        TrackingManager.getInstance()
+        TrackingManagerBuilder()
             .setBuildType(true)
             .setWifiShare(true)
             .setLogMaxSize(30)
@@ -33,7 +32,7 @@ class MyApplication : MultiDexApplication() {
             if (error is UndeliverableException) {
                 error = e.cause ?: Throwable("UndeliverableException")
             }
-            if (error is IOException || error is SocketException) {
+            if (error is SocketException || error is java.io.IOException) {
                 // fine, irrelevant network problem or API that throws on cancellation
                 return@setErrorHandler
             }

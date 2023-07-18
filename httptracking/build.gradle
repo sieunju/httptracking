@@ -32,6 +32,8 @@ android {
 
 dependencies {
     implementation(project(":interceptor"))
+    api(project(":core"))
+
     /**
      * Android X
      */

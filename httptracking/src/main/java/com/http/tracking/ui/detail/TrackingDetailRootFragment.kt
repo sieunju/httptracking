@@ -18,7 +18,7 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.http.tracking.R
-import com.http.tracking.TrackingManager
+import com.http.tracking.TrackingManagerBuilder
 import com.http.tracking.ui.TrackingBottomSheetDialog
 import com.http.tracking.util.WifiManager
 import com.http.tracking.util.WifiShareManager
@@ -96,7 +96,7 @@ internal class TrackingDetailRootFragment : Fragment(R.layout.f_tracking_detail)
         ivShare = view.findViewById(R.id.ivShare)
         etPort = view.findViewById(R.id.etPort)
         tvWifiShareStatus = view.findViewById(R.id.tvWifiShareStatus)
-        if (TrackingManager.isWifiShare) {
+        if (arguments?.getBoolean(TrackingBottomSheetDialog.WIFI_SHARE_KEY) == true) {
             setWifiStatusText(TXT_SERVER_OFF)
             view.findViewById<LinearLayoutCompat>(R.id.llWifiShare).visibility = View.VISIBLE
         }
@@ -211,7 +211,12 @@ internal class TrackingDetailRootFragment : Fragment(R.layout.f_tracking_detail)
     }
 
     companion object {
-        fun newInstance(): TrackingDetailRootFragment = TrackingDetailRootFragment()
+        fun newInstance(bundle: Bundle?): Fragment {
+            return TrackingDetailRootFragment().apply {
+                arguments = bundle
+            }
+        }
+
         const val TXT_SERVER_OFF = "Wifi Share Off Port Range 1025-65535"
         const val TXT_WIFI_DISABLE = "The Wifi is Off"
         const val MIN_PORT = 1025 // System Port

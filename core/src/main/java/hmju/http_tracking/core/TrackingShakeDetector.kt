@@ -1,4 +1,4 @@
-package com.http.tracking
+package hmju.http_tracking.core
 
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -6,14 +6,12 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import kotlin.math.sqrt
 
-
 /**
  * Description : 쉐이크 감지 클래스
  *
- * Created by juhongmin on 2022/03/30
+ * Created by juhongmin on 2023/07/18
  */
-@Suppress("unused", "MemberVisibilityCanBePrivate")
-internal class ShakeDetector : SensorEventListener {
+class TrackingShakeDetector : SensorEventListener {
 
     companion object {
         const val SHAKE_THRESHOLD_GRAVITY = 2.7f
@@ -30,7 +28,7 @@ internal class ShakeDetector : SensorEventListener {
 
     private var listener: OnShakeListener? = null
 
-    fun setListener(listener: OnShakeListener): ShakeDetector {
+    fun setListener(listener: OnShakeListener): TrackingShakeDetector {
         this.listener = listener
         return this
     }
