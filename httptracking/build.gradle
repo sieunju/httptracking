@@ -6,7 +6,8 @@ plugins {
 }
 
 android {
-    compileSdkVersion buildVersions.compileSdk
+    namespace 'com.http.tracking'
+    compileSdk buildVersions.compileSdk
 
     defaultConfig {
         minSdkVersion buildVersions.minSdk

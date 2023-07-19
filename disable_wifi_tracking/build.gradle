@@ -6,7 +6,8 @@ plugins {
 }
 
 android {
-    compileSdkVersion buildVersions.compileSdk
+    namespace 'com.http.disable_wifi_tracking'
+    compileSdk buildVersions.compileSdk
 
     defaultConfig {
         minSdkVersion buildVersions.minSdk

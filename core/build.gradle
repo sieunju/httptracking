@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace 'hmju.http_tracking.core'
-    compileSdk 33
+    compileSdk buildVersions.compileSdk
 
     defaultConfig {
         minSdk buildVersions.minSdk
@@ -29,6 +29,19 @@ android {
         jvmTarget = '1.8'
     }
 }
+
+task clearJar(type: Delete){
+    delete 'release/library.jar'
+}
+
+task exportJar(type: Copy) {
+    from('build/intermediates/packaged-classes/release/')
+    into('release/')
+    include('classes.jar')
+    rename('classes.jar', 'library.jar')
+}
+
+exportJar.dependsOn(clearJar, build)
 
 dependencies {
 }
