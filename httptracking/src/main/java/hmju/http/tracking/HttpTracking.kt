@@ -9,6 +9,7 @@ import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
 import hmju.http.tracking.ui.TrackingBottomSheetDialog
 import hmju.http.tracking.util.TrackingShakeDetector
+import hmju.http.tracking_interceptor.TrackingDataManager
 import java.lang.ref.WeakReference
 
 /**
@@ -22,7 +23,6 @@ class HttpTracking(
 ) {
 
     private val isDebug: Boolean
-    private val logMaxSize: Int
     private val isWifiShare: Boolean
     private var dialog: TrackingBottomSheetDialog? = null
 
@@ -56,11 +56,13 @@ class HttpTracking(
 
     init {
         isDebug = builder.isDebug
-        logMaxSize = builder.logMaxSize
         isWifiShare = builder.isWifiShare
         if (isDebug) {
             initTracking(app)
         }
+
+        TrackingDataManager.getInstance().setLogMaxSize(builder.logMaxSize)
+        TrackingDataManager.getInstance().setBuildType(builder.isDebug)
     }
 
     /**

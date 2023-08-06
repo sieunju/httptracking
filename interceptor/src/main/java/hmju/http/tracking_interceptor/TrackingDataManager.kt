@@ -36,7 +36,6 @@ class TrackingDataManager private constructor() {
     private var listener: Listener? = null
     // [e] Variable
 
-    // Tracking List CopyOnWriteArrayList 고민해봐야함..
     private val httpTrackingList: CopyOnWriteArrayList<BaseTrackingEntity> by lazy { CopyOnWriteArrayList() }
 
     fun isDebug() = isDebug

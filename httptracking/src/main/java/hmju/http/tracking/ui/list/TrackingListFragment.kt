@@ -1,6 +1,7 @@
 package hmju.http.tracking.ui.list
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.coroutineScope
@@ -14,11 +15,8 @@ import hmju.http.tracking_interceptor.TrackingDataManager
 import hmju.http.tracking_interceptor.model.BaseTrackingEntity
 import hmju.http.tracking_interceptor.model.TrackingHttpEntity
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Description : HTTP Tracking List Fragment
@@ -50,12 +48,9 @@ internal class TrackingListFragment : Fragment(R.layout.f_tracking_list) {
      * 데이터 업데이트 처리 함수
      */
     private fun setTrackingData(newList: List<BaseTrackingEntity>) {
+        Log.d("JLOGGER","Size ${newList.size}")
         lifecycle.coroutineScope.launch(Dispatchers.Main) {
-            val uiList = flowOf(newList)
-                .map { it.toChildTrackingModel() }
-                .flowOn(Dispatchers.IO)
-                .singleOrNull() ?: listOf()
-
+            val uiList = withContext(Dispatchers.IO) { newList.toChildTrackingModel() }
             adapter.submitList(uiList)
         }
     }

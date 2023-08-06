@@ -1,7 +1,7 @@
 package hmju.http.tracking.util
 
+import android.util.Log
 import androidx.annotation.WorkerThread
-import hmju.http.tracking.Extensions
 import hmju.http.tracking_interceptor.model.TrackingHttpEntity
 import hmju.http.tracking_interceptor.model.TrackingRequestEntity
 import hmju.http.tracking_interceptor.model.TrackingRequestMultipartEntity
@@ -37,8 +37,8 @@ internal class WifiShareManager {
 
     companion object {
         const val PATH = "/tracking"
-        fun logD(str: String) {
-            // Log.d("JTracking", str)
+        fun logD(str: CharSequence) {
+            Log.d("JTracking", str.toString())
         }
     }
 
@@ -98,10 +98,13 @@ internal class WifiShareManager {
         private fun initServer() {
             Executors.newCachedThreadPool().submit {
                 serverSocket = ServerSocket(port, 0, InetAddress.getByName(ip))
-                val shareUrl =
-                    "http:/${serverSocket?.inetAddress}:${serverSocket?.localPort}$PATH"
-                logD(shareUrl)
-                listener?.onServerStart(shareUrl)
+                val ssb = StringBuilder("http:/")
+                ssb.append(serverSocket?.inetAddress)
+                ssb.append(":")
+                ssb.append(serverSocket?.localPort)
+                ssb.append(PATH)
+                logD(ssb)
+                listener?.onServerStart(ssb.toString())
                 thread.execute(this)
             }
         }
@@ -207,7 +210,9 @@ internal class WifiShareManager {
                     if (!req.body.isNullOrEmpty()) {
                         str.append("<h5>[Request Body - Json]</h5>")
                         str.append("<pre>")
-                        str.append(hmju.http.tracking.Extensions.toJsonBody(req.body).replace("\n", "<br>"))
+                        str.append(
+                            hmju.http.tracking.Extensions.toJsonBody(req.body).replace("\n", "<br>")
+                        )
                         str.append("</pre>")
                     }
                 } else if (req is TrackingRequestMultipartEntity) {
@@ -259,7 +264,9 @@ internal class WifiShareManager {
                     // 7. Response Body
                     str.append("<h5>[Body]</h5>")
                     str.append("<pre>")
-                    str.append(hmju.http.tracking.Extensions.toJsonBody(res.body).replace("\n", "<br>"))
+                    str.append(
+                        hmju.http.tracking.Extensions.toJsonBody(res.body).replace("\n", "<br>")
+                    )
                     str.append("</pre>")
                 }
             }

@@ -8,13 +8,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import hmju.http.tracking.Extensions
 import com.http.tracking.R
-import com.http.tracking.models.BaseTrackingUiModel
-import com.http.tracking.models.TrackingPathUiModel
-import com.http.tracking.models.TrackingTitleUiModel
-import com.http.tracking.ui.TrackingBottomSheetDialog
-import com.http.tracking.ui.adapter.TrackingAdapter
+import hmju.http.tracking.models.BaseTrackingUiModel
+import hmju.http.tracking.models.TrackingPathUiModel
+import hmju.http.tracking.models.TrackingTitleUiModel
+import hmju.http.tracking.ui.TrackingBottomSheetDialog
+import hmju.http.tracking.ui.adapter.TrackingAdapter
 import hmju.http.tracking_interceptor.model.TrackingHttpEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
@@ -97,7 +96,8 @@ internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_deta
         }
         // 쿼리 파라미터 셋팅
         if (!entity.req?.fullUrl.isNullOrEmpty()) {
-            val queryUiModelList = hmju.http.tracking.Extensions.parseQueryUiModel(entity.req?.fullUrl)
+            val queryUiModelList =
+                hmju.http.tracking.Extensions.parseQueryUiModel(entity.req?.fullUrl)
             if (queryUiModelList.isNotEmpty()) {
                 uiList.add(TrackingTitleUiModel("[query]"))
                 uiList.addAll(queryUiModelList)
