@@ -1,7 +1,7 @@
 package com.hmju.httptracking
 
 import androidx.multidex.MultiDexApplication
-import com.http.tracking.TrackingManagerBuilder
+import hmju.http.tracking.HttpTracking
 import io.reactivex.rxjava3.exceptions.UndeliverableException
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import timber.log.Timber
@@ -14,11 +14,17 @@ class MyApplication : MultiDexApplication() {
         initRxJava()
         initTimber()
 
-        TrackingManagerBuilder()
+        HttpTracking.Builder()
             .setBuildType(true)
             .setWifiShare(true)
             .setLogMaxSize(30)
             .build(this)
+
+//        TrackingManagerBuilder()
+//            .setBuildType(true)
+//            .setWifiShare(true)
+//            .setLogMaxSize(30)
+//            .build(this)
     }
 
     /**

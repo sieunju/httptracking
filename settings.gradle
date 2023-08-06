@@ -1,5 +1,4 @@
 rootProject.name = "httptracking"
-include(":app",":httptracking")
+include ':app'
+include ':httptracking'
 include ':interceptor'
-include ':disable_wifi_tracking'
-include ':core'
