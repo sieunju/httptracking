@@ -12,44 +12,38 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.lifecycleScope
-import com.hmju.httptracking.BuildConfig
 import hmju.http.tracking_interceptor.TrackingHttpInterceptor
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.addTo
-import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.Json
+import okhttp3.Headers
+import okhttp3.HttpUrl
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
+import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
 internal class MainActivity : AppCompatActivity() {
 
-    private val compositeDisposable = CompositeDisposable()
-
-    private val apiService: TestApiService by lazy {
-        createApiService(BuildConfig.TEST_URL, createOkHttpClient())
+    enum class Method {
+        GET,
+        POST
     }
 
-    private val uploadApiService: UploadApiService by lazy {
-        createApiService(BuildConfig.TEST_URL, createOkHttpClient())
-    }
-
-    private val memoApiService: MemoApiService by lazy {
-        createApiService(BuildConfig.TEST_URL, createOkHttpClient())
-    }
+    private val httpClient: OkHttpClient by lazy { createOkHttpClient() }
 
     private val trackingHttpInterceptor: TrackingHttpInterceptor by lazy { TrackingHttpInterceptor() }
 
@@ -61,7 +55,7 @@ internal class MainActivity : AppCompatActivity() {
             moveGallery()
         }
 
-        lifecycleScope.async(Dispatchers.IO) {
+        lifecycleScope.launch(Dispatchers.IO) {
             repeat(30) {
                 randomApi()
                 delay(500)
@@ -71,6 +65,47 @@ internal class MainActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         finishAffinity()
+    }
+
+    private fun requestGet(
+        path: String,
+        headerMap: Map<String, String> = mapOf(),
+        queryMap: Map<String, String> = mapOf()
+    ): Request {
+        val httpUrl = HttpUrl.Builder()
+            .scheme("https")
+            .host(BuildConfig.TEST_HOST)
+            .encodedPath(path)
+        queryMap.forEach { httpUrl.addQueryParameter(it.key, it.value) }
+        return reqApi(httpUrl.build(), headerMap, Method.GET, null)
+    }
+
+    private fun requestPost(
+        path: String,
+        headerMap: Map<String, String> = mapOf(),
+        body: RequestBody? = null
+    ): Request {
+        val httpUrl = HttpUrl.Builder()
+            .scheme("https")
+            .host(BuildConfig.TEST_HOST)
+            .encodedPath(path)
+            .build()
+        return reqApi(httpUrl, headerMap, Method.POST, body)
+    }
+
+    private fun reqApi(
+        httpUrl: HttpUrl,
+        headerMap: Map<String, String> = mapOf(),
+        method: Method = Method.GET,
+        reqBody: RequestBody? = null
+    ): Request {
+        val headers = Headers.Builder()
+        headerMap.forEach { headers.add(it.key, it.value) }
+        return Request.Builder()
+            .url(httpUrl)
+            .headers(headers.build())
+            .method(method.name, reqBody)
+            .build()
     }
 
     private fun moveGallery() {
@@ -91,38 +126,37 @@ internal class MainActivity : AppCompatActivity() {
 
     private fun performUpload(contentsUri: String?) {
         if (contentsUri == null) return
-        lifecycleScope.launch(Dispatchers.Default) {
+        lifecycleScope.launch(Dispatchers.IO) {
             val bitmap = uriToBitmap(contentsUri)
             if (bitmap != null) {
                 val list = mutableListOf<ByteArray>()
                 list.add(bitmap)
                 list.add(bitmap)
                 list.add(bitmap)
-                uploadApiService.uploads(bitmapToMultiPart(*list.toTypedArray())).subscribe(
-                    {
-                        Timber.d("SUCC $it")
-                    }, {
-                        Timber.d("ERROR $it")
-                    }).addTo(compositeDisposable)
+                flow {
+                    val api = requestPost(
+                        path = "/api/uploads",
+                        body = bitmapToMultiPart(list)
+                    )
+                    emit(httpClient.newCall(api).execute())
+                }.flowOn(Dispatchers.IO).collect()
             }
         }
     }
 
-    private fun bitmapToMultiPart(vararg reqBuffers: ByteArray): List<MultipartBody.Part> {
-        val fileList = mutableListOf<MultipartBody.Part>()
-        reqBuffers.forEach { buffer ->
-            val body = buffer.toRequestBody(
+    private fun bitmapToMultiPart(bitmapList: List<ByteArray>): RequestBody {
+        val multipartBody = MultipartBody.Builder()
+        bitmapList.forEach {
+            val body = it.toRequestBody(
                 contentType = "image/jpg".toMediaType()
             )
-            fileList.add(
-                MultipartBody.Part.createFormData(
-                    name = "files",
-                    filename = "${System.currentTimeMillis()}.jpg",
-                    body = body
-                )
+            multipartBody.addFormDataPart(
+                name = "files",
+                filename = "${System.currentTimeMillis()}.jpg",
+                body = body
             )
         }
-        return fileList
+        return multipartBody.build()
     }
 
     private fun uriToBitmap(path: String?): ByteArray? {
@@ -176,14 +210,17 @@ internal class MainActivity : AppCompatActivity() {
                 matrix.postRotate(0F)
                 true
             }
+
             ExifInterface.ORIENTATION_ROTATE_180 -> {
                 matrix.postRotate(180f)
                 true
             }
+
             ExifInterface.ORIENTATION_ROTATE_270 -> {
                 matrix.postRotate(270f)
                 true
             }
+
             else -> false
         }
     }
@@ -196,49 +233,47 @@ internal class MainActivity : AppCompatActivity() {
                 "pageSize" to "${Random.nextInt()}",
                 "hi" to "helllloqweqweqweqweqweqwe"
             )
-            memoApiService.fetchAndroid(queryMap)
+            requestGet(
+                path = "api/memo/android",
+                queryMap = queryMap,
+                headerMap = mapOf(
+                    "X-FOO" to "DDDD",
+                    "DDD" to "dfff"
+                )
+            )
         } else if (ran < 5) {
-            apiService.fetchGoods(
-                Random.nextInt(
-                    1,
-                    11
-                ), 25
+            requestGet(
+                path = "/api/til/goods",
+                queryMap = mapOf(
+                    "pageNo" to Random.nextInt(1, 11).toString(),
+                    "pageSize" to "25"
+                )
             )
         } else if (ran < 10) {
             val json = JSONObject()
-            json.put("id","efefefefef")
-            apiService.addLike(json.toString())
+            json.put("id", "efefefefef")
+            requestPost(
+                path = "/api/til/goods/like",
+                body = json.toString().toRequestBody()
+            )
         } else {
-            apiService.fetchJsendList()
+            requestGet(
+                path = "/api/til/jsend/list/meta"
+            )
         }
-        api.subscribe({
-            Timber.d("SUCC $it")
-        }, {
-            Timber.d("ERROR $it")
-        }).addTo(compositeDisposable)
+        flow {
+            emit(httpClient.newCall(api).execute())
+        }.flowOn(Dispatchers.IO)
+            .catch { Timber.d("ERROR $it") }
+            .onEach { Timber.d("SUCC $it") }
+            .launchIn(lifecycleScope)
     }
 
     private fun createOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
+            .readTimeout(5, TimeUnit.SECONDS)
+            .writeTimeout(5, TimeUnit.SECONDS)
             .addInterceptor(trackingHttpInterceptor)
             .build()
-    }
-
-    /**
-     * ApiService 에 따라서 생성하는 함수
-     */
-    @OptIn(ExperimentalSerializationApi::class)
-    private inline fun <reified T> createApiService(url: String, client: OkHttpClient): T {
-        val json = Json {
-            isLenient = true // Json 큰따옴표 느슨하게 체크.
-            ignoreUnknownKeys = true // Field 값이 없는 경우 무시
-            coerceInputValues = true // "null" 이 들어간경우 default Argument 값으로 대체
-        }
-        return Retrofit.Builder().apply {
-            baseUrl(url)
-            client(client)
-            addCallAdapterFactory(RxJava3CallAdapterFactory.createWithScheduler(Schedulers.io()))
-            addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-        }.build().create(T::class.java)
     }
 }

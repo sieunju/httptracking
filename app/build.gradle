@@ -33,8 +33,8 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
-            buildConfigField "String", "TEST_URL", properties["TEST_URL"]
-            // buildConfigField "String", "TEST_URL", '"https://www.test.com"'
+            buildConfigField "String", "TEST_HOST", properties["TEST_HOST"]
+            // buildConfigField "String", "TEST_HOST", '"www.test.com"'
         }
 
         release {
@@ -68,32 +68,12 @@ dependencies {
     implementation("com.google.android.material:material:1.3.0")
     implementation("androidx.constraintlayout:constraintlayout:2.0.4")
     implementation("androidx.exifinterface:exifinterface:1.3.5")
-    implementation("androidx.multidex:multidex:2.0.1")
-
-    /**
-     * Kotlinx Serialization
-     */
-    implementation(deps.kotlinx.serialization)
-
-    /**
-     * Rx
-     */
-    implementation(deps.rx.base)
-    implementation(deps.rx.kotlin)
-    implementation(deps.rx.android)
 
     /**
      * Timber
      */
     implementation(deps.timber)
-
-    /**
-     * Retrofit
-     */
-    implementation(deps.retrofit.base)
-    implementation(deps.retrofit.okhttp)
-    implementation(deps.retrofit.rxjava)
-    implementation(deps.retrofit.kotlinx)
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
