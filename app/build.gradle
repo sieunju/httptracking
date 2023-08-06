@@ -12,7 +12,6 @@ properties.load(project.rootProject.file('local.properties').newDataInputStream(
 android {
     namespace 'com.hmju.httptracking'
     compileSdk buildVersions.compileSdk
-    buildToolsVersion "32.0.0"
 
     defaultConfig {
         applicationId "com.hmju.httptracking"
@@ -34,8 +33,8 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
-            // buildConfigField "String", "TEST_URL", properties["TEST_URL"]
-            buildConfigField "String", "TEST_URL", '"https://www.test.com"'
+            buildConfigField "String", "TEST_URL", properties["TEST_URL"]
+            // buildConfigField "String", "TEST_URL", '"https://www.test.com"'
         }
 
         release {

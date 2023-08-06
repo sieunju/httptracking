@@ -37,6 +37,8 @@ internal class TrackingDetailRootFragment : Fragment(
     private lateinit var ivShare: AppCompatImageView
     private lateinit var etPort: AppCompatEditText
     private lateinit var tvWifiShareStatus: AppCompatTextView
+    private lateinit var wifiManager: WifiManager
+    private var isWifiEnable: Boolean = false
 
     private val wifiShareManager: WifiShareManager by lazy { WifiShareManager().setListener(this) }
 
@@ -92,13 +94,17 @@ internal class TrackingDetailRootFragment : Fragment(
     }
 
     private fun initView(view: View) {
+        isWifiEnable = arguments?.getBoolean(TrackingBottomSheetDialog.WIFI_SHARE_KEY) ?: false
         viewPager = view.findViewById(R.id.vp)
         ivShare = view.findViewById(R.id.ivShare)
         etPort = view.findViewById(R.id.etPort)
         tvWifiShareStatus = view.findViewById(R.id.tvWifiShareStatus)
-        if (arguments?.getBoolean(TrackingBottomSheetDialog.WIFI_SHARE_KEY) == true) {
+        if (isWifiEnable) {
             setWifiStatusText(TXT_SERVER_OFF)
             view.findViewById<LinearLayoutCompat>(R.id.llWifiShare).visibility = View.VISIBLE
+            wifiManager = WifiManager(view.context)
+        } else {
+            view.findViewById<LinearLayoutCompat>(R.id.llWifiShare).visibility = View.GONE
         }
     }
 
@@ -111,24 +117,33 @@ internal class TrackingDetailRootFragment : Fragment(
     }
 
     private fun handleEditText() {
-        etPort.setText(WifiManager.getInstance().getPort().toString(), TextView.BufferType.EDITABLE)
-        etPort.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if (s.isNullOrEmpty()) return
-
-                // Port Max Length 1024 < port <= 65535
-                val prevNum = s.toString().toInt()
-                if (prevNum > MAX_PORT) {
-                    etPort.setText(MAX_PORT.toString(), TextView.BufferType.EDITABLE)
-                } else {
-                    WifiManager.getInstance().setPort(prevNum)
+        if (!isWifiEnable) return
+        if (this::wifiManager.isInitialized) {
+            etPort.setText(wifiManager.getPort().toString(), TextView.BufferType.EDITABLE)
+            etPort.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
                 }
-            }
 
-            override fun afterTextChanged(s: Editable?) {}
-        })
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    if (s.isNullOrEmpty()) return
+
+                    // Port Max Length 1024 < port <= 65535
+                    val prevNum = s.toString().toInt()
+                    if (prevNum > MAX_PORT) {
+                        etPort.setText(MAX_PORT.toString(), TextView.BufferType.EDITABLE)
+                    } else {
+                        wifiManager.setPort(prevNum)
+                    }
+                }
+
+                override fun afterTextChanged(s: Editable?) {}
+            })
+        }
     }
 
     /**
@@ -136,14 +151,14 @@ internal class TrackingDetailRootFragment : Fragment(
      */
     private fun startWifiShare() {
         stopWifiShare()
-        if (!WifiManager.getInstance().isWifiEnable()) {
+        if (!wifiManager.isWifiEnable()) {
             setWifiStatusText(TXT_WIFI_DISABLE)
             return
         }
-        val wifiAddress = WifiManager.getInstance().getWifiAddress()
+        val wifiAddress = wifiManager.getWifiAddress()
         if (!wifiAddress.isNullOrEmpty()) {
             try {
-                wifiShareManager.start(wifiAddress, WifiManager.getInstance().getPort())
+                wifiShareManager.start(wifiAddress, wifiManager.getPort())
                 wifiShareManager.setLogData(getDetailData())
             } catch (ex: IOException) {
                 setWifiStatusText(TXT_SERVER_OFF)

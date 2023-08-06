@@ -12,6 +12,7 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.lifecycleScope
+import com.hmju.httptracking.BuildConfig
 import hmju.http.tracking_interceptor.TrackingHttpInterceptor
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -38,17 +39,17 @@ internal class MainActivity : AppCompatActivity() {
 
     private val compositeDisposable = CompositeDisposable()
 
-//    private val apiService: TestApiService by lazy {
-//        createApiService(BuildConfig.TEST_URL, createOkHttpClient())
-//    }
-//
-//    private val uploadApiService: UploadApiService by lazy {
-//        createApiService(BuildConfig.TEST_URL, createOkHttpClient())
-//    }
-//
-//    private val memoApiService: MemoApiService by lazy {
-//        createApiService(BuildConfig.TEST_URL, createOkHttpClient())
-//    }
+    private val apiService: TestApiService by lazy {
+        createApiService(BuildConfig.TEST_URL, createOkHttpClient())
+    }
+
+    private val uploadApiService: UploadApiService by lazy {
+        createApiService(BuildConfig.TEST_URL, createOkHttpClient())
+    }
+
+    private val memoApiService: MemoApiService by lazy {
+        createApiService(BuildConfig.TEST_URL, createOkHttpClient())
+    }
 
     private val trackingHttpInterceptor: TrackingHttpInterceptor by lazy { TrackingHttpInterceptor() }
 
@@ -90,21 +91,21 @@ internal class MainActivity : AppCompatActivity() {
 
     private fun performUpload(contentsUri: String?) {
         if (contentsUri == null) return
-//        lifecycleScope.launch(Dispatchers.Default) {
-//            val bitmap = uriToBitmap(contentsUri)
-//            if (bitmap != null) {
-//                val list = mutableListOf<ByteArray>()
-//                list.add(bitmap)
-//                list.add(bitmap)
-//                list.add(bitmap)
-//                uploadApiService.uploads(bitmapToMultiPart(*list.toTypedArray())).subscribe(
-//                    {
-//                        Timber.d("SUCC $it")
-//                    }, {
-//                        Timber.d("ERROR $it")
-//                    }).addTo(compositeDisposable)
-//            }
-//        }
+        lifecycleScope.launch(Dispatchers.Default) {
+            val bitmap = uriToBitmap(contentsUri)
+            if (bitmap != null) {
+                val list = mutableListOf<ByteArray>()
+                list.add(bitmap)
+                list.add(bitmap)
+                list.add(bitmap)
+                uploadApiService.uploads(bitmapToMultiPart(*list.toTypedArray())).subscribe(
+                    {
+                        Timber.d("SUCC $it")
+                    }, {
+                        Timber.d("ERROR $it")
+                    }).addTo(compositeDisposable)
+            }
+        }
     }
 
     private fun bitmapToMultiPart(vararg reqBuffers: ByteArray): List<MultipartBody.Part> {
@@ -188,33 +189,33 @@ internal class MainActivity : AppCompatActivity() {
     }
 
     private fun randomApi() {
-//        val ran = Random.nextInt(0, 20)
-//        val api = if (ran < 3) {
-//            val queryMap = mapOf<String, String>(
-//                "pageNo" to "1",
-//                "pageSize" to "${Random.nextInt()}",
-//                "hi" to "helllloqweqweqweqweqweqwe"
-//            )
-//            memoApiService.fetchAndroid(queryMap)
-//        } else if (ran < 5) {
-//            apiService.fetchGoods(
-//                Random.nextInt(
-//                    1,
-//                    11
-//                ), 25
-//            )
-//        } else if (ran < 10) {
-//            val json = JSONObject()
-//            json.put("id","efefefefef")
-//            apiService.addLike(json.toString())
-//        } else {
-//            apiService.fetchJsendList()
-//        }
-//        api.subscribe({
-//            Timber.d("SUCC $it")
-//        }, {
-//            Timber.d("ERROR $it")
-//        })
+        val ran = Random.nextInt(0, 20)
+        val api = if (ran < 3) {
+            val queryMap = mapOf<String, String>(
+                "pageNo" to "1",
+                "pageSize" to "${Random.nextInt()}",
+                "hi" to "helllloqweqweqweqweqweqwe"
+            )
+            memoApiService.fetchAndroid(queryMap)
+        } else if (ran < 5) {
+            apiService.fetchGoods(
+                Random.nextInt(
+                    1,
+                    11
+                ), 25
+            )
+        } else if (ran < 10) {
+            val json = JSONObject()
+            json.put("id","efefefefef")
+            apiService.addLike(json.toString())
+        } else {
+            apiService.fetchJsendList()
+        }
+        api.subscribe({
+            Timber.d("SUCC $it")
+        }, {
+            Timber.d("ERROR $it")
+        }).addTo(compositeDisposable)
     }
 
     private fun createOkHttpClient(): OkHttpClient {

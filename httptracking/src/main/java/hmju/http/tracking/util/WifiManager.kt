@@ -1,62 +1,29 @@
 package hmju.http.tracking.util
 
-import android.app.Application
 import android.content.Context
-import android.net.*
+import android.net.ConnectivityManager
+import android.net.LinkProperties
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 
 /**
  * Description : Wifi Manager
  *
- * Created by juhongmin on 2023/01/08
+ * Created by juhongmin on 2023/08/06
  */
-@Suppress("unused", "MemberVisibilityCanBePrivate")
-internal class WifiManager private constructor() {
+internal class WifiManager constructor(
+    private val context: Context
+) {
 
-    companion object {
-        @Volatile
-        private var instance: WifiManager? = null
+    private var address: String? = null
+    private var isWifiEnabled = false
 
-        @JvmStatic
-        fun getInstance(): WifiManager {
-            return instance ?: synchronized(this) {
-                instance ?: WifiManager().also {
-                    instance = it
-                }
-            }
-        }
-
-        private const val PREF_KEY_PORT_NUM = "http_tracking_port_num"
-    }
-
-    private var application: Application? = null
-
+    private val PREF_KEY_PORT_NUM = "http_tracking_port_num"
     private val networkRequest: NetworkRequest by lazy {
         NetworkRequest.Builder()
             .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
             .build()
-    }
-
-    // [s] Variable
-    private var wifiAddress: String? = null
-    private var isWifiEnabled = false
-    // [e] Variable
-
-    /**
-     * init WifiManager
-     */
-    fun setApplication(application: Application) {
-        this.application = application
-        startWifiTracking(application)
-    }
-
-    private fun startWifiTracking(application: Application) {
-        val cm: ConnectivityManager by lazy {
-            application.applicationContext.getSystemService(
-                Context.CONNECTIVITY_SERVICE
-            ) as ConnectivityManager
-        }
-        cm.requestNetwork(networkRequest, networkCallback)
-        cm.registerNetworkCallback(networkRequest, networkCallback)
     }
 
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
@@ -75,22 +42,28 @@ internal class WifiManager private constructor() {
             val ipV4Address = linkProperties.linkAddresses.firstOrNull { linkAddress ->
                 linkAddress.address.hostAddress?.contains(".") ?: false
             }?.address?.hostAddress
-            wifiAddress = ipV4Address
+            address = ipV4Address
         }
+    }
+
+    init {
+        val cm: ConnectivityManager = context
+            .getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        cm.requestNetwork(networkRequest, networkCallback)
+        cm.registerNetworkCallback(networkRequest, networkCallback)
     }
 
     /**
      * Get Wifi Address 172.30.1.23
      */
     fun getWifiAddress(): String? {
-        return wifiAddress
+        return address
     }
 
     /**
      * Wifi Share HTTP Port Settings
      */
     fun setPort(port: Int) {
-        val context = application?.applicationContext ?: return
         val pref = context.getSharedPreferences("http_tracking_preference", Context.MODE_PRIVATE)
         pref.edit()
             .putInt(PREF_KEY_PORT_NUM, port)
@@ -101,8 +74,6 @@ internal class WifiManager private constructor() {
      * Wifi Share HTTP Port Getting
      */
     fun getPort(): Int {
-        val context = application?.applicationContext ?: return 50050
-
         val pref = context.getSharedPreferences("http_tracking_preference", Context.MODE_PRIVATE)
         return pref.getInt(PREF_KEY_PORT_NUM, 50050)
     }
