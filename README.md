@@ -52,9 +52,9 @@ Builder 패턴으로 Application Class 에서 간단히 빌드 타입을 설정�
 ```kotlin
 Application.kt
 
-TrackingManager.getInstance()
-    .setBuildType(isDebug)
-    .setLogMaxSize(1000)
+HttpTracking.Builder()
+    .setBuildType(BuildConfig.DEBUG)
+    .setLogMaxSize(3000)
     .build(this)
 ```
 
@@ -73,12 +73,12 @@ OkHttpClient.Builder().apply{
 ## PC로 로그 확인 하는 방법
 
 setWifiShare(true)
-```
-TrackingManager.getInstance()
-            .setBuildType(true)
-            .setWifiShare(true)
-            .setLogMaxSize(30)
-            .build(this)
+```kotlin
+HttpTracking.Builder()
+    .setBuildType(BuildConfig.DEBUG)
+    .setWifiShare(true)
+    .setLogMaxSize(3000)
+    .build(this)
 ```
 |Step 1|Step 2|Step 3|
 |--|--|--|
