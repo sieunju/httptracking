@@ -14,13 +14,8 @@ def deps = [:]
 
 deps.release = "1.2.3"
 
-versions.kotlin = "1.5.0"
+versions.kotlin = "1.7.22"
 versions.androidPlugin = "7.1.3"
-
-/* Plugins  */
-deps.androidPlugin = "com.android.tools.build:gradle:$versions.androidPlugin"
-deps.kotlinPlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
-deps.kotlinxSerializationPlugin = "org.jetbrains.kotlin:kotlin-serialization:$versions.kotlin"
 
 /* Kotlin */
 def kotlin = [:]
