@@ -17,7 +17,7 @@ import java.lang.ref.WeakReference
  *
  * Created by juhongmin on 2023/08/06
  */
-class HttpTracking(
+class HttpTracking private constructor(
     app: Application,
     builder: Builder
 ) {
