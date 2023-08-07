@@ -1,6 +1,5 @@
 package hmju.http.tracking.util
 
-import android.util.Log
 import androidx.annotation.WorkerThread
 import hmju.http.tracking_interceptor.model.TrackingHttpEntity
 import hmju.http.tracking_interceptor.model.TrackingRequestEntity
@@ -36,10 +35,7 @@ internal class WifiShareManager {
     }
 
     companion object {
-        const val PATH = "/tracking"
-        fun logD(str: CharSequence) {
-            Log.d("JTracking", str.toString())
-        }
+        private const val PATH = "/tracking"
     }
 
     /**
@@ -103,7 +99,6 @@ internal class WifiShareManager {
                 ssb.append(":")
                 ssb.append(serverSocket?.localPort)
                 ssb.append(PATH)
-                logD(ssb)
                 listener?.onServerStart(ssb.toString())
                 thread.execute(this)
             }
@@ -113,11 +108,9 @@ internal class WifiShareManager {
             while (bStart) {
                 try {
                     val client = serverSocket?.accept() ?: return
-                    logD("ClientConnected $client")
                     val bufferReader = BufferedReader(InputStreamReader(client.getInputStream()))
                     // First Header Format -> {GET} {path} HTTP/1.1
                     val split = bufferReader.readLine().split(" ")
-                    logD("Client Headers $split")
                     val path = split[1]
                     // 유효한 EndPoint 값으로 오는 경우에만 처리
                     if (path == PATH) {
@@ -145,7 +138,6 @@ internal class WifiShareManager {
                         bufferReader.close()
                     }
                 } catch (ex: Exception) {
-                    logD("Client Error $ex")
                     bStart = false
                 }
             }
