@@ -228,7 +228,7 @@ internal class MainActivity : AppCompatActivity() {
     private fun randomApi() {
         val ran = Random.nextInt(0, 20)
         val api = if (ran < 3) {
-            val queryMap = mapOf<String, String>(
+            val queryMap = mapOf(
                 "pageNo" to "1",
                 "pageSize" to "${Random.nextInt()}",
                 "hi" to "helllloqweqweqweqweqweqwe"
