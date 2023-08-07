@@ -234,7 +234,7 @@ internal class MainActivity : AppCompatActivity() {
                 "hi" to "helllloqweqweqweqweqweqwe"
             )
             requestGet(
-                path = "api/memo/android",
+                path = "/api/memo/android",
                 queryMap = queryMap,
                 headerMap = mapOf(
                     "X-FOO" to "DDDD",
