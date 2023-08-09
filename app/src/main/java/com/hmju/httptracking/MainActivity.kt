@@ -146,6 +146,7 @@ internal class MainActivity : AppCompatActivity() {
 
     private fun bitmapToMultiPart(bitmapList: List<ByteArray>): RequestBody {
         val multipartBody = MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
         bitmapList.forEach {
             val body = it.toRequestBody(
                 contentType = "image/jpg".toMediaType()
