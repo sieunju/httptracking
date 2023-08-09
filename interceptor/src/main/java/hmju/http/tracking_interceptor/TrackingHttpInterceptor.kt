@@ -1,8 +1,8 @@
 package hmju.http.tracking_interceptor
 
 import hmju.http.tracking_interceptor.model.BaseTrackingRequestEntity
+import hmju.http.tracking_interceptor.model.HttpTrackingModel
 import hmju.http.tracking_interceptor.model.Part
-import hmju.http.tracking_interceptor.model.TrackingHttpEntity
 import hmju.http.tracking_interceptor.model.TrackingRequestEntity
 import hmju.http.tracking_interceptor.model.TrackingRequestMultipartEntity
 import hmju.http.tracking_interceptor.model.TrackingResponseEntity
@@ -10,6 +10,7 @@ import okhttp3.*
 import okio.Buffer
 import okio.GzipSource
 import java.io.IOException
+import java.net.SocketTimeoutException
 import java.nio.charset.Charset
 
 /**
@@ -26,33 +27,51 @@ class TrackingHttpInterceptor : Interceptor {
         if (TrackingDataManager.getInstance().isRelease()) {
             return chain.proceed(request)
         }
-        val tracking = try {
-            TrackingHttpEntity(
-                headerMap = getHeaderMap(request.headers),
-                path = request.url.encodedPath,
-                req = getReqEntity(request)
-            ).apply {
-                scheme = request.url.scheme
-                baseUrl = request.url.host
-                method = request.method
-            }
-        } catch (ex: Exception) {
-            null
-        }
 
+//        val tracking = try {
+//            TrackingHttpEntity(
+//                headerMap = getHeaderMap(request.headers),
+//                path = request.url.encodedPath,
+//                req = getReqEntity(request)
+//            ).apply {
+//                scheme = request.url.scheme
+//                baseUrl = request.url.host
+//                method = request.method
+//            }
+//        } catch (ex: Exception) {
+//            null
+//        }
+//
+//        val response = try {
+//            chain.proceed(request)
+//        } catch (ex: Exception) {
+//            tracking?.error = ex
+//            throw ex
+//        }
+//        tracking?.runCatching {
+//            responseTimeMs = response.receivedResponseAtMillis
+//            res = getResEntity(request, response)
+//            takenTimeMs = response.receivedResponseAtMillis - response.sentRequestAtMillis
+//            code = response.code
+//        }
+//        TrackingDataManager.getInstance().addTracking(tracking)
+        val sendTimeMs = System.currentTimeMillis()
         val response = try {
             chain.proceed(request)
+        } catch (ex: SocketTimeoutException) {
+            TrackingDataManager
+                .getInstance()
+                .add(HttpTrackingModel.TimeOut(request, sendTimeMs, ex))
+            throw ex
         } catch (ex: Exception) {
-            tracking?.error = ex
+            TrackingDataManager
+                .getInstance()
+                .add(HttpTrackingModel.Error(request, sendTimeMs, ex))
             throw ex
         }
-        tracking?.runCatching {
-            responseTimeMs = response.receivedResponseAtMillis
-            res = getResEntity(request, response)
-            takenTimeMs = response.receivedResponseAtMillis - response.sentRequestAtMillis
-            code = response.code
-        }
-        TrackingDataManager.getInstance().addTracking(tracking)
+        TrackingDataManager
+            .getInstance()
+            .add(HttpTrackingModel.Default(request, response))
         return response
     }
 
