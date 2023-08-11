@@ -15,7 +15,7 @@ sealed class HttpTrackingModel(
     open var uid: Long = -1
 ) {
 
-    @Suppress("unused", "MemberVisibilityCanBePrivate")
+    @Suppress("MemberVisibilityCanBePrivate")
     class Default(
         req: Request,
         res: Response
@@ -26,7 +26,7 @@ sealed class HttpTrackingModel(
         val code: Int
         val host: String
         val path: String
-        val fullUrl : String
+        val fullUrl: String
         val sentTimeMs: Long
         val receivedTimeMs: Long
         val request: HttpTrackingRequest
@@ -92,54 +92,137 @@ sealed class HttpTrackingModel(
                 HttpTrackingRequest.Default(req)
             }
         }
-
     }
 
-    data class TimeOut(
-        val host: String,
-        val path: String,
-        val method: String,
-        val sendTimeMs: Long,
-        val msg: String,
-        val sendTimeText: String,
-        override var uid: Long
-    ) : HttpTrackingModel(uid) {
-        constructor(
-            req: Request,
-            sendTimeMs: Long,
-            err: SocketTimeoutException
-        ) : this(
-            host = req.url.host,
-            path = req.url.encodedPath,
-            method = req.method,
-            sendTimeMs = sendTimeMs,
-            msg = err.message ?: "",
-            sendTimeText = sendTimeMs.toDate(),
-            uid = -1
-        )
+    @Suppress("MemberVisibilityCanBePrivate")
+    class TimeOut(
+        req: Request,
+        sendTimeMs: Long,
+        err: SocketTimeoutException
+    ) : HttpTrackingModel(-1) {
+
+        val method: String
+        val host: String
+        val path: String
+        val fullUrl: String
+        val msg: String
+        val sendTimeText: String
+        val request: HttpTrackingRequest
+
+        init {
+            method = req.method
+            host = req.url.host
+            path = req.url.encodedPath
+            fullUrl = req.url.toString()
+            msg = err.message ?: ""
+            sendTimeText = sendTimeMs.toDate()
+            request = getRequest(req)
+        }
+
+        override fun equals(other: Any?): Boolean {
+            return if (other is TimeOut) {
+                host == other.host &&
+                        path == other.path &&
+                        fullUrl == other.fullUrl &&
+                        msg == other.msg &&
+                        sendTimeText == other.sendTimeText &&
+                        request == other.request
+            } else {
+                false
+            }
+        }
+
+        override fun hashCode(): Int {
+            var result = method.hashCode()
+            result = 31 * result + host.hashCode()
+            result = 31 * result + path.hashCode()
+            result = 31 * result + fullUrl.hashCode()
+            result = 31 * result + msg.hashCode()
+            result = 31 * result + sendTimeText.hashCode()
+            result = 31 * result + request.hashCode()
+            return result
+        }
+
+        /**
+         * init Request Model
+         *
+         * @see [HttpTrackingRequest.MultiPart]
+         * @see [HttpTrackingRequest.Default]
+         */
+        private fun getRequest(
+            req: Request
+        ): HttpTrackingRequest {
+            return if (req.body is MultipartBody) {
+                HttpTrackingRequest.MultiPart(req)
+            } else {
+                HttpTrackingRequest.Default(req)
+            }
+        }
     }
 
-    data class Error(
-        val host: String,
-        val path: String,
-        val method: String,
-        val sendTimeMs: Long,
-        val msg: String,
-        val sendTimeText: String,
-        override var uid: Long
-    ) : HttpTrackingModel(uid) {
-        constructor(
-            req: Request,
-            sendTimeMs: Long,
-            err: Exception
-        ) : this(
-            host = req.url.host,
-            path = req.url.encodedPath,
-            method = req.method,
-            sendTimeMs = sendTimeMs,
-            msg = err.message ?: "",
-            sendTimeText = sendTimeMs.toDate(),
-            uid = -1
-        )
+    @Suppress("MemberVisibilityCanBePrivate")
+    class Error(
+        req: Request,
+        sendTimeMs: Long,
+        err: Exception
+    ) : HttpTrackingModel(-1) {
+
+        val method: String
+        val host: String
+        val path: String
+        val fullUrl: String
+        val msg: String
+        val sendTimeText: String
+        val request: HttpTrackingRequest
+
+        init {
+            method = req.method
+            host = req.url.host
+            path = req.url.encodedPath
+            fullUrl = req.url.toString()
+            msg = err.message ?: ""
+            sendTimeText = sendTimeMs.toDate()
+            request = getRequest(req)
+        }
+
+        override fun equals(other: Any?): Boolean {
+            return if (other is Error) {
+                host == other.host &&
+                        path == other.path &&
+                        fullUrl == other.fullUrl &&
+                        msg == other.msg &&
+                        sendTimeText == other.sendTimeText &&
+                        request == other.request
+            } else {
+                false
+            }
+        }
+
+        override fun hashCode(): Int {
+            var result = method.hashCode()
+            result = 31 * result + host.hashCode()
+            result = 31 * result + path.hashCode()
+            result = 31 * result + fullUrl.hashCode()
+            result = 31 * result + msg.hashCode()
+            result = 31 * result + sendTimeText.hashCode()
+            result = 31 * result + request.hashCode()
+            return result
+        }
+
+        /**
+         * init Request Model
+         *
+         * @see [HttpTrackingRequest.MultiPart]
+         * @see [HttpTrackingRequest.Default]
+         */
+        private fun getRequest(
+            req: Request
+        ): HttpTrackingRequest {
+            return if (req.body is MultipartBody) {
+                HttpTrackingRequest.MultiPart(req)
+            } else {
+                HttpTrackingRequest.Default(req)
+            }
+        }
     }
 }

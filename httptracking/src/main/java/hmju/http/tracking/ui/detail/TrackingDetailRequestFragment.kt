@@ -80,7 +80,8 @@ internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_deta
     private fun parseUiModel(data: HttpTrackingModel): List<BaseTrackingUiModel> {
         return when (data) {
             is HttpTrackingModel.Default -> getDefaultUiModels(data)
-            else -> listOf()
+            is HttpTrackingModel.TimeOut -> getTimeOutUiModels(data)
+            is HttpTrackingModel.Error -> getErrorUiModels(data)
         }
     }
 
@@ -92,24 +93,24 @@ internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_deta
     private fun getDefaultUiModels(
         data: HttpTrackingModel.Default
     ): List<BaseTrackingUiModel> {
-        val uiList = mutableListOf<BaseTrackingUiModel>()
+        val list = mutableListOf<BaseTrackingUiModel>()
         // FullURL
-        uiList.add(TrackingPathUiModel(data.fullUrl))
+        list.add(TrackingPathUiModel(data.fullUrl))
         // Path
-        uiList.add(TrackingTitleUiModel("[path]"))
-        uiList.add(TrackingPathUiModel(data.path))
+        list.add(TrackingTitleUiModel("[path]"))
+        list.add(TrackingPathUiModel(data.path))
 
         // Headers
         val headerMap = data.request.headerMap
         if (headerMap.isNotEmpty()) {
-            uiList.add(TrackingTitleUiModel("[header]"))
-            uiList.addAll(headerMap.map { TrackingHeaderUiModel(it) })
+            list.add(TrackingTitleUiModel("[header]"))
+            list.addAll(headerMap.map { TrackingHeaderUiModel(it) })
         }
 
         // QueryParams
         val queryParams = data.request.queryParams?.split("&")
         if (!queryParams.isNullOrEmpty()) {
-            uiList.add(TrackingTitleUiModel("[query]"))
+            list.add(TrackingTitleUiModel("[query]"))
             val str = StringBuilder()
             queryParams.forEach {
                 val query = splitQuery(it) ?: return@forEach
@@ -118,7 +119,7 @@ internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_deta
                 str.append(query.second)
                 str.append("\n")
             }
-            uiList.add(TrackingQueryUiModel(str.toString()))
+            list.add(TrackingQueryUiModel(str.toString()))
         }
 
         // Body
@@ -132,9 +133,107 @@ internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_deta
                 // ignore
             }
         } else if (request is HttpTrackingRequest.MultiPart) {
-            request.binaryList.forEach { uiList.add(TrackingMultipartBodyUiModel(it)) }
+            request.binaryList.forEach { list.add(TrackingMultipartBodyUiModel(it)) }
         }
-        return uiList
+        return list
+    }
+
+    private fun getTimeOutUiModels(
+        data: HttpTrackingModel.TimeOut
+    ): List<BaseTrackingUiModel> {
+        val list = mutableListOf<BaseTrackingUiModel>()
+        list.add(TrackingPathUiModel("Time_OUT ${data.msg}"))
+        // FullURL
+        list.add(TrackingPathUiModel(data.fullUrl))
+        // Path
+        list.add(TrackingTitleUiModel("[path]"))
+        list.add(TrackingPathUiModel(data.path))
+
+        // Headers
+        val headerMap = data.request.headerMap
+        if (headerMap.isNotEmpty()) {
+            list.add(TrackingTitleUiModel("[header]"))
+            list.addAll(headerMap.map { TrackingHeaderUiModel(it) })
+        }
+
+        // QueryParams
+        val queryParams = data.request.queryParams?.split("&")
+        if (!queryParams.isNullOrEmpty()) {
+            list.add(TrackingTitleUiModel("[query]"))
+            val str = StringBuilder()
+            queryParams.forEach {
+                val query = splitQuery(it) ?: return@forEach
+                str.append(query.first)
+                str.append("=")
+                str.append(query.second)
+                str.append("\n")
+            }
+            list.add(TrackingQueryUiModel(str.toString()))
+        }
+
+        // Body
+        val request = data.request
+        if (request is HttpTrackingRequest.Default) {
+            val body = request.body
+            try {
+                val js = JsonParser.parseString(body)
+                TrackingBodyUiModel(gson.toJson(js))
+            } catch (ex: Exception) {
+                // ignore
+            }
+        } else if (request is HttpTrackingRequest.MultiPart) {
+            request.binaryList.forEach { list.add(TrackingMultipartBodyUiModel(it)) }
+        }
+        return list
+    }
+
+    private fun getErrorUiModels(
+        data: HttpTrackingModel.Error
+    ): List<BaseTrackingUiModel> {
+        val list = mutableListOf<BaseTrackingUiModel>()
+        list.add(TrackingPathUiModel("Other_Error ${data.msg}"))
+        // FullURL
+        list.add(TrackingPathUiModel(data.fullUrl))
+        // Path
+        list.add(TrackingTitleUiModel("[path]"))
+        list.add(TrackingPathUiModel(data.path))
+
+        // Headers
+        val headerMap = data.request.headerMap
+        if (headerMap.isNotEmpty()) {
+            list.add(TrackingTitleUiModel("[header]"))
+            list.addAll(headerMap.map { TrackingHeaderUiModel(it) })
+        }
+
+        // QueryParams
+        val queryParams = data.request.queryParams?.split("&")
+        if (!queryParams.isNullOrEmpty()) {
+            list.add(TrackingTitleUiModel("[query]"))
+            val str = StringBuilder()
+            queryParams.forEach {
+                val query = splitQuery(it) ?: return@forEach
+                str.append(query.first)
+                str.append("=")
+                str.append(query.second)
+                str.append("\n")
+            }
+            list.add(TrackingQueryUiModel(str.toString()))
+        }
+
+        // Body
+        val request = data.request
+        if (request is HttpTrackingRequest.Default) {
+            val body = request.body
+            try {
+                val js = JsonParser.parseString(body)
+                TrackingBodyUiModel(gson.toJson(js))
+            } catch (ex: Exception) {
+                // ignore
+            }
+        } else if (request is HttpTrackingRequest.MultiPart) {
+            request.binaryList.forEach { list.add(TrackingMultipartBodyUiModel(it)) }
+        }
+        return list
     }
 
     /**
