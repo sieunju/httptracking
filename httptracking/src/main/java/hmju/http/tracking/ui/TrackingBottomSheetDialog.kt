@@ -21,7 +21,6 @@ import hmju.http.tracking.ui.detail.TrackingDetailRootFragment
 import hmju.http.tracking.ui.list.TrackingListFragment
 import hmju.http.tracking_interceptor.TrackingDataManager
 import hmju.http.tracking_interceptor.model.HttpTrackingModel
-import hmju.http.tracking_interceptor.model.TrackingHttpEntity
 import java.lang.ref.WeakReference
 
 /**
@@ -115,27 +114,6 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
                 addToBackStack(null)
                 commit()
             }
-        }
-    }
-
-    /**
-     * HTTP Tracking 상세 진입
-     */
-    fun moveToDetailFragment(clickData: TrackingHttpEntity) {
-        detailData?.clear()
-        detailData = null
-
-        // detailData = WeakReference(clickData)
-
-        ivBack.visibility = View.VISIBLE
-        ivClear.visibility = View.GONE
-
-        childFragmentManager.beginTransaction().apply {
-            val data = Bundle()
-            data.putBoolean(WIFI_SHARE_KEY, isWifiShare)
-            add(R.id.fragment, TrackingDetailRootFragment.newInstance(data))
-            addToBackStack(null)
-            commit()
         }
     }
 

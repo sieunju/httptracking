@@ -77,7 +77,9 @@ internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_deta
         }
     }
 
-    private fun parseUiModel(data: HttpTrackingModel): List<BaseTrackingUiModel> {
+    private fun parseUiModel(
+        data: HttpTrackingModel
+    ): List<BaseTrackingUiModel> {
         return when (data) {
             is HttpTrackingModel.Default -> getDefaultUiModels(data)
             is HttpTrackingModel.TimeOut -> getTimeOutUiModels(data)
@@ -128,7 +130,7 @@ internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_deta
             val body = request.body
             try {
                 val js = JsonParser.parseString(body)
-                TrackingBodyUiModel(gson.toJson(js))
+                list.add(TrackingBodyUiModel(gson.toJson(js)))
             } catch (ex: Exception) {
                 // ignore
             }

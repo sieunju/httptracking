@@ -15,7 +15,7 @@ import java.nio.charset.Charset
 sealed class HttpTrackingResponse {
 
     @Suppress("unused", "MemberVisibilityCanBePrivate")
-    internal class Default(
+    class Default(
         res: Response
     ) : HttpTrackingResponse() {
 
@@ -66,6 +66,20 @@ sealed class HttpTrackingResponse {
             } catch (ex: Exception) {
                 null
             }
+        }
+    }
+
+    @JvmName("getCommonHeaderMap")
+    fun getHeaderMap(): Map<String, String> {
+        return when (this) {
+            is Default -> headerMap
+        }
+    }
+
+    @JvmName("getCommonBody")
+    fun getBody(): String? {
+        return when (this) {
+            is Default -> body
         }
     }
 }

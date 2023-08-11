@@ -132,4 +132,13 @@ sealed class HttpTrackingRequest(
             }
         }
     }
+
+    @JvmName("getCommonQueryParams")
+    fun getQueryParams(): String? {
+        return queryParams
+    }
+    @JvmName("getCommonHeaderMap")
+    fun getHeaderMap(): Map<String, String> {
+        return headerMap
+    }
 }

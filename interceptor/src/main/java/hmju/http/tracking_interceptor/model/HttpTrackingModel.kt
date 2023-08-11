@@ -48,7 +48,7 @@ sealed class HttpTrackingModel(
             takeTimeMs = (receivedTimeMs - sentTimeMs)
             val sentTime = res.sentRequestAtMillis.toDate()
             val receiveTime = res.receivedResponseAtMillis.toDate()
-            timeDate = "$sentTime - $receiveTime"
+            timeDate = "$sentTime ~ $receiveTime"
         }
 
         override fun equals(other: Any?): Boolean {
@@ -223,6 +223,42 @@ sealed class HttpTrackingModel(
             } else {
                 HttpTrackingRequest.Default(req)
             }
+        }
+    }
+
+    @JvmName("getCommonMethod")
+    fun getMethod(): String {
+        return when (this) {
+            is Default -> this.method
+            is TimeOut -> this.method
+            is Error -> this.method
+        }
+    }
+
+    @JvmName("getCommonHost")
+    fun getHost(): String {
+        return when (this) {
+            is Default -> this.host
+            is TimeOut -> this.host
+            is Error -> this.host
+        }
+    }
+
+    @JvmName("getCommonPath")
+    fun getPath(): String {
+        return when (this) {
+            is Default -> this.path
+            is TimeOut -> this.path
+            is Error -> this.path
+        }
+    }
+
+    @JvmName("getCommonRequest")
+    fun getRequest(): HttpTrackingRequest {
+        return when (this) {
+            is Default -> this.request
+            is TimeOut -> this.request
+            is Error -> this.request
         }
     }
 }

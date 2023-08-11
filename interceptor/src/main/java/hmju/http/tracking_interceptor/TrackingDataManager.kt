@@ -1,7 +1,6 @@
 package hmju.http.tracking_interceptor
 
 import hmju.http.tracking_interceptor.model.HttpTrackingModel
-import hmju.http.tracking_interceptor.model.BaseTrackingEntity
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -37,8 +36,7 @@ class TrackingDataManager private constructor() {
     private var listener: Listener? = null
     // [e] Variable
 
-    private val httpTrackingListV2: CopyOnWriteArrayList<HttpTrackingModel> by lazy { CopyOnWriteArrayList() }
-    private val httpTrackingList: CopyOnWriteArrayList<BaseTrackingEntity> by lazy { CopyOnWriteArrayList() }
+    private val httpTrackingList: CopyOnWriteArrayList<HttpTrackingModel> by lazy { CopyOnWriteArrayList() }
 
     fun isDebug() = isDebug
 
@@ -64,25 +62,6 @@ class TrackingDataManager private constructor() {
      * Http 통신 트레킹 추가 함수
      *
      */
-    fun addTracking(entity: BaseTrackingEntity?) {
-        if (entity == null) return
-
-        // UID 초기화 처리
-        if (trackingCnt > Long.MAX_VALUE.minus(10)) {
-            trackingCnt = 0
-        }
-
-        entity.uid = trackingCnt
-        httpTrackingList.add(0, entity)
-        trackingCnt++
-
-        // 맥스 사이즈면 맨 마지막 삭제
-        if (logMaxSize < httpTrackingList.size) {
-            httpTrackingList.removeLast()
-        }
-        this.listener?.onUpdateTrackingData()
-    }
-
     fun add(model: HttpTrackingModel?) {
         if (model == null) return
 
@@ -92,22 +71,18 @@ class TrackingDataManager private constructor() {
         }
 
         model.uid = trackingCnt
-        httpTrackingListV2.add(0, model)
+        httpTrackingList.add(0, model)
         trackingCnt++
 
         // 맥스 사이즈면 맨 마지막 삭제
-        if (logMaxSize < httpTrackingListV2.size) {
-            httpTrackingListV2.removeLast()
+        if (logMaxSize < httpTrackingList.size) {
+            httpTrackingList.removeLast()
         }
         this.listener?.onUpdateTrackingData()
     }
 
-    fun getTrackingList(): List<BaseTrackingEntity> {
+    fun getTrackingList(): List<HttpTrackingModel> {
         return httpTrackingList.toList()
-    }
-
-    fun getTrackingListV2(): List<HttpTrackingModel> {
-        return httpTrackingListV2.toList()
     }
 
     fun setListener(l: Listener) {

@@ -22,7 +22,6 @@ import hmju.http.tracking.ui.TrackingBottomSheetDialog
 import hmju.http.tracking.util.WifiManager
 import hmju.http.tracking.util.WifiShareManager
 import hmju.http.tracking_interceptor.model.HttpTrackingModel
-import hmju.http.tracking_interceptor.model.TrackingHttpEntity
 import java.io.IOException
 
 /**

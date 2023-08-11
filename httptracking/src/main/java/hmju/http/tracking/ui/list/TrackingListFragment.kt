@@ -35,11 +35,11 @@ internal class TrackingListFragment : Fragment(R.layout.f_tracking_list) {
         rvContents.layoutManager = LinearLayoutManager(view.context)
         rvContents.adapter = adapter
 
-        setTrackingData(TrackingDataManager.getInstance().getTrackingListV2())
+        setTrackingData(TrackingDataManager.getInstance().getTrackingList())
 
         TrackingDataManager.getInstance().setListener(object : TrackingDataManager.Listener {
             override fun onUpdateTrackingData() {
-                setTrackingData(TrackingDataManager.getInstance().getTrackingListV2())
+                setTrackingData(TrackingDataManager.getInstance().getTrackingList())
             }
         })
     }
