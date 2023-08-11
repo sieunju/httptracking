@@ -143,14 +143,6 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
      * HTTP Tracking 상세 진입
      */
     fun moveToDetailFragment(item: HttpTrackingModel) {
-        when (item) {
-            is HttpTrackingModel.Default -> handleDefaultDetail(item)
-            is HttpTrackingModel.TimeOut -> handleTimeOutDetail(item)
-            is HttpTrackingModel.Error -> handleErrorDetail(item)
-        }
-    }
-
-    private fun handleDefaultDetail(item: HttpTrackingModel.Default) {
         detailData?.clear()
         detailData = null
         detailData = WeakReference(item)
@@ -165,20 +157,6 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
             addToBackStack(null)
             commit()
         }
-    }
-
-    private fun handleTimeOutDetail(item: HttpTrackingModel.TimeOut) {
-        detailData?.clear()
-        detailData = null
-        detailData = WeakReference(item)
-
-    }
-
-    private fun handleErrorDetail(item: HttpTrackingModel.Error) {
-        detailData?.clear()
-        detailData = null
-        detailData = WeakReference(item)
-
     }
 
     /**

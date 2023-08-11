@@ -142,7 +142,7 @@ internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_deta
         data: HttpTrackingModel.TimeOut
     ): List<BaseTrackingUiModel> {
         val list = mutableListOf<BaseTrackingUiModel>()
-        list.add(TrackingPathUiModel("Time_OUT ${data.msg}"))
+        list.add(TrackingTitleUiModel("[timeout]"))
         // FullURL
         list.add(TrackingPathUiModel(data.fullUrl))
         // Path
@@ -191,7 +191,8 @@ internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_deta
         data: HttpTrackingModel.Error
     ): List<BaseTrackingUiModel> {
         val list = mutableListOf<BaseTrackingUiModel>()
-        list.add(TrackingPathUiModel("Other_Error ${data.msg}"))
+        list.add(TrackingTitleUiModel("[Error]"))
+        list.add(TrackingPathUiModel(data.msg))
         // FullURL
         list.add(TrackingPathUiModel(data.fullUrl))
         // Path

@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.http.tracking.R
 import hmju.http.tracking.models.BaseTrackingUiModel
 import hmju.http.tracking.models.TrackingListDefaultUiModel
+import hmju.http.tracking.models.TrackingListErrorUiModel
 import hmju.http.tracking.models.TrackingListTimeOutUiModel
 import hmju.http.tracking.ui.adapter.TrackingAdapter
 import hmju.http.tracking_interceptor.TrackingDataManager
@@ -54,7 +55,7 @@ internal class TrackingListFragment : Fragment(R.layout.f_tracking_list) {
         return when (model) {
             is HttpTrackingModel.Default -> TrackingListDefaultUiModel(model)
             is HttpTrackingModel.TimeOut -> TrackingListTimeOutUiModel(model)
-            is HttpTrackingModel.Error -> throw IllegalArgumentException("ㅇㅇㅇ")
+            is HttpTrackingModel.Error -> TrackingListErrorUiModel(model)
         }
     }
 

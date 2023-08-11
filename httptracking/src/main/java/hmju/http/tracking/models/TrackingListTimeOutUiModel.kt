@@ -11,7 +11,7 @@ internal data class TrackingListTimeOutUiModel(
     }
 
     override fun areItemsTheSame(diffItem: Any): Boolean {
-        return if (diffItem is TrackingListDefaultUiModel) {
+        return if (diffItem is TrackingListTimeOutUiModel) {
             item.uid == diffItem.item.uid
         } else {
             false
@@ -19,7 +19,7 @@ internal data class TrackingListTimeOutUiModel(
     }
 
     override fun areContentsTheSame(diffItem: Any): Boolean {
-        return if (diffItem is TrackingListDefaultUiModel) {
+        return if (diffItem is TrackingListTimeOutUiModel) {
             item.uid == diffItem.item.uid
         } else {
             false
