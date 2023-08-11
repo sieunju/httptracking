@@ -1,6 +1,6 @@
 package hmju.http.tracking_interceptor
 
-import hmju.http.tracking_interceptor.model.BaseTrackingEntity
+import hmju.http.tracking_interceptor.model.TrackingModel
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -27,7 +27,7 @@ class TrackingDataManager private constructor() {
     }
 
     interface Listener {
-        fun onNotificationTrackingEntity()
+        fun onUpdateTrackingData()
     }
 
     // [s] Variable
@@ -36,7 +36,7 @@ class TrackingDataManager private constructor() {
     private var listener: Listener? = null
     // [e] Variable
 
-    private val httpTrackingList: CopyOnWriteArrayList<BaseTrackingEntity> by lazy { CopyOnWriteArrayList() }
+    private val httpTrackingList: CopyOnWriteArrayList<TrackingModel> by lazy { CopyOnWriteArrayList() }
 
     fun isDebug() = isDebug
 
@@ -62,26 +62,26 @@ class TrackingDataManager private constructor() {
      * Http 통신 트레킹 추가 함수
      *
      */
-    fun addTracking(entity: BaseTrackingEntity?) {
-        if (entity == null) return
+    fun add(model: TrackingModel?) {
+        if (model == null) return
 
         // UID 초기화 처리
         if (trackingCnt > Long.MAX_VALUE.minus(10)) {
             trackingCnt = 0
         }
 
-        entity.uid = trackingCnt
-        httpTrackingList.add(0, entity)
+        model.uid = trackingCnt
+        httpTrackingList.add(0, model)
         trackingCnt++
 
         // 맥스 사이즈면 맨 마지막 삭제
         if (logMaxSize < httpTrackingList.size) {
             httpTrackingList.removeLast()
         }
-        this.listener?.onNotificationTrackingEntity()
+        this.listener?.onUpdateTrackingData()
     }
 
-    fun getTrackingList(): List<BaseTrackingEntity> {
+    fun getTrackingList(): List<TrackingModel> {
         return httpTrackingList.toList()
     }
 

@@ -6,7 +6,7 @@ import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
 import com.http.tracking.R
 
-internal class TrackingHeaderUiModel(
+internal data class TrackingHeaderUiModel(
     val key: String,
     val value: String
 ) : BaseTrackingUiModel(R.layout.vh_tracking_header) {
@@ -28,6 +28,13 @@ internal class TrackingHeaderUiModel(
             false
         }
     }
+
+    constructor(
+        pair: Map.Entry<String, String>
+    ) : this(
+        key = pair.key,
+        value = pair.value
+    )
 
     var contents: Spannable? = null
         get() {

@@ -10,7 +10,9 @@ import hmju.http.tracking.ui.diffutil.TrackingDetailDiffUtil
 import hmju.http.tracking.ui.viewholder.BaseTrackingViewHolder
 import hmju.http.tracking.ui.viewholder.TrackingBodyViewHolder
 import hmju.http.tracking.ui.viewholder.TrackingHeaderViewHolder
-import hmju.http.tracking.ui.viewholder.TrackingListViewHolder
+import hmju.http.tracking.ui.viewholder.TrackingListDefaultViewHolder
+import hmju.http.tracking.ui.viewholder.TrackingListErrorViewHolder
+import hmju.http.tracking.ui.viewholder.TrackingListTimeOutViewHolder
 import hmju.http.tracking.ui.viewholder.TrackingMultipartBodyViewHolder
 import hmju.http.tracking.ui.viewholder.TrackingPathViewHolder
 import hmju.http.tracking.ui.viewholder.TrackingQueryViewHolder
@@ -51,7 +53,9 @@ internal class TrackingAdapter(
             R.layout.vh_tracking_body -> TrackingBodyViewHolder(parent)
             R.layout.vh_tracking_multipart_body -> TrackingMultipartBodyViewHolder(parent)
             R.layout.vh_tracking_title -> TrackingTitleViewHolder(parent)
-            R.layout.vh_child_tracking -> TrackingListViewHolder(parent, fragment)
+            R.layout.vh_child_tracking -> TrackingListDefaultViewHolder(parent, fragment)
+            R.layout.vh_child_tracking_time_out -> TrackingListTimeOutViewHolder(parent, fragment)
+            R.layout.vh_child_tracking_error -> TrackingListErrorViewHolder(parent, fragment)
             else -> throw IllegalArgumentException("Invalid ViewType")
         }
     }

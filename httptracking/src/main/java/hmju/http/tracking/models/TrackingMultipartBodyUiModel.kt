@@ -1,7 +1,9 @@
 package hmju.http.tracking.models
 
 import android.graphics.Bitmap
+import android.util.Base64
 import com.http.tracking.R
+import hmju.http.tracking_interceptor.model.TrackingRequest
 import okhttp3.MediaType
 
 internal data class TrackingMultipartBodyUiModel(
@@ -20,4 +22,11 @@ internal data class TrackingMultipartBodyUiModel(
     override fun areContentsTheSame(diffItem: Any): Boolean {
         return false
     }
+
+    constructor(
+        part: TrackingRequest.MultiPart.Part
+    ) : this(
+        mediaType = part.type,
+        binary = Base64.encodeToString(part.bytes, Base64.DEFAULT) ?: ""
+    )
 }

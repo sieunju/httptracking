@@ -3,7 +3,7 @@ package hmju.http.tracking.models
 import com.http.tracking.R
 
 internal data class TrackingBodyUiModel(
-    val body: String = ""
+    val body: CharSequence
 ) : BaseTrackingUiModel(R.layout.vh_tracking_body) {
 
     override fun getClassName() = "TrackingBodyUiModel"

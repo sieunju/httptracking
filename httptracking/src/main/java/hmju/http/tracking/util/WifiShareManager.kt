@@ -1,9 +1,11 @@
 package hmju.http.tracking.util
 
 import androidx.annotation.WorkerThread
-import hmju.http.tracking_interceptor.model.TrackingHttpEntity
-import hmju.http.tracking_interceptor.model.TrackingRequestEntity
-import hmju.http.tracking_interceptor.model.TrackingRequestMultipartEntity
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonParser
+import hmju.http.tracking_interceptor.model.TrackingModel
+import hmju.http.tracking_interceptor.model.TrackingRequest
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.InetAddress
@@ -20,9 +22,18 @@ import java.util.concurrent.Executors
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 internal class WifiShareManager {
 
-    private var logData: TrackingHttpEntity? = null
+    private var logData: TrackingModel? = null
     private var workThread: WorkThread? = null
     private var listener: Listener? = null
+
+    // Gson
+    private val gson: Gson by lazy {
+        GsonBuilder()
+            .disableHtmlEscaping()
+            .setPrettyPrinting()
+            .serializeNulls()
+            .create()
+    }
 
     interface Listener {
         /**
@@ -60,7 +71,7 @@ internal class WifiShareManager {
     /**
      * WifiShare Setting Log Data
      */
-    fun setLogData(data: TrackingHttpEntity?) {
+    fun setLogData(data: TrackingModel?) {
         logData = data
     }
 
@@ -167,6 +178,11 @@ internal class WifiShareManager {
         return sb to sb.toString().encodeToByteArray().size.toLong()
     }
 
+    private fun getMethodAndBaseUrl(): CharSequence {
+        val data = logData ?: return ""
+        return "<h4>[${data.getMethod()}] ${data.getHost()}${data.getPath()}"
+    }
+
     private fun getHttpTrackingJson(): String {
         val str = StringBuilder()
         // Android Http Tracking Log
@@ -182,32 +198,27 @@ internal class WifiShareManager {
             // 6. Response Header
             // 7. Response Body
             // 8. Response Error
-            val req = data.req
-            // Request Setting
-            if (req != null) {
-                // 1. {MethodType} {BaseUrl + Path}
-                str.append("<h4>[${data.method}] ${data.scheme}://${data.baseUrl}${data.path}</h4>")
 
-                // 2. {Request Query Parameter or Request Body}
-                val queryList = hmju.http.tracking.Extensions.toReqQueryList(req.fullUrl)
-                if (queryList.isNotEmpty()) {
-                    str.append("<h5>[Request Query Parameters]</h5>")
-                    queryList.forEach {
-                        str.append(it.plus("<br>"))
-                    }
-                }
+            // 1. {MethodType} {BaseUrl + Path}
+            str.append(getMethodAndBaseUrl())
 
-                // 3. {Request Body}
-                if (req is TrackingRequestEntity) {
+            // 2. {Request Query Parameter or Request Body}
+            val reqQueryList = data.getRequest().getQueryParams()?.split("&")
+            if (!reqQueryList.isNullOrEmpty()) {
+                str.append("<h5>[Request Query Parameters]</h5>")
+                reqQueryList.forEach { str.append(it.plus("<br>")) }
+            }
+
+            // 3. {Request Body}
+            if (data is TrackingModel.Default) {
+                val req = data.request
+                if (req is TrackingRequest.Default) {
                     if (!req.body.isNullOrEmpty()) {
                         str.append("<h5>[Request Body - Json]</h5>")
                         str.append("<pre>")
-                        str.append(
-                            hmju.http.tracking.Extensions.toJsonBody(req.body).replace("\n", "<br>")
-                        )
-                        str.append("</pre>")
+                        str.append(toJsonBody(req.body).replace("\n", "<br>"))
                     }
-                } else if (req is TrackingRequestMultipartEntity) {
+                } else if (req is TrackingRequest.MultiPart) {
                     str.append("<h5>[Request Body - MultipartType]</h5>")
                     req.binaryList.forEach {
                         str.append("MultiPart-MediaType: ")
@@ -217,34 +228,33 @@ internal class WifiShareManager {
                         str.append("<br>")
                     }
                 }
+            }
 
-                // 4. {Request Headers}
-                if (data.headerMap.isNotEmpty()) {
-                    str.append("<h5>[Request Headers]</h5>")
-                    data.headerMap.forEach { entry ->
-                        str.append(entry.key)
-                        str.append(" : ")
-                        str.append(entry.value)
-                        str.append("<br>")
-                    }
+            // 4. {Request Headers}
+            val reqHeaderMap = data.getRequest().getHeaderMap()
+            if (reqHeaderMap.isNotEmpty()) {
+                str.append("<h5>[Request Headers]</h5>")
+                reqHeaderMap.forEach { entry ->
+                    str.append(entry.key)
+                    str.append(" : ")
+                    str.append(entry.value)
+                    str.append("<br>")
                 }
+            }
 
-                // 5. Response Code
-                if (data.isSuccess()) {
+            // 5. Response Code
+            if (data is TrackingModel.Default) {
+                if (data.isSuccess) {
                     str.append("<H4><font color=\"#03A9F4\">${data.code}</font></H4>")
                 } else {
                     str.append("<H4><font color=\"#C62828\">${data.code}</font></H4>")
                 }
-            }
 
-            val res = data.res
-
-            if (res != null) {
-
-                if (res.headerMap.isNotEmpty()) {
-                    // 6. Response Header
+                // 6. Response Header
+                val resHeaderMap = data.response.getHeaderMap()
+                if (resHeaderMap.isNotEmpty()) {
                     str.append("<h5>[Response Headers]</h5>")
-                    res.headerMap.forEach { entry ->
+                    resHeaderMap.forEach { entry ->
                         str.append(entry.key)
                         str.append(" : ")
                         str.append(entry.value)
@@ -252,25 +262,39 @@ internal class WifiShareManager {
                     }
                 }
 
-                if (!res.body.isNullOrEmpty()) {
+                // 7. Response Body
+                val resBody = data.response.getBody()
+                if (!resBody.isNullOrEmpty()) {
                     // 7. Response Body
                     str.append("<h5>[Body]</h5>")
                     str.append("<pre>")
-                    str.append(
-                        hmju.http.tracking.Extensions.toJsonBody(res.body).replace("\n", "<br>")
-                    )
+                    str.append(toJsonBody(resBody).replace("\n", "<br>"))
                     str.append("</pre>")
                 }
-            }
-
-            // 8. Response Error
-            if (data.error != null) {
+            } else if (data is TrackingModel.TimeOut) {
+                // 8. Response Error
                 str.append("<br>")
                 str.append("<h5>[HTTP Error]</h5>")
-                str.append(data.error)
+                str.append(data.msg)
+                str.append("<br>")
+            } else if (data is TrackingModel.Error) {
+                // 8. Response Error
+                str.append("<br>")
+                str.append("<h5>[HTTP Error]</h5>")
+                str.append(data.msg)
                 str.append("<br>")
             }
         }
         return str.toString()
+    }
+
+    fun toJsonBody(body: String?): String {
+        if (body == null) return ""
+        return try {
+            val je = JsonParser.parseString(body)
+            gson.toJson(je)
+        } catch (ex: Exception) {
+            ""
+        }
     }
 }
