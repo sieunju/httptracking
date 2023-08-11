@@ -1,6 +1,6 @@
 package hmju.http.tracking_interceptor
 
-import hmju.http.tracking_interceptor.model.HttpTrackingModel
+import hmju.http.tracking_interceptor.model.TrackingModel
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -36,7 +36,7 @@ class TrackingDataManager private constructor() {
     private var listener: Listener? = null
     // [e] Variable
 
-    private val httpTrackingList: CopyOnWriteArrayList<HttpTrackingModel> by lazy { CopyOnWriteArrayList() }
+    private val httpTrackingList: CopyOnWriteArrayList<TrackingModel> by lazy { CopyOnWriteArrayList() }
 
     fun isDebug() = isDebug
 
@@ -62,7 +62,7 @@ class TrackingDataManager private constructor() {
      * Http 통신 트레킹 추가 함수
      *
      */
-    fun add(model: HttpTrackingModel?) {
+    fun add(model: TrackingModel?) {
         if (model == null) return
 
         // UID 초기화 처리
@@ -81,7 +81,7 @@ class TrackingDataManager private constructor() {
         this.listener?.onUpdateTrackingData()
     }
 
-    fun getTrackingList(): List<HttpTrackingModel> {
+    fun getTrackingList(): List<TrackingModel> {
         return httpTrackingList.toList()
     }
 

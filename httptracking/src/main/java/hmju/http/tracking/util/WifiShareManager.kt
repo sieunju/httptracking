@@ -4,8 +4,8 @@ import androidx.annotation.WorkerThread
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
-import hmju.http.tracking_interceptor.model.HttpTrackingModel
-import hmju.http.tracking_interceptor.model.HttpTrackingRequest
+import hmju.http.tracking_interceptor.model.TrackingModel
+import hmju.http.tracking_interceptor.model.TrackingRequest
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.InetAddress
@@ -22,7 +22,7 @@ import java.util.concurrent.Executors
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 internal class WifiShareManager {
 
-    private var logData: HttpTrackingModel? = null
+    private var logData: TrackingModel? = null
     private var workThread: WorkThread? = null
     private var listener: Listener? = null
 
@@ -71,7 +71,7 @@ internal class WifiShareManager {
     /**
      * WifiShare Setting Log Data
      */
-    fun setLogData(data: HttpTrackingModel?) {
+    fun setLogData(data: TrackingModel?) {
         logData = data
     }
 
@@ -210,15 +210,15 @@ internal class WifiShareManager {
             }
 
             // 3. {Request Body}
-            if (data is HttpTrackingModel.Default) {
+            if (data is TrackingModel.Default) {
                 val req = data.request
-                if (req is HttpTrackingRequest.Default) {
+                if (req is TrackingRequest.Default) {
                     if (!req.body.isNullOrEmpty()) {
                         str.append("<h5>[Request Body - Json]</h5>")
                         str.append("<pre>")
                         str.append(toJsonBody(req.body).replace("\n", "<br>"))
                     }
-                } else if (req is HttpTrackingRequest.MultiPart) {
+                } else if (req is TrackingRequest.MultiPart) {
                     str.append("<h5>[Request Body - MultipartType]</h5>")
                     req.binaryList.forEach {
                         str.append("MultiPart-MediaType: ")
@@ -243,7 +243,7 @@ internal class WifiShareManager {
             }
 
             // 5. Response Code
-            if (data is HttpTrackingModel.Default) {
+            if (data is TrackingModel.Default) {
                 if (data.isSuccess) {
                     str.append("<H4><font color=\"#03A9F4\">${data.code}</font></H4>")
                 } else {
@@ -271,13 +271,13 @@ internal class WifiShareManager {
                     str.append(toJsonBody(resBody).replace("\n", "<br>"))
                     str.append("</pre>")
                 }
-            } else if (data is HttpTrackingModel.TimeOut) {
+            } else if (data is TrackingModel.TimeOut) {
                 // 8. Response Error
                 str.append("<br>")
                 str.append("<h5>[HTTP Error]</h5>")
                 str.append(data.msg)
                 str.append("<br>")
-            } else if (data is HttpTrackingModel.Error) {
+            } else if (data is TrackingModel.Error) {
                 // 8. Response Error
                 str.append("<br>")
                 str.append("<h5>[HTTP Error]</h5>")

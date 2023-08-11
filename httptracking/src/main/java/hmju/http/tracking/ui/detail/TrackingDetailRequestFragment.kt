@@ -19,13 +19,9 @@ import hmju.http.tracking.models.TrackingQueryUiModel
 import hmju.http.tracking.models.TrackingTitleUiModel
 import hmju.http.tracking.ui.TrackingBottomSheetDialog
 import hmju.http.tracking.ui.adapter.TrackingAdapter
-import hmju.http.tracking_interceptor.model.HttpTrackingModel
-import hmju.http.tracking_interceptor.model.HttpTrackingRequest
+import hmju.http.tracking_interceptor.model.TrackingModel
+import hmju.http.tracking_interceptor.model.TrackingRequest
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.net.URLDecoder
@@ -78,22 +74,22 @@ internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_deta
     }
 
     private fun parseUiModel(
-        data: HttpTrackingModel
+        data: TrackingModel
     ): List<BaseTrackingUiModel> {
         return when (data) {
-            is HttpTrackingModel.Default -> getDefaultUiModels(data)
-            is HttpTrackingModel.TimeOut -> getTimeOutUiModels(data)
-            is HttpTrackingModel.Error -> getErrorUiModels(data)
+            is TrackingModel.Default -> getDefaultUiModels(data)
+            is TrackingModel.TimeOut -> getTimeOutUiModels(data)
+            is TrackingModel.Error -> getErrorUiModels(data)
         }
     }
 
     /**
      * 일반적인 모델 UiModel로 변환해서 리턴하는 함수
      *
-     * @param data [HttpTrackingModel.Default]
+     * @param data [TrackingModel.Default]
      */
     private fun getDefaultUiModels(
-        data: HttpTrackingModel.Default
+        data: TrackingModel.Default
     ): List<BaseTrackingUiModel> {
         val list = mutableListOf<BaseTrackingUiModel>()
         // FullURL
@@ -126,7 +122,7 @@ internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_deta
 
         // Body
         val request = data.request
-        if (request is HttpTrackingRequest.Default) {
+        if (request is TrackingRequest.Default) {
             val body = request.body
             try {
                 val js = JsonParser.parseString(body)
@@ -134,14 +130,14 @@ internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_deta
             } catch (ex: Exception) {
                 // ignore
             }
-        } else if (request is HttpTrackingRequest.MultiPart) {
+        } else if (request is TrackingRequest.MultiPart) {
             request.binaryList.forEach { list.add(TrackingMultipartBodyUiModel(it)) }
         }
         return list
     }
 
     private fun getTimeOutUiModels(
-        data: HttpTrackingModel.TimeOut
+        data: TrackingModel.TimeOut
     ): List<BaseTrackingUiModel> {
         val list = mutableListOf<BaseTrackingUiModel>()
         list.add(TrackingTitleUiModel("[timeout]"))
@@ -175,7 +171,7 @@ internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_deta
 
         // Body
         val request = data.request
-        if (request is HttpTrackingRequest.Default) {
+        if (request is TrackingRequest.Default) {
             val body = request.body
             try {
                 val js = JsonParser.parseString(body)
@@ -183,14 +179,14 @@ internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_deta
             } catch (ex: Exception) {
                 // ignore
             }
-        } else if (request is HttpTrackingRequest.MultiPart) {
+        } else if (request is TrackingRequest.MultiPart) {
             request.binaryList.forEach { list.add(TrackingMultipartBodyUiModel(it)) }
         }
         return list
     }
 
     private fun getErrorUiModels(
-        data: HttpTrackingModel.Error
+        data: TrackingModel.Error
     ): List<BaseTrackingUiModel> {
         val list = mutableListOf<BaseTrackingUiModel>()
         list.add(TrackingTitleUiModel("[Error]"))
@@ -225,7 +221,7 @@ internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_deta
 
         // Body
         val request = data.request
-        if (request is HttpTrackingRequest.Default) {
+        if (request is TrackingRequest.Default) {
             val body = request.body
             try {
                 val js = JsonParser.parseString(body)
@@ -233,7 +229,7 @@ internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_deta
             } catch (ex: Exception) {
                 // ignore
             }
-        } else if (request is HttpTrackingRequest.MultiPart) {
+        } else if (request is TrackingRequest.MultiPart) {
             request.binaryList.forEach { list.add(TrackingMultipartBodyUiModel(it)) }
         }
         return list

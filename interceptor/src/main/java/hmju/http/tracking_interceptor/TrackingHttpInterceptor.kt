@@ -1,6 +1,6 @@
 package hmju.http.tracking_interceptor
 
-import hmju.http.tracking_interceptor.model.HttpTrackingModel
+import hmju.http.tracking_interceptor.model.TrackingModel
 import okhttp3.*
 import java.io.IOException
 import java.net.SocketTimeoutException
@@ -26,17 +26,17 @@ class TrackingHttpInterceptor : Interceptor {
         } catch (ex: SocketTimeoutException) {
             TrackingDataManager
                 .getInstance()
-                .add(HttpTrackingModel.TimeOut(request, sendTimeMs, ex))
+                .add(TrackingModel.TimeOut(request, sendTimeMs, ex))
             throw ex
         } catch (ex: Exception) {
             TrackingDataManager
                 .getInstance()
-                .add(HttpTrackingModel.Error(request, sendTimeMs, ex))
+                .add(TrackingModel.Error(request, sendTimeMs, ex))
             throw ex
         }
         TrackingDataManager
             .getInstance()
-            .add(HttpTrackingModel.Default(request, response))
+            .add(TrackingModel.Default(request, response))
         return response
     }
 }

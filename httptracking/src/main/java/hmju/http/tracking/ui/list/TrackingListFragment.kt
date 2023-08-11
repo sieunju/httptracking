@@ -13,7 +13,7 @@ import hmju.http.tracking.models.TrackingListErrorUiModel
 import hmju.http.tracking.models.TrackingListTimeOutUiModel
 import hmju.http.tracking.ui.adapter.TrackingAdapter
 import hmju.http.tracking_interceptor.TrackingDataManager
-import hmju.http.tracking_interceptor.model.HttpTrackingModel
+import hmju.http.tracking_interceptor.model.TrackingModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -44,18 +44,18 @@ internal class TrackingListFragment : Fragment(R.layout.f_tracking_list) {
         })
     }
 
-    private fun setTrackingData(newList: List<HttpTrackingModel>) {
+    private fun setTrackingData(newList: List<TrackingModel>) {
         lifecycle.coroutineScope.launch(Dispatchers.Main) {
             val uiList = withContext(Dispatchers.IO) { newList.map { toUiModel(it) } }
             adapter.submitList(uiList)
         }
     }
 
-    private fun toUiModel(model: HttpTrackingModel): BaseTrackingUiModel {
+    private fun toUiModel(model: TrackingModel): BaseTrackingUiModel {
         return when (model) {
-            is HttpTrackingModel.Default -> TrackingListDefaultUiModel(model)
-            is HttpTrackingModel.TimeOut -> TrackingListTimeOutUiModel(model)
-            is HttpTrackingModel.Error -> TrackingListErrorUiModel(model)
+            is TrackingModel.Default -> TrackingListDefaultUiModel(model)
+            is TrackingModel.TimeOut -> TrackingListTimeOutUiModel(model)
+            is TrackingModel.Error -> TrackingListErrorUiModel(model)
         }
     }
 

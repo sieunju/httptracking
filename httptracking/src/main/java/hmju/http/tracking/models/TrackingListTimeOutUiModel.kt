@@ -1,10 +1,10 @@
 package hmju.http.tracking.models
 
 import com.http.tracking.R
-import hmju.http.tracking_interceptor.model.HttpTrackingModel
+import hmju.http.tracking_interceptor.model.TrackingModel
 
 internal data class TrackingListTimeOutUiModel(
-    val item : HttpTrackingModel.TimeOut
+    val item : TrackingModel.TimeOut
 ) : BaseTrackingUiModel(R.layout.vh_child_tracking_time_out) {
     override fun getClassName(): String {
         return "TrackingListTimeOutUiModel"

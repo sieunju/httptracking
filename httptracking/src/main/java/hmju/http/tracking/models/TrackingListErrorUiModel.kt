@@ -1,10 +1,10 @@
 package hmju.http.tracking.models
 
 import com.http.tracking.R
-import hmju.http.tracking_interceptor.model.HttpTrackingModel
+import hmju.http.tracking_interceptor.model.TrackingModel
 
 internal data class TrackingListErrorUiModel(
-    val item: HttpTrackingModel.Error
+    val item: TrackingModel.Error
 ) : BaseTrackingUiModel(R.layout.vh_child_tracking_error) {
     override fun getClassName(): String {
         return "TrackingListErrorUiModel"

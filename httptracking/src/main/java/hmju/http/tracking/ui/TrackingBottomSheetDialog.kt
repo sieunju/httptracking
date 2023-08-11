@@ -20,7 +20,7 @@ import com.http.tracking.R
 import hmju.http.tracking.ui.detail.TrackingDetailRootFragment
 import hmju.http.tracking.ui.list.TrackingListFragment
 import hmju.http.tracking_interceptor.TrackingDataManager
-import hmju.http.tracking_interceptor.model.HttpTrackingModel
+import hmju.http.tracking_interceptor.model.TrackingModel
 import java.lang.ref.WeakReference
 
 /**
@@ -43,7 +43,7 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
     private var listener: DismissListener? = null
     private var isWifiShare: Boolean = false
 
-    private var detailData: WeakReference<HttpTrackingModel>? = null
+    private var detailData: WeakReference<TrackingModel>? = null
 
     // [s] View
     private lateinit var tvTitle: AppCompatTextView
@@ -120,7 +120,7 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
     /**
      * HTTP Tracking 상세 진입
      */
-    fun moveToDetailFragment(item: HttpTrackingModel) {
+    fun moveToDetailFragment(item: TrackingModel) {
         detailData?.clear()
         detailData = null
         detailData = WeakReference(item)
@@ -154,7 +154,7 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
         return this
     }
 
-    fun getTempDetailData(): HttpTrackingModel? {
+    fun getTempDetailData(): TrackingModel? {
         return detailData?.get()
     }
 

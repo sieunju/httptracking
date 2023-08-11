@@ -1,10 +1,10 @@
 package hmju.http.tracking.models
 
 import com.http.tracking.R
-import hmju.http.tracking_interceptor.model.HttpTrackingModel
+import hmju.http.tracking_interceptor.model.TrackingModel
 
 internal data class TrackingListDefaultUiModel(
-    val item: HttpTrackingModel.Default
+    val item: TrackingModel.Default
 ) : BaseTrackingUiModel(R.layout.vh_child_tracking) {
     override fun getClassName(): String {
         return "TrackingListV2UiModel"

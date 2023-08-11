@@ -16,8 +16,8 @@ import hmju.http.tracking.models.TrackingHeaderUiModel
 import hmju.http.tracking.models.TrackingTitleUiModel
 import hmju.http.tracking.ui.TrackingBottomSheetDialog
 import hmju.http.tracking.ui.adapter.TrackingAdapter
-import hmju.http.tracking_interceptor.model.HttpTrackingModel
-import hmju.http.tracking_interceptor.model.HttpTrackingResponse
+import hmju.http.tracking_interceptor.model.TrackingModel
+import hmju.http.tracking_interceptor.model.TrackingResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -70,13 +70,13 @@ internal class TrackingDetailResponseFragment : Fragment(R.layout.f_tracking_det
     }
 
     private fun parseUiModel(
-        data: HttpTrackingModel
+        data: TrackingModel
     ): List<BaseTrackingUiModel> {
         val list = mutableListOf<BaseTrackingUiModel>()
-        if (data !is HttpTrackingModel.Default) return list
+        if (data !is TrackingModel.Default) return list
 
         val res = data.response
-        if (res is HttpTrackingResponse.Default) {
+        if (res is TrackingResponse.Default) {
             // Headers
             val headerMap = res.headerMap
             if (headerMap.isNotEmpty()) {
