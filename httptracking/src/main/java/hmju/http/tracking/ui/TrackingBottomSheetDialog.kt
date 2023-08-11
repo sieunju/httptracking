@@ -71,7 +71,7 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
         if (dialog is BottomSheetDialog) {
             (dialog as BottomSheetDialog).runCatching {
                 behavior.skipCollapsed = true
-                behavior.isDraggable = true
+                behavior.isDraggable = false
             }
         }
     }

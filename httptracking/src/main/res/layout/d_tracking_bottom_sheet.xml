@@ -17,7 +17,7 @@
             android:layout_height="match_parent"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:src="@drawable/ic_left_arrow"
+            android:src="@drawable/ic_http_tracking_left_arrow"
             app:layout_constraintLeft_toLeftOf="parent" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -37,7 +37,7 @@
             android:layout_height="match_parent"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:src="@drawable/ic_delete"
+            android:src="@drawable/ic_http_tracking_delete"
             app:layout_constraintRight_toRightOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
