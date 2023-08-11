@@ -1,7 +1,6 @@
 package hmju.http.tracking.ui.list
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.coroutineScope
@@ -9,11 +8,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.http.tracking.R
 import hmju.http.tracking.models.BaseTrackingUiModel
-import hmju.http.tracking.models.TrackingListUiModel
+import hmju.http.tracking.models.TrackingListDefaultUiModel
+import hmju.http.tracking.models.TrackingListTimeOutUiModel
 import hmju.http.tracking.ui.adapter.TrackingAdapter
 import hmju.http.tracking_interceptor.TrackingDataManager
-import hmju.http.tracking_interceptor.model.BaseTrackingEntity
-import hmju.http.tracking_interceptor.model.TrackingHttpEntity
+import hmju.http.tracking_interceptor.model.HttpTrackingModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -35,37 +34,28 @@ internal class TrackingListFragment : Fragment(R.layout.f_tracking_list) {
         rvContents.layoutManager = LinearLayoutManager(view.context)
         rvContents.adapter = adapter
 
-        setTrackingData(TrackingDataManager.getInstance().getTrackingList())
+        setTrackingData(TrackingDataManager.getInstance().getTrackingListV2())
 
         TrackingDataManager.getInstance().setListener(object : TrackingDataManager.Listener {
-            override fun onNotificationTrackingEntity() {
-                setTrackingData(TrackingDataManager.getInstance().getTrackingList())
+            override fun onUpdateTrackingData() {
+                setTrackingData(TrackingDataManager.getInstance().getTrackingListV2())
             }
         })
     }
 
-    /**
-     * 데이터 업데이트 처리 함수
-     */
-    private fun setTrackingData(newList: List<BaseTrackingEntity>) {
-        Log.d("JLOGGER","Size ${newList.size}")
+    private fun setTrackingData(newList: List<HttpTrackingModel>) {
         lifecycle.coroutineScope.launch(Dispatchers.Main) {
-            val uiList = withContext(Dispatchers.IO) { newList.toChildTrackingModel() }
+            val uiList = withContext(Dispatchers.IO) { newList.map { toUiModel(it) } }
             adapter.submitList(uiList)
         }
     }
 
-    /**
-     * Converter BaseTrackingEntity to TrackingListUiModel
-     */
-    private inline fun <reified T : List<BaseTrackingEntity>> T.toChildTrackingModel(): List<BaseTrackingUiModel> {
-        val uiList = mutableListOf<BaseTrackingUiModel>()
-        this.forEach {
-            if (it is TrackingHttpEntity) {
-                uiList.add(TrackingListUiModel(it))
-            }
+    private fun toUiModel(model: HttpTrackingModel): BaseTrackingUiModel {
+        return when (model) {
+            is HttpTrackingModel.Default -> TrackingListDefaultUiModel(model)
+            is HttpTrackingModel.TimeOut -> TrackingListTimeOutUiModel(model)
+            is HttpTrackingModel.Error -> throw IllegalArgumentException("ㅇㅇㅇ")
         }
-        return uiList
     }
 
     companion object {

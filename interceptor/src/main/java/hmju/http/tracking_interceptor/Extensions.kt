@@ -5,9 +5,13 @@ import java.text.SimpleDateFormat
 internal object Extensions {
 
     @Suppress("SimpleDateFormat")
-    private val simpleDate = SimpleDateFormat("HH:mm:ss")
+    private val simpleDate = SimpleDateFormat("HH:mm:ss.SSS")
 
     fun Long.toDate(): String {
-        return simpleDate.format(this)
+        return try {
+            simpleDate.format(this)
+        } catch (ex: Exception) {
+            ""
+        }
     }
 }

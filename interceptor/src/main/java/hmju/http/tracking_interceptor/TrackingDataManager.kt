@@ -28,7 +28,7 @@ class TrackingDataManager private constructor() {
     }
 
     interface Listener {
-        fun onNotificationTrackingEntity()
+        fun onUpdateTrackingData()
     }
 
     // [s] Variable
@@ -80,7 +80,7 @@ class TrackingDataManager private constructor() {
         if (logMaxSize < httpTrackingList.size) {
             httpTrackingList.removeLast()
         }
-        this.listener?.onNotificationTrackingEntity()
+        this.listener?.onUpdateTrackingData()
     }
 
     fun add(model: HttpTrackingModel?) {
@@ -99,7 +99,7 @@ class TrackingDataManager private constructor() {
         if (logMaxSize < httpTrackingListV2.size) {
             httpTrackingListV2.removeLast()
         }
-        this.listener?.onNotificationTrackingEntity()
+        this.listener?.onUpdateTrackingData()
     }
 
     fun getTrackingList(): List<BaseTrackingEntity> {

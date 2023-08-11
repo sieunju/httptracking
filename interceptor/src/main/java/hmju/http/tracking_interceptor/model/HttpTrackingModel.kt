@@ -1,5 +1,6 @@
 package hmju.http.tracking_interceptor.model
 
+import hmju.http.tracking_interceptor.Extensions.toDate
 import okhttp3.Headers
 import okhttp3.MultipartBody
 import okhttp3.Request
@@ -19,130 +20,149 @@ import java.nio.charset.Charset
 sealed class HttpTrackingModel(
     open var uid: Long = -1
 ) {
-    internal data class Default(
-        val code: Int,
-        val host: String,
-        val path: String,
-        val sentTimeMs: Long,
-        val receivedTimeMs: Long,
-        val request: HttpTracking,
-        val response: HttpTracking,
-        override var uid: Long
-    ) : HttpTrackingModel(uid) {
 
-        companion object {
+    @Suppress("unused", "MemberVisibilityCanBePrivate")
+    class Default constructor(
+        req: Request,
+        res: Response
+    ) : HttpTrackingModel(-1) {
 
-            /**
-             * init Request Model
-             *
-             * @see [HttpTracking.RequestMultiPart]
-             * @see [HttpTracking.Request]
-             */
-            private fun getRequest(
-                req: Request
-            ): HttpTracking {
-                return if (req.body is MultipartBody) {
-                    val parts = mutableListOf<Part>()
-                    (req.body as MultipartBody).parts.forEach {
-                        parts.add(Part(it.body.contentType(), toReqBodyBytes(it.body)))
-                    }
-                    HttpTracking.RequestMultiPart(
-                        headerMap = req.headers.toMap(),
-                        queryParams = req.url.query,
-                        binaryList = parts
-                    )
-                } else {
-                    HttpTracking.Request(
-                        headerMap = req.headers.toMap(),
-                        queryParams = req.url.query,
-                        body = getReqBody(req.body)
-                    )
-                }
+        val isSuccess: Boolean
+        val method: String
+        val code: Int
+        val host: String
+        val path: String
+        val sentTimeMs: Long
+        val receivedTimeMs: Long
+        val request: HttpTracking
+        val response: HttpTracking
+        val takeTimeMs: Long
+        val timeDate: String
+
+        init {
+            isSuccess = res.code in 200..299
+            method = req.method
+            code = res.code
+            host = req.url.host
+            path = req.url.encodedPath
+            sentTimeMs = res.sentRequestAtMillis
+            receivedTimeMs = res.receivedResponseAtMillis
+            request = getRequest(req)
+            response = getResponse(res)
+            takeTimeMs = (receivedTimeMs - sentTimeMs)
+            val sentTime = res.sentRequestAtMillis.toDate()
+            val receiveTime = res.receivedResponseAtMillis.toDate()
+            timeDate = "$sentTime - $receiveTime"
+        }
+
+        override fun equals(other: Any?): Boolean {
+            return if (other is Default) {
+                uid == other.uid &&
+                        code == other.code &&
+                        host == other.host &&
+                        path == other.path &&
+                        sentTimeMs == other.sentTimeMs &&
+                        receivedTimeMs == other.receivedTimeMs &&
+                        request == other.request &&
+                        response == other.response
+            } else {
+                false
             }
+        }
 
-            /**
-             * Request Body to ByteArray
-             */
-            private fun toReqBodyBytes(body: RequestBody?): ByteArray? {
-                if (body == null) return null
-                return try {
-                    val buffer = Buffer()
-                    body.writeTo(buffer)
-                    buffer.readByteArray()
-                } catch (ex: Exception) {
-                    null
-                }
-            }
+        override fun hashCode(): Int {
+            var result = code
+            result = 31 * result + host.hashCode()
+            result = 31 * result + path.hashCode()
+            result = 31 * result + sentTimeMs.hashCode()
+            result = 31 * result + receivedTimeMs.hashCode()
+            result = 31 * result + request.hashCode()
+            result = 31 * result + response.hashCode()
+            return result
+        }
 
-            /**
-             * Response Body to JSON String
-             */
-            private fun getResBody(headers: Headers, body: ResponseBody?): String? {
-                if (body == null) return null
-                return try {
-                    val contentLength = body.contentLength()
-                    val source = body.source()
-                    source.request(Long.MAX_VALUE)
-                    var buffer = source.buffer
-                    if ("gzip".equals(headers["Content-Encoding"], ignoreCase = true)) {
-                        GzipSource(buffer.clone()).use { gzippedResponseBody ->
-                            buffer = Buffer()
-                            buffer.writeAll(gzippedResponseBody)
-                        }
-                    }
-                    if (contentLength != 0L) {
-                        buffer.clone().readString(Charset.defaultCharset())
-                    } else {
-                        null
-                    }
-                } catch (ex: Exception) {
-                    null
-                }
-            }
-
-            /**
-             * Request Body to String
-             */
-            private fun getReqBody(body: RequestBody?): String? {
-                if (body == null) return null
-                return try {
-                    val buffer = Buffer()
-                    body.writeTo(buffer)
-                    buffer.readString(Charsets.UTF_8)
-                } catch (ex: Exception) {
-                    null
-                }
-            }
-
-            private fun getResponse(
-                res: Response
-            ): HttpTracking {
-                return HttpTracking.Response(
-                    headerMap = res.headers.toMap(),
-                    body = getResBody(res.headers, res.body)
+        /**
+         * init Request Model
+         *
+         * @see [HttpTracking.RequestMultiPart]
+         * @see [HttpTracking.Request]
+         */
+        private fun getRequest(
+            req: Request
+        ): HttpTracking {
+            val body = req.body
+            return if (body is MultipartBody) {
+                HttpTracking.RequestMultiPart(
+                    headerMap = req.headers.toMap(),
+                    queryParams = req.url.query,
+                    binaryList = body.parts.map { HttpTracking.RequestMultiPart.MultiPart(it) }
+                )
+            } else {
+                HttpTracking.Request(
+                    headerMap = req.headers.toMap(),
+                    queryParams = req.url.query,
+                    body = getReqBody(req.body)
                 )
             }
         }
 
-        constructor(
-            req: Request,
+        /**
+         * Request Body to String
+         */
+        private fun getReqBody(body: RequestBody?): String? {
+            if (body == null) return null
+            return try {
+                val buffer = Buffer()
+                body.writeTo(buffer)
+                buffer.readString(Charsets.UTF_8)
+            } catch (ex: Exception) {
+                null
+            }
+        }
+
+        /**
+         * Response Body to JSON String
+         */
+        private fun getResBody(headers: Headers, body: ResponseBody?): String? {
+            if (body == null) return null
+            return try {
+                val contentLength = body.contentLength()
+                val source = body.source()
+                source.request(Long.MAX_VALUE)
+                var buffer = source.buffer
+                if ("gzip".equals(headers["Content-Encoding"], ignoreCase = true)) {
+                    GzipSource(buffer.clone()).use { gzippedResponseBody ->
+                        buffer = Buffer()
+                        buffer.writeAll(gzippedResponseBody)
+                    }
+                }
+                if (contentLength != 0L) {
+                    buffer.clone().readString(Charset.defaultCharset())
+                } else {
+                    null
+                }
+            } catch (ex: Exception) {
+                null
+            }
+        }
+
+        private fun getResponse(
             res: Response
-        ) : this(
-            code = res.code,
-            host = req.url.host,
-            path = req.url.encodedPath,
-            sentTimeMs = res.sentRequestAtMillis,
-            receivedTimeMs = res.receivedResponseAtMillis,
-            request = getRequest(req),
-            response = getResponse(res),
-            uid = -1
-        )
+        ): HttpTracking {
+            return HttpTracking.Response(
+                headerMap = res.headers.toMap(),
+                body = getResBody(res.headers, res.body)
+            )
+        }
     }
 
-    internal data class TimeOut(
+    data class TimeOut(
+        val host: String,
         val path: String,
+        val method: String,
         val sendTimeMs: Long,
         val msg: String,
+        val sendTimeText: String,
         override var uid: Long
     ) : HttpTrackingModel(uid) {
         constructor(
@@ -150,17 +170,23 @@ sealed class HttpTrackingModel(
             sendTimeMs: Long,
             err: SocketTimeoutException
         ) : this(
+            host = req.url.host,
             path = req.url.encodedPath,
+            method = req.method,
             sendTimeMs = sendTimeMs,
             msg = err.message ?: "",
+            sendTimeText = sendTimeMs.toDate(),
             uid = -1
         )
     }
 
-    internal data class Error(
+    data class Error(
+        val host: String,
         val path: String,
+        val method: String,
         val sendTimeMs: Long,
         val msg: String,
+        val sendTimeText: String,
         override var uid: Long
     ) : HttpTrackingModel(uid) {
         constructor(
@@ -168,9 +194,12 @@ sealed class HttpTrackingModel(
             sendTimeMs: Long,
             err: Exception
         ) : this(
+            host = req.url.host,
             path = req.url.encodedPath,
+            method = req.method,
             sendTimeMs = sendTimeMs,
             msg = err.message ?: "",
+            sendTimeText = sendTimeMs.toDate(),
             uid = -1
         )
     }

@@ -20,6 +20,7 @@ import com.http.tracking.R
 import hmju.http.tracking.ui.detail.TrackingDetailRootFragment
 import hmju.http.tracking.ui.list.TrackingListFragment
 import hmju.http.tracking_interceptor.TrackingDataManager
+import hmju.http.tracking_interceptor.model.HttpTrackingModel
 import hmju.http.tracking_interceptor.model.TrackingHttpEntity
 import java.lang.ref.WeakReference
 
@@ -43,7 +44,7 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
     private var listener: DismissListener? = null
     private var isWifiShare: Boolean = false
 
-    private var detailData: WeakReference<TrackingHttpEntity>? = null
+    private var detailData: WeakReference<HttpTrackingModel>? = null
 
     // [s] View
     private lateinit var tvTitle: AppCompatTextView
@@ -124,7 +125,7 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
         detailData?.clear()
         detailData = null
 
-        detailData = WeakReference(clickData)
+        // detailData = WeakReference(clickData)
 
         ivBack.visibility = View.VISIBLE
         ivClear.visibility = View.GONE
@@ -136,6 +137,48 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
             addToBackStack(null)
             commit()
         }
+    }
+
+    /**
+     * HTTP Tracking 상세 진입
+     */
+    fun moveToDetailFragment(item: HttpTrackingModel) {
+        when (item) {
+            is HttpTrackingModel.Default -> handleDefaultDetail(item)
+            is HttpTrackingModel.TimeOut -> handleTimeOutDetail(item)
+            is HttpTrackingModel.Error -> handleErrorDetail(item)
+        }
+    }
+
+    private fun handleDefaultDetail(item: HttpTrackingModel.Default) {
+        detailData?.clear()
+        detailData = null
+        detailData = WeakReference(item)
+
+        ivBack.visibility = View.VISIBLE
+        ivClear.visibility = View.GONE
+
+        childFragmentManager.beginTransaction().apply {
+            val data = Bundle()
+            data.putBoolean(WIFI_SHARE_KEY, isWifiShare)
+            add(R.id.fragment, TrackingDetailRootFragment.newInstance(data))
+            addToBackStack(null)
+            commit()
+        }
+    }
+
+    private fun handleTimeOutDetail(item: HttpTrackingModel.TimeOut) {
+        detailData?.clear()
+        detailData = null
+        detailData = WeakReference(item)
+
+    }
+
+    private fun handleErrorDetail(item: HttpTrackingModel.Error) {
+        detailData?.clear()
+        detailData = null
+        detailData = WeakReference(item)
+
     }
 
     /**

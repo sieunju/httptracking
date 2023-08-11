@@ -10,9 +10,17 @@
         android:id="@+id/llBgStatus"
         android:layout_width="80dp"
         android:layout_height="match_parent"
+        android:background="#FF5722"
         android:gravity="center"
-        android:orientation="vertical"
-        tools:background="#03A9F4">
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="TIME_OUT"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvMethod"
@@ -22,24 +30,6 @@
             android:textColor="#FFFFFF"
             android:textSize="11dp"
             tools:text="GET" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvStatusCode"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textColor="#FFFFFF"
-            android:textSize="11dp"
-            tools:text="200" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvTakeTimeMs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textColor="#FFFFFF"
-            android:textSize="12dp"
-            tools:text="18MS" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -73,11 +63,11 @@
 
         <!-- 메소드 타입 -->
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvTimeDate"
+            android:id="@+id/tvSendTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14dp"
-            tools:text="T 08.10:15:333 - 08.01 10:20:333" />
+            tools:text="T 10:15:333" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 </androidx.appcompat.widget.LinearLayoutCompat>
