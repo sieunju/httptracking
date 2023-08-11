@@ -51,13 +51,13 @@ internal class TrackingDetailResponseFragment : Fragment(R.layout.f_tracking_det
         if (dialogFragment is TrackingBottomSheetDialog) {
             val detailEntity = dialogFragment.getTempDetailData()
             if (detailEntity != null) {
-                lifecycleScope.launch(Dispatchers.Main) {
-                    val uiList = flowOf(detailEntity)
-                        .map { parseUiModel(it) }
-                        .flowOn(Dispatchers.IO)
-                        .singleOrNull()
-                    adapter.submitList(uiList)
-                }
+//                lifecycleScope.launch(Dispatchers.Main) {
+//                    val uiList = flowOf(detailEntity)
+//                        .map { parseUiModel(it) }
+//                        .flowOn(Dispatchers.IO)
+//                        .singleOrNull()
+//                    adapter.submitList(uiList)
+//                }
             }
         }
     }

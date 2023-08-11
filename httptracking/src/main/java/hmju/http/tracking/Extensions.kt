@@ -22,12 +22,7 @@ internal object Extensions {
     fun parseHeaderUiModel(map: Map<String, String>): List<BaseTrackingUiModel> {
         val uiList = mutableListOf<BaseTrackingUiModel>()
         map.forEach { entry ->
-            uiList.add(
-                TrackingHeaderUiModel(
-                    key = entry.key,
-                    value = entry.value
-                )
-            )
+            uiList.add(TrackingHeaderUiModel(entry))
         }
         return uiList
     }

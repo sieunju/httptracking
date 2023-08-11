@@ -1,16 +1,10 @@
 package hmju.http.tracking_interceptor.model
 
 import hmju.http.tracking_interceptor.Extensions.toDate
-import okhttp3.Headers
 import okhttp3.MultipartBody
 import okhttp3.Request
-import okhttp3.RequestBody
 import okhttp3.Response
-import okhttp3.ResponseBody
-import okio.Buffer
-import okio.GzipSource
 import java.net.SocketTimeoutException
-import java.nio.charset.Charset
 
 /**
  * Description : Tracking 에 데이터 모델
@@ -22,7 +16,7 @@ sealed class HttpTrackingModel(
 ) {
 
     @Suppress("unused", "MemberVisibilityCanBePrivate")
-    class Default constructor(
+    class Default(
         req: Request,
         res: Response
     ) : HttpTrackingModel(-1) {
@@ -32,10 +26,11 @@ sealed class HttpTrackingModel(
         val code: Int
         val host: String
         val path: String
+        val fullUrl : String
         val sentTimeMs: Long
         val receivedTimeMs: Long
-        val request: HttpTracking
-        val response: HttpTracking
+        val request: HttpTrackingRequest
+        val response: HttpTrackingResponse
         val takeTimeMs: Long
         val timeDate: String
 
@@ -45,10 +40,11 @@ sealed class HttpTrackingModel(
             code = res.code
             host = req.url.host
             path = req.url.encodedPath
+            fullUrl = req.url.toString()
             sentTimeMs = res.sentRequestAtMillis
             receivedTimeMs = res.receivedResponseAtMillis
             request = getRequest(req)
-            response = getResponse(res)
+            response = HttpTrackingResponse.Default(res)
             takeTimeMs = (receivedTimeMs - sentTimeMs)
             val sentTime = res.sentRequestAtMillis.toDate()
             val receiveTime = res.receivedResponseAtMillis.toDate()
@@ -84,76 +80,19 @@ sealed class HttpTrackingModel(
         /**
          * init Request Model
          *
-         * @see [HttpTracking.RequestMultiPart]
-         * @see [HttpTracking.Request]
+         * @see [HttpTrackingRequest.MultiPart]
+         * @see [HttpTrackingRequest.Default]
          */
         private fun getRequest(
             req: Request
-        ): HttpTracking {
-            val body = req.body
-            return if (body is MultipartBody) {
-                HttpTracking.RequestMultiPart(
-                    headerMap = req.headers.toMap(),
-                    queryParams = req.url.query,
-                    binaryList = body.parts.map { HttpTracking.RequestMultiPart.MultiPart(it) }
-                )
+        ): HttpTrackingRequest {
+            return if (req.body is MultipartBody) {
+                HttpTrackingRequest.MultiPart(req)
             } else {
-                HttpTracking.Request(
-                    headerMap = req.headers.toMap(),
-                    queryParams = req.url.query,
-                    body = getReqBody(req.body)
-                )
+                HttpTrackingRequest.Default(req)
             }
         }
 
-        /**
-         * Request Body to String
-         */
-        private fun getReqBody(body: RequestBody?): String? {
-            if (body == null) return null
-            return try {
-                val buffer = Buffer()
-                body.writeTo(buffer)
-                buffer.readString(Charsets.UTF_8)
-            } catch (ex: Exception) {
-                null
-            }
-        }
-
-        /**
-         * Response Body to JSON String
-         */
-        private fun getResBody(headers: Headers, body: ResponseBody?): String? {
-            if (body == null) return null
-            return try {
-                val contentLength = body.contentLength()
-                val source = body.source()
-                source.request(Long.MAX_VALUE)
-                var buffer = source.buffer
-                if ("gzip".equals(headers["Content-Encoding"], ignoreCase = true)) {
-                    GzipSource(buffer.clone()).use { gzippedResponseBody ->
-                        buffer = Buffer()
-                        buffer.writeAll(gzippedResponseBody)
-                    }
-                }
-                if (contentLength != 0L) {
-                    buffer.clone().readString(Charset.defaultCharset())
-                } else {
-                    null
-                }
-            } catch (ex: Exception) {
-                null
-            }
-        }
-
-        private fun getResponse(
-            res: Response
-        ): HttpTracking {
-            return HttpTracking.Response(
-                headerMap = res.headers.toMap(),
-                body = getResBody(res.headers, res.body)
-            )
-        }
     }
 
     data class TimeOut(

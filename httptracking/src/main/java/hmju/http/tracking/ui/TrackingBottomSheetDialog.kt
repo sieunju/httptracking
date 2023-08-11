@@ -198,7 +198,7 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
         return this
     }
 
-    fun getTempDetailData(): TrackingHttpEntity? {
+    fun getTempDetailData(): HttpTrackingModel? {
         return detailData?.get()
     }
 

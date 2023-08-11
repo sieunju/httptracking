@@ -1,6 +1,7 @@
 package hmju.http.tracking.util
 
 import androidx.annotation.WorkerThread
+import hmju.http.tracking_interceptor.model.HttpTrackingModel
 import hmju.http.tracking_interceptor.model.TrackingHttpEntity
 import hmju.http.tracking_interceptor.model.TrackingRequestEntity
 import hmju.http.tracking_interceptor.model.TrackingRequestMultipartEntity
@@ -60,8 +61,8 @@ internal class WifiShareManager {
     /**
      * WifiShare Setting Log Data
      */
-    fun setLogData(data: TrackingHttpEntity?) {
-        logData = data
+    fun setLogData(data: HttpTrackingModel?) {
+        // logData = data
     }
 
     fun setListener(l: Listener): WifiShareManager {

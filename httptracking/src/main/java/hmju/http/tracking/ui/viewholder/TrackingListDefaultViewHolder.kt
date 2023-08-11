@@ -12,7 +12,6 @@ import com.http.tracking.R
 import hmju.http.tracking.models.BaseTrackingUiModel
 import hmju.http.tracking.models.TrackingListDefaultUiModel
 import hmju.http.tracking.ui.TrackingBottomSheetDialog
-import hmju.http.tracking_interceptor.model.HttpTrackingModel
 
 internal class TrackingListDefaultViewHolder(
     parent: ViewGroup,
@@ -48,10 +47,7 @@ internal class TrackingListDefaultViewHolder(
     override fun onBindView(model: BaseTrackingUiModel) {
         if (model !is TrackingListDefaultUiModel) return
         this.model = model
-        handleDefaultUi(model.item)
-    }
-
-    private fun handleDefaultUi(item: HttpTrackingModel.Default) {
+        val item = model.item
         if (item.isSuccess) {
             llBgStatus.changeBgColor(Color.parseColor("#03A9F4"))
         } else {
