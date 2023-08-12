@@ -53,7 +53,7 @@
             android:layout_height="match_parent"
             android:paddingLeft="15dp"
             android:paddingRight="15dp"
-            android:src="@drawable/ic_share" />
+            android:src="@drawable/ic_http_tracking_share" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 

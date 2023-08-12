@@ -1,5 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/rvContents"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" />
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/abl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFF">
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/etKeyword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:drawableLeft="@drawable/ic_http_tracking_search"
+            android:gravity="center_vertical"
+            android:hint="Search"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:maxLines="1"
+            android:paddingLeft="10dp"
+            android:paddingTop="5dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="5dp"
+            android:textSize="12dp"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvContents"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:focusable="false"
+        android:splitMotionEvents="false"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+        app:layout_constraintTop_toBottomOf="@+id/etKeyword"
+        tools:listitem="@layout/vh_child_tracking" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
