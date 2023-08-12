@@ -1,4 +1,4 @@
-Version: 1.3.0-beta01
+Version: 1.3.0-beta02
 Title: 1.3.0-beta01 배포입니다.
 KO-KR
 ### 소개

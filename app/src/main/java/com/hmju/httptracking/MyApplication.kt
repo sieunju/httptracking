@@ -8,12 +8,12 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         initTimber()
-
         HttpTracking.Builder()
             .setBuildType(true)
             .setWifiShare(true)
             .setLogMaxSize(100)
             .build(this)
+
     }
 
     private fun initTimber() {
