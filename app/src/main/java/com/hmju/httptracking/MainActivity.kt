@@ -56,7 +56,7 @@ internal class MainActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch(Dispatchers.IO) {
-            repeat(30) {
+            repeat(300) {
                 randomApi()
                 delay(500)
             }
