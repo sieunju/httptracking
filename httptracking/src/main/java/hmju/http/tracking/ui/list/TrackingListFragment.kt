@@ -1,13 +1,16 @@
 package hmju.http.tracking.ui.list
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
-import androidx.appcompat.widget.SearchView
+import androidx.appcompat.widget.AppCompatEditText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.appbar.AppBarLayout
 import com.http.tracking.R
 import hmju.http.tracking.models.BaseTrackingUiModel
 import hmju.http.tracking.models.TrackingListDefaultUiModel
@@ -31,18 +34,21 @@ import kotlinx.coroutines.withContext
 internal class TrackingListFragment : Fragment(R.layout.f_tracking_list) {
 
     private lateinit var rvContents: RecyclerView
-    private lateinit var svKeyword: SearchView
+    private lateinit var etKeyword: AppCompatEditText
+    private lateinit var appBarLayout: AppBarLayout
     private val currentKeyword: MutableStateFlow<String> by lazy { MutableStateFlow("") }
 
     private val adapter: TrackingAdapter by lazy { TrackingAdapter(this) }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        svKeyword = view.findViewById(R.id.svKeyword)
+        etKeyword = view.findViewById(R.id.etKeyword)
         rvContents = view.findViewById(R.id.rvContents)
+        appBarLayout = view.findViewById(R.id.abl)
+        appBarLayout.setExpanded(false)
         rvContents.layoutManager = LinearLayoutManager(view.context)
         rvContents.adapter = adapter
-        handleScrollListener()
+
         setSearchKeyword()
         setTrackingData(TrackingDataManager.getInstance().getTrackingList())
 
@@ -68,25 +74,6 @@ internal class TrackingListFragment : Fragment(R.layout.f_tracking_list) {
         }
     }
 
-    private fun handleScrollListener() {
-        rvContents.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-
-            override fun onScrollStateChanged(rv: RecyclerView, newState: Int) {
-//                // 스크롤이 멈췄을때만 검색어 화면 노출 / 미노출 처리
-//                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-//                    if (!rv.canScrollVertically(-1)) {
-//                        // 최상단 입니다.
-//                        svKeyword.changeVisible(View.VISIBLE)
-//                    } else {
-//                        svKeyword.changeVisible(View.GONE)
-//                    }
-//                } else {
-//                    svKeyword.changeVisible(View.GONE)
-//                }
-            }
-        })
-    }
-
     private fun setSearchKeyword() {
         lifecycleScope.launchWhenResumed {
             currentKeyword.collectLatest {
@@ -94,19 +81,24 @@ internal class TrackingListFragment : Fragment(R.layout.f_tracking_list) {
                 searchTrackingList(it)
             }
         }
-        svKeyword.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return false
-            }
+        etKeyword.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
-            override fun onQueryTextChange(newText: String?): Boolean {
-                currentKeyword.value = newText ?: ""
-                return false
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                currentKeyword.value = s.toString()
             }
         })
     }
 
-    private fun searchTrackingList(keyword: String) {
+    /**
+     * 검색하고자 하는 Tracking List
+     * @param keyword 키워드
+     */
+    private fun searchTrackingList(
+        keyword: String
+    ) {
         val trackingList = TrackingDataManager.getInstance().getTrackingList()
 
         if (keyword.isEmpty()) {

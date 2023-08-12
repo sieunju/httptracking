@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -105,9 +106,11 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
         ivBack.visibility = View.GONE
         ivClear.visibility = View.VISIBLE
 
-        val findFragment = childFragmentManager.fragments.firstOrNull { it is TrackingListFragment }
-        if (findFragment is TrackingListFragment) {
+        val findFragment = childFragmentManager.fragments.lastOrNull()
+        if (findFragment is TrackingDetailRootFragment) {
             childFragmentManager.popBackStack()
+        } else if (findFragment is TrackingListFragment) {
+            // skip
         } else {
             childFragmentManager.beginTransaction().apply {
                 replace(R.id.fragment, TrackingListFragment.newInstance())
