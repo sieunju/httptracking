@@ -2,7 +2,7 @@
 <resources>
 
     <style name="BaseBottomSheet" parent="Widget.Design.BottomSheet.Modal">
-        <item name="android:background">@drawable/bg_round_bottom_sheet</item>
+        <item name="android:background">@drawable/bg_http_tracking_round_bottom_sheet</item>
     </style>
 
     <style name="BottomSheetStyle" parent="Theme.MaterialComponents.Light.BottomSheetDialog">
