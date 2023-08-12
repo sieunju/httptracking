@@ -1,12 +1,14 @@
-Version: 1.2.3
-Title: 1.2.3 배포입니다.
+Version: 1.3.0-beta01
+Title: 1.3.0-beta01 배포입니다.
 KO-KR
 ### 소개
 > 앱을 사용하다가 단말기를 흔들면 트래킹한 로그들을 간단히 볼수 있습니다. 👨🏿‍💻🙇‍
 > 많은 애용 바랍니다. 그리고 추가 하고 싶은 기능이 있으면 이슈로 남겨주시기 바랍니다.
 
 ### 릴리즈 수정 내역
-- [FEATURE] 서버에서 전달 받은 Headers 정보도 트레킹 되도록 추가 했어요.
+- [FEATURE] 검색 기능 추가 했어요.
+- [FEATURE] TimeOut 에러, 이외 에러도 트레킹 되도록 추가 했어요.
+- [REFACTOR] 내부적으로 코드를 개선 했어요.
 
 EN-US
 ### Introduction
@@ -14,4 +16,5 @@ EN-US
 > Please use it a lot. And if there is a function you want to add, please leave it as an issue.
 
 ### Release History
-- [FEATURE] Response Headers Tracking
+- [FEATURE] I added a search function.
+- [FEATURE] We added a function to detect errors other than timeout errors
