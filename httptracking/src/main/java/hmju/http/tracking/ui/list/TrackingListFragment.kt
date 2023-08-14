@@ -42,8 +42,9 @@ internal class TrackingListFragment : Fragment(R.layout.f_tracking_list) {
 
     private lateinit var rvContents: RecyclerView
     private lateinit var etKeyword: AppCompatEditText
-    private lateinit var appBarLayout: AppBarLayout
+
     // private val currentKeyword: MutableStateFlow<String> by lazy { MutableStateFlow("") }
+    private var currentKeyword: CharSequence? = null
 
     private val adapter: TrackingAdapter by lazy { TrackingAdapter(this) }
 
@@ -51,17 +52,19 @@ internal class TrackingListFragment : Fragment(R.layout.f_tracking_list) {
         super.onViewCreated(view, savedInstanceState)
         etKeyword = view.findViewById(R.id.etKeyword)
         rvContents = view.findViewById(R.id.rvContents)
-        appBarLayout = view.findViewById(R.id.abl)
-        appBarLayout.setExpanded(false)
+        val abl: AppBarLayout = view.findViewById(R.id.abl)
+        abl.setExpanded(false)
+        abl.elevation = 0F
+        abl.outlineProvider = null
         rvContents.layoutManager = LinearLayoutManager(view.context)
         rvContents.adapter = adapter
 
         initSearchKeyword()
-        setTrackingData(TrackingDataManager.getInstance().getTrackingList())
+        searchTrackingList(currentKeyword.toString())
 
         TrackingDataManager.getInstance().setListener(object : TrackingDataManager.Listener {
             override fun onUpdateTrackingData() {
-                setTrackingData(TrackingDataManager.getInstance().getTrackingList())
+                searchTrackingList(currentKeyword.toString())
             }
         })
     }
@@ -141,9 +144,10 @@ internal class TrackingListFragment : Fragment(R.layout.f_tracking_list) {
     private fun searchTrackingList(
         keyword: String
     ) {
+        currentKeyword = keyword
         val trackingList = TrackingDataManager.getInstance().getTrackingList()
 
-        if (keyword.isEmpty()) {
+        if (keyword.isEmpty() || keyword == "null") {
             setTrackingData(trackingList)
         } else {
             val filterList = trackingList.filter { it.getPath().contains(keyword) }
