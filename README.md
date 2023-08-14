@@ -16,7 +16,6 @@
 ```groovy
 allprojects {
     repositories {
-        ...
         maven { url = URI("https://jitpack.io") }
     }
 }
@@ -84,6 +83,9 @@ HttpTracking.Builder()
 |--|--|--|
 |![Step1](https://raw.githubusercontent.com/sieunju/httptracking/develop/storage/example_wifi_share_1.png)|![Step2](https://raw.githubusercontent.com/sieunju/httptracking/develop/storage/example_wifi_share_2.png)|![Step3](https://raw.githubusercontent.com/sieunju/httptracking/develop/storage/example_wifi_share_3.png)|
 
+|UI Example|
+|--|
+|![UI](https://raw.githubusercontent.com/sieunju/httptracking/develop/storage/list_example_1.png)|
 위에 화면처럼 원하는 로그를 선택하시고 공유 하기 버튼을 선택하시면 http://{ip}:{port}/tracking 주소가 노출되는데 해당 주소를 PC에 입력하시면 선택한 로그를 볼수 있습니다. 🤩
 
 #### 🙏 공공장소에서 사용은 절대로 지양합니다. (본인의 HTTP 통신 로그를 누군가 볼수 있습니다..)
