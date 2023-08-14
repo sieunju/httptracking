@@ -16,7 +16,6 @@
 ```groovy
 allprojects {
     repositories {
-        ...
         maven { url = URI("https://jitpack.io") }
     }
 }
@@ -69,6 +68,10 @@ OkHttpClient.Builder().apply{
     }
 }
 ```
+
+|UI Example|
+|:--:|
+|![UI](https://raw.githubusercontent.com/sieunju/httptracking/develop/storage/list_example_1.png)|
 
 ## PC로 로그 확인 하는 방법
 
