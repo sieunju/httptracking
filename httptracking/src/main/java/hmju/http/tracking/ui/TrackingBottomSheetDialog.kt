@@ -110,7 +110,8 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
         if (findFragment is TrackingDetailRootFragment) {
             childFragmentManager.popBackStack()
         } else if (findFragment is TrackingListFragment) {
-            // skip
+            // skip and refresh
+            TrackingDataManager.getInstance().refresh()
         } else {
             childFragmentManager.beginTransaction().apply {
                 replace(R.id.fragment, TrackingListFragment.newInstance())

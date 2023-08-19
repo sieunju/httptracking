@@ -92,4 +92,8 @@ class TrackingDataManager private constructor() {
     fun clear() {
         httpTrackingList.clear()
     }
+
+    fun refresh() {
+        this.listener?.onUpdateTrackingData()
+    }
 }
