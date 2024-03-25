@@ -1,4 +1,4 @@
 rootProject.name = "httptracking"
 include ':app'
-include ':httptracking'
+include ':ui'
 include ':interceptor'
