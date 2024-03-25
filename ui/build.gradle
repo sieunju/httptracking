@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "hmju.http.tracking"
-    compileSdkVersion 34
+    compileSdk 34
     defaultConfig {
         minSdkVersion 23
         targetSdkVersion 34

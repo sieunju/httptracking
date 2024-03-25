@@ -10,7 +10,7 @@ properties.load(project.rootProject.file('local.properties').newDataInputStream(
 
 android {
     namespace = "com.hmju.httptracking"
-    compileSdkVersion 34
+    compileSdk 34
     defaultConfig {
         applicationId "com.hmju.httptracking"
         minSdkVersion 23
