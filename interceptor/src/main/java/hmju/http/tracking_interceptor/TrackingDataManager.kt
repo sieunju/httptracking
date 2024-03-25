@@ -76,7 +76,9 @@ class TrackingDataManager private constructor() {
 
         // 맥스 사이즈면 맨 마지막 삭제
         if (logMaxSize < httpTrackingList.size) {
-            httpTrackingList.removeLast()
+            runCatching {
+                httpTrackingList.removeAt(httpTrackingList.size.minus(1))
+            }
         }
         this.listener?.onUpdateTrackingData()
     }

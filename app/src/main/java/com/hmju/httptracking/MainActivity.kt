@@ -56,9 +56,14 @@ internal class MainActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch(Dispatchers.IO) {
-            repeat(300) {
+            repeat(1000) {
                 randomApi()
-                delay(500)
+                delay(10)
+            }
+
+            delay(10_000)
+            repeat(10) {
+                randomApi()
             }
         }
     }
@@ -135,7 +140,7 @@ internal class MainActivity : AppCompatActivity() {
                 list.add(bitmap)
                 flow {
                     val api = requestPost(
-                        path = "/api/uploads",
+                        path = "/api/v1/uploads",
                         body = bitmapToMultiPart(list)
                     )
                     emit(httpClient.newCall(api).execute())
@@ -235,7 +240,7 @@ internal class MainActivity : AppCompatActivity() {
                 "hi" to "helllloqweqweqweqweqweqwe"
             )
             requestGet(
-                path = "/api/memo/android",
+                path = "/api/v1/memo/aos",
                 queryMap = queryMap,
                 headerMap = mapOf(
                     "X-FOO" to "DDDD",
@@ -244,7 +249,7 @@ internal class MainActivity : AppCompatActivity() {
             )
         } else if (ran < 5) {
             requestGet(
-                path = "/api/til/goods",
+                path = "/api/v1/til/goods",
                 queryMap = mapOf(
                     "pageNo" to Random.nextInt(1, 11).toString(),
                     "pageSize" to "25"
@@ -259,7 +264,7 @@ internal class MainActivity : AppCompatActivity() {
             )
         } else {
             requestGet(
-                path = "/api/til/jsend/list/meta"
+                path = "/api/v1/til/jsend/list/meta"
             )
         }
         flow {
