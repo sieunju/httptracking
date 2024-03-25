@@ -19,7 +19,7 @@ dependencies {
 afterEvaluate {
     publishing {
         publications {
-            mavenJava(MavenPublication) {
+            deploy(MavenPublication) {
                 from components.java
                 groupId = 'com.github.sieunju.httptracking'
                 artifactId = 'interceptor'
