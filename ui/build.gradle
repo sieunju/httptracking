@@ -6,10 +6,10 @@ plugins {
 }
 
 android {
-    namespace "hmju.http.tracking"
+    namespace = "hmju.http.tracking"
+    compileSdkVersion 34
     defaultConfig {
         minSdkVersion 23
-        compileSdk 34
         targetSdkVersion 34
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -25,7 +25,7 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17
+        jvmTarget = "17"
     }
 }
 
@@ -35,6 +35,7 @@ dependencies {
     /**
      * Android X
      */
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.22")
     implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.2.0")
     implementation("com.google.android.material:material:1.3.0")
@@ -63,7 +64,7 @@ dependencies {
 afterEvaluate {
     publishing {
         publications {
-            mavenJava(MavenPublication) {
+            deploy(MavenPublication) {
                 from components.release
                 groupId = 'com.github.sieunju.httptracking'
                 artifactId = 'ui'
