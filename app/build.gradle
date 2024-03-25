@@ -2,7 +2,6 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
-    id 'kotlinx-serialization'
 }
 
 // set Local Properties Load
@@ -10,12 +9,12 @@ Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
 android {
-    namespace 'com.hmju.httptracking'
-    compileSdk 34
+    namespace "com.hmju.httptracking"
     defaultConfig {
         applicationId "com.hmju.httptracking"
-        minSdkVersion 21
-        targetSdk 34
+        minSdkVersion 23
+        targetSdkVersion 34
+        compileSdk 34
         versionCode 1
         versionName "1.0"
         archivesBaseName = "httptracking" + versionName + "_" + versionCode
@@ -54,7 +53,7 @@ android {
 dependencies {
 //    implementation("com.github.sieunju.httptracking:ui:1.3.2")
 //    implementation("com.github.sieunju.httptracking:interceptor:1.3.2")
-    implementation(project(':httptracking'))
+    implementation(project(':ui'))
     implementation(project(':interceptor'))
 
     /**
