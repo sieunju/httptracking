@@ -23,10 +23,6 @@ android {
         multiDexEnabled true
     }
 
-    buildFeatures {
-        buildConfig = true
-    }
-
     buildTypes {
         debug {
             minifyEnabled false
@@ -48,6 +44,7 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17
     }
+
     buildFeatures {
         dataBinding = true
         buildConfig = true
