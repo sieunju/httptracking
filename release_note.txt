@@ -1,5 +1,5 @@
-Version: 1.3.3
-Title: 1.3.3 배포입니다.
+Version: 1.3.4
+Title: 1.3.4 배포입니다.
 KO-KR
 ### 소개
 > 앱을 사용하다가 단말기를 흔들면 트래킹한 로그들을 간단히 볼수 있습니다. 👨🏿‍💻🙇‍
@@ -7,6 +7,7 @@ KO-KR
 
 ### 릴리즈 수정 내역
 - [FIX] TrackingDataManager ArrayIndexOutOfBoundsException 이슈 처리
+- [UPDATE] minSdk 21 -> 23 targetSdk 32 -> 34
 
 EN-US
 ### Introduction
@@ -15,3 +16,4 @@ EN-US
 
 ### Release History
 - [FIX] Issue Handling TrackingDataManager ArrayIndexOutOfBoundsException
+- [UPDATE] minSdk 21 -> 23 targetSdk 32 -> 34
