@@ -24,14 +24,15 @@ android {
         debug {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-
-            buildConfigField "String", "TEST_HOST", properties["TEST_HOST"]
+            buildConfigField "String", "TEST_HOST", '"www.test.com"'
+            // buildConfigField "String", "TEST_HOST", properties["TEST_HOST"]
         }
 
         release {
             minifyEnabled false
-            buildConfigField "String", "TEST_HOST", properties["TEST_HOST"]
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "TEST_HOST", '"www.test.com"'
+            // buildConfigField "String", "TEST_HOST", properties["TEST_HOST"]
         }
     }
     compileOptions {
