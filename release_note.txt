@@ -7,6 +7,7 @@ KO-KR
 
 ### 릴리즈 수정 내역
 - [FIX] TrackingDataManager ArrayIndexOutOfBoundsException 이슈 처리
+- [UPDATE] minSdk 21 -> 23 targetSdk 32 -> 34
 
 EN-US
 ### Introduction
@@ -15,3 +16,4 @@ EN-US
 
 ### Release History
 - [FIX] Issue Handling TrackingDataManager ArrayIndexOutOfBoundsException
+- [UPDATE] minSdk 21 -> 23 targetSdk 32 -> 34
