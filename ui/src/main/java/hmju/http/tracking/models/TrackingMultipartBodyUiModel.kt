@@ -3,7 +3,7 @@ package hmju.http.tracking.models
 import android.graphics.Bitmap
 import android.util.Base64
 import hmju.http.tracking.R
-import hmju.http.tracking_interceptor.model.TrackingRequest
+import hmju.http.tracking_interceptor.model.HttpTrackingRequest
 import okhttp3.MediaType
 
 internal data class TrackingMultipartBodyUiModel(
@@ -24,7 +24,7 @@ internal data class TrackingMultipartBodyUiModel(
     }
 
     constructor(
-        part: TrackingRequest.MultiPart.Part
+        part: HttpTrackingRequest.MultiPart.Part
     ) : this(
         mediaType = part.type,
         binary = Base64.encodeToString(part.bytes, Base64.DEFAULT) ?: ""

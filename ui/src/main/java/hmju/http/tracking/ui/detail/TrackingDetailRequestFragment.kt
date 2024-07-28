@@ -20,7 +20,7 @@ import hmju.http.tracking.models.TrackingTitleUiModel
 import hmju.http.tracking.ui.TrackingBottomSheetDialog
 import hmju.http.tracking.ui.adapter.TrackingAdapter
 import hmju.http.tracking_interceptor.model.TrackingModel
-import hmju.http.tracking_interceptor.model.TrackingRequest
+import hmju.http.tracking_interceptor.model.HttpTrackingRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -80,6 +80,7 @@ internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_deta
             is TrackingModel.Default -> getDefaultUiModels(data)
             is TrackingModel.TimeOut -> getTimeOutUiModels(data)
             is TrackingModel.Error -> getErrorUiModels(data)
+            else -> throw IllegalArgumentException()
         }
     }
 
@@ -122,7 +123,7 @@ internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_deta
 
         // Body
         val request = data.request
-        if (request is TrackingRequest.Default) {
+        if (request is HttpTrackingRequest.Default) {
             val body = request.body
             try {
                 val js = JsonParser.parseString(body)
@@ -130,7 +131,7 @@ internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_deta
             } catch (ex: Exception) {
                 // ignore
             }
-        } else if (request is TrackingRequest.MultiPart) {
+        } else if (request is HttpTrackingRequest.MultiPart) {
             request.binaryList.forEach { list.add(TrackingMultipartBodyUiModel(it)) }
         }
         return list
@@ -171,7 +172,7 @@ internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_deta
 
         // Body
         val request = data.request
-        if (request is TrackingRequest.Default) {
+        if (request is HttpTrackingRequest.Default) {
             val body = request.body
             try {
                 val js = JsonParser.parseString(body)
@@ -179,7 +180,7 @@ internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_deta
             } catch (ex: Exception) {
                 // ignore
             }
-        } else if (request is TrackingRequest.MultiPart) {
+        } else if (request is HttpTrackingRequest.MultiPart) {
             request.binaryList.forEach { list.add(TrackingMultipartBodyUiModel(it)) }
         }
         return list
@@ -221,7 +222,7 @@ internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_deta
 
         // Body
         val request = data.request
-        if (request is TrackingRequest.Default) {
+        if (request is HttpTrackingRequest.Default) {
             val body = request.body
             try {
                 val js = JsonParser.parseString(body)
@@ -229,7 +230,7 @@ internal class TrackingDetailRequestFragment : Fragment(R.layout.f_tracking_deta
             } catch (ex: Exception) {
                 // ignore
             }
-        } else if (request is TrackingRequest.MultiPart) {
+        } else if (request is HttpTrackingRequest.MultiPart) {
             request.binaryList.forEach { list.add(TrackingMultipartBodyUiModel(it)) }
         }
         return list

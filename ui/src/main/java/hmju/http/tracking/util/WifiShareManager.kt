@@ -5,7 +5,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
 import hmju.http.tracking_interceptor.model.TrackingModel
-import hmju.http.tracking_interceptor.model.TrackingRequest
+import hmju.http.tracking_interceptor.model.HttpTrackingRequest
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.InetAddress
@@ -212,13 +212,13 @@ internal class WifiShareManager {
             // 3. {Request Body}
             if (data is TrackingModel.Default) {
                 val req = data.request
-                if (req is TrackingRequest.Default) {
+                if (req is HttpTrackingRequest.Default) {
                     if (!req.body.isNullOrEmpty()) {
                         str.append("<h5>[Request Body - Json]</h5>")
                         str.append("<pre>")
                         str.append(toJsonBody(req.body).replace("\n", "<br>"))
                     }
-                } else if (req is TrackingRequest.MultiPart) {
+                } else if (req is HttpTrackingRequest.MultiPart) {
                     str.append("<h5>[Request Body - MultipartType]</h5>")
                     req.binaryList.forEach {
                         str.append("MultiPart-MediaType: ")

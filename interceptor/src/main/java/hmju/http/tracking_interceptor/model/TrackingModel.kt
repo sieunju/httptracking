@@ -29,7 +29,7 @@ sealed class TrackingModel(
         val fullUrl: String
         val sentTimeMs: Long
         val receivedTimeMs: Long
-        val request: TrackingRequest
+        val request: HttpTrackingRequest
         val response: TrackingResponse
         val takeTimeMs: Long
         val timeDate: String
@@ -80,16 +80,16 @@ sealed class TrackingModel(
         /**
          * init Request Model
          *
-         * @see [TrackingRequest.MultiPart]
-         * @see [TrackingRequest.Default]
+         * @see [HttpTrackingRequest.MultiPart]
+         * @see [HttpTrackingRequest.Default]
          */
         private fun getRequest(
             req: Request
-        ): TrackingRequest {
+        ): HttpTrackingRequest {
             return if (req.body is MultipartBody) {
-                TrackingRequest.MultiPart(req)
+                HttpTrackingRequest.MultiPart(req)
             } else {
-                TrackingRequest.Default(req)
+                HttpTrackingRequest.Default(req)
             }
         }
     }
@@ -107,7 +107,7 @@ sealed class TrackingModel(
         val fullUrl: String
         val msg: String
         val sendTimeText: String
-        val request: TrackingRequest
+        val request: HttpTrackingRequest
 
         init {
             method = req.method
@@ -146,16 +146,16 @@ sealed class TrackingModel(
         /**
          * init Request Model
          *
-         * @see [TrackingRequest.MultiPart]
-         * @see [TrackingRequest.Default]
+         * @see [HttpTrackingRequest.MultiPart]
+         * @see [HttpTrackingRequest.Default]
          */
         private fun getRequest(
             req: Request
-        ): TrackingRequest {
+        ): HttpTrackingRequest {
             return if (req.body is MultipartBody) {
-                TrackingRequest.MultiPart(req)
+                HttpTrackingRequest.MultiPart(req)
             } else {
-                TrackingRequest.Default(req)
+                HttpTrackingRequest.Default(req)
             }
         }
     }
@@ -173,7 +173,7 @@ sealed class TrackingModel(
         val fullUrl: String
         val msg: String
         val sendTimeText: String
-        val request: TrackingRequest
+        val request: HttpTrackingRequest
 
         init {
             method = req.method
@@ -212,16 +212,16 @@ sealed class TrackingModel(
         /**
          * init Request Model
          *
-         * @see [TrackingRequest.MultiPart]
-         * @see [TrackingRequest.Default]
+         * @see [HttpTrackingRequest.MultiPart]
+         * @see [HttpTrackingRequest.Default]
          */
         private fun getRequest(
             req: Request
-        ): TrackingRequest {
+        ): HttpTrackingRequest {
             return if (req.body is MultipartBody) {
-                TrackingRequest.MultiPart(req)
+                HttpTrackingRequest.MultiPart(req)
             } else {
-                TrackingRequest.Default(req)
+                HttpTrackingRequest.Default(req)
             }
         }
     }
@@ -232,6 +232,7 @@ sealed class TrackingModel(
             is Default -> this.method
             is TimeOut -> this.method
             is Error -> this.method
+            else -> throw IllegalArgumentException()
         }
     }
 
@@ -241,6 +242,7 @@ sealed class TrackingModel(
             is Default -> this.host
             is TimeOut -> this.host
             is Error -> this.host
+            else -> throw IllegalArgumentException()
         }
     }
 
@@ -250,15 +252,17 @@ sealed class TrackingModel(
             is Default -> this.path
             is TimeOut -> this.path
             is Error -> this.path
+            else -> throw IllegalArgumentException()
         }
     }
 
     @JvmName("getCommonRequest")
-    fun getRequest(): TrackingRequest {
+    fun getRequest(): HttpTrackingRequest {
         return when (this) {
             is Default -> this.request
             is TimeOut -> this.request
             is Error -> this.request
+            else -> throw IllegalArgumentException()
         }
     }
 }

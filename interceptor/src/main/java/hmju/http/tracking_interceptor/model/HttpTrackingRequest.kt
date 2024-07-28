@@ -10,7 +10,7 @@ import okio.Buffer
  *
  * Created by juhongmin on 2023/08/09
  */
-sealed class TrackingRequest(
+sealed class HttpTrackingRequest(
     open val headerMap: Map<String, String>,
     open val queryParams: String?
 ) {
@@ -18,7 +18,7 @@ sealed class TrackingRequest(
     @Suppress("unused", "MemberVisibilityCanBePrivate")
     class Default(
         req: okhttp3.Request
-    ) : TrackingRequest(
+    ) : HttpTrackingRequest(
         req.headers.toMap(),
         req.url.query
     ) {
@@ -64,7 +64,7 @@ sealed class TrackingRequest(
     @Suppress("unused", "MemberVisibilityCanBePrivate")
     class MultiPart(
         req: okhttp3.Request
-    ) : TrackingRequest(
+    ) : HttpTrackingRequest(
         req.headers.toMap(),
         req.url.query
     ) {
