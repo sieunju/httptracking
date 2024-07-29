@@ -1,9 +1,8 @@
 package hmju.http.tracking_interceptor
 
-import hmju.http.tracking_interceptor.model.TrackingModel
+import hmju.http.tracking_interceptor.model.v2.TrackingModelV2
 import okhttp3.*
 import java.io.IOException
-import java.net.SocketTimeoutException
 
 /**
  * Description : Http 정보 추적하는 Interceptor
@@ -23,20 +22,15 @@ class TrackingHttpInterceptor : Interceptor {
         val sendTimeMs = System.currentTimeMillis()
         val response = try {
             chain.proceed(request)
-        } catch (ex: SocketTimeoutException) {
-            TrackingDataManager
-                .getInstance()
-                .add(TrackingModel.TimeOut(request, sendTimeMs, ex))
-            throw ex
         } catch (ex: Exception) {
             TrackingDataManager
                 .getInstance()
-                .add(TrackingModel.Error(request, sendTimeMs, ex))
+                .addV2(TrackingModelV2(request, sendTimeMs, ex))
             throw ex
         }
         TrackingDataManager
             .getInstance()
-            .add(TrackingModel.Default(request, response))
+            .addV2(TrackingModelV2(request, response))
         return response
     }
 }
