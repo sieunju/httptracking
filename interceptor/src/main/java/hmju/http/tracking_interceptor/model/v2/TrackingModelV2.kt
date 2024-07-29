@@ -10,6 +10,7 @@ import java.net.URLDecoder
  *
  * Created by juhongmin on 2024. 7. 29.
  */
+@Suppress("MemberVisibilityCanBePrivate")
 class TrackingModelV2 {
     var uid: Long = -1
     val reqModels: List<ChildModel>
