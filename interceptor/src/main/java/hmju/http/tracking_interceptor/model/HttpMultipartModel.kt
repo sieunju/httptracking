@@ -1,4 +1,4 @@
-package hmju.http.tracking_interceptor.model.v2
+package hmju.http.tracking_interceptor.model
 
 import okhttp3.MultipartBody
 import okio.Buffer
@@ -10,14 +10,14 @@ import okio.Buffer
  */
 data class HttpMultipartModel(
     val mimeType: String,
-    val base64String: ByteArray? = null
+    val bytes: ByteArray? = null
 ) : ChildModel {
 
     constructor(
         part: MultipartBody.Part
     ) : this(
         mimeType = part.body.contentType().toString(),
-        base64String = try {
+        bytes = try {
             val buffer = Buffer()
             part.body.writeTo(buffer)
             buffer.readByteArray()

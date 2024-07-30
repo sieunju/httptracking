@@ -1,6 +1,6 @@
 package hmju.http.tracking_interceptor
 
-import hmju.http.tracking_interceptor.model.v2.TrackingModelV2
+import hmju.http.tracking_interceptor.model.TrackingModel
 import okhttp3.*
 import java.io.IOException
 
@@ -25,12 +25,12 @@ class TrackingHttpInterceptor : Interceptor {
         } catch (ex: Exception) {
             TrackingDataManager
                 .getInstance()
-                .addV2(TrackingModelV2(request, sendTimeMs, ex))
+                .add(TrackingModel(request, sendTimeMs, ex))
             throw ex
         }
         TrackingDataManager
             .getInstance()
-            .addV2(TrackingModelV2(request, response))
+            .add(TrackingModel(request, response))
         return response
     }
 }

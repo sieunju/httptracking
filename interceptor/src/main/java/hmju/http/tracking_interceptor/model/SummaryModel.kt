@@ -1,4 +1,4 @@
-package hmju.http.tracking_interceptor.model.v2
+package hmju.http.tracking_interceptor.model
 
 import hmju.http.tracking_interceptor.Extensions.toDate
 import okhttp3.Request
@@ -24,7 +24,7 @@ data class SummaryModel(
         titleList = listOf(
             req.method,
             res.code.toString(),
-            "${res.receivedResponseAtMillis - res.sentRequestAtMillis}zMS"
+            "${res.receivedResponseAtMillis - res.sentRequestAtMillis}MS"
         ),
         contentsList = listOf(
             req.url.host,

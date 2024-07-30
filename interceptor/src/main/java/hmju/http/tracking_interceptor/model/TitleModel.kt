@@ -1,4 +1,4 @@
-package hmju.http.tracking_interceptor.model.v2
+package hmju.http.tracking_interceptor.model
 
 /**
  * Description :
