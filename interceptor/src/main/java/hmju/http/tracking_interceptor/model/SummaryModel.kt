@@ -13,9 +13,9 @@ import java.net.SocketTimeoutException
 data class SummaryModel(
     val colorHexCode: String = "#222",
     val titleList: List<String> = listOf(),
-    val contentsList: List<String> = listOf()
+    val contentsList: List<String> = listOf(),
+    val wifiSummary: String? = null
 ) {
-    // 03A9F4 파랑, C62828 빨강, FF5722 주항
     constructor(
         req: Request,
         res: Response
@@ -30,7 +30,11 @@ data class SummaryModel(
             req.url.host,
             req.url.encodedPath,
             "${res.sentRequestAtMillis.toDate()} ~ ${res.receivedResponseAtMillis.toDate()}",
-        )
+        ),
+        wifiSummary = StringBuilder()
+            .append("[${req.method}/${res.code}]")
+            .append(" ${req.url.host}${req.url.encodedPath}")
+            .toString()
     )
 
     constructor(
@@ -47,6 +51,19 @@ data class SummaryModel(
             req.url.host,
             req.url.encodedPath,
             sendTimeMs.toDate()
-        )
+        ),
+        wifiSummary = StringBuilder()
+            .append("[${req.method}]")
+            .append("[")
+            .append(
+                if (err is SocketTimeoutException) {
+                    "TIME_OUT"
+                } else {
+                    "ERROR"
+                }
+            )
+            .append("]")
+            .append("${req.url.host}${req.url.encodedPath}")
+            .toString()
     )
 }
