@@ -122,67 +122,6 @@ class BleTestProvider(
                     TrackingDataManager.getInstance().add(getBleTrackingModel(result, dateFmt))
                 }
             }
-
-            override fun onBatchScanResults(results: MutableList<ScanResult>?) {
-                if (results == null) return
-                results.forEach { result ->
-                    val scanRecord = result.scanRecord ?: return@forEach
-                    if (scanRecord.serviceUuids.isNullOrEmpty()) return@forEach
-                    TrackingDataManager.getInstance().add(getBleTrackingModel(result, dateFmt))
-                    Timber.w("[s] ======================================================")
-                    Timber.d("Rssi ${result.rssi}dBm")
-                    result.device.also { device ->
-                        Timber.d("[s] Device ========================================")
-                        Timber.d("Name ${device.name}")
-                        Timber.d("Address ${device.address}")
-                        Timber.d("[e] Device ========================================")
-                    }
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        val primaryPhyName = when (result.primaryPhy) {
-                            BluetoothDevice.PHY_LE_1M -> "LE 1M"
-                            BluetoothDevice.PHY_LE_2M -> "LE 2M"
-                            BluetoothDevice.PHY_LE_CODED -> "LE Coded"
-                            else -> "Unknown"
-                        }
-                        Timber.d("PrimaryPhy $primaryPhyName")
-                        val secondaryPhyName = when (result.secondaryPhy) {
-                            BluetoothDevice.PHY_LE_1M -> "LE 1M"
-                            BluetoothDevice.PHY_LE_2M -> "LE 2M"
-                            BluetoothDevice.PHY_LE_CODED -> "LE Coded"
-                            else -> "Unknown"
-                        }
-                        Timber.d("SecondaryPhy $secondaryPhyName")
-                        if (result.periodicAdvertisingInterval != ScanResult.PERIODIC_INTERVAL_NOT_PRESENT) {
-                            Timber.d("Advertising Interval ${result.periodicAdvertisingInterval}")
-                        }
-                        if (result.advertisingSid != ScanResult.SID_NOT_PRESENT) {
-                            Timber.d("Advertising Sid ${result.advertisingSid}")
-                        }
-//                        if (result.isConnectable) {
-//                            Executors.newCachedThreadPool().submit {
-//                                if (!connectionSet.contains(result.device.address)) {
-//                                    startConnection(result.device.address)
-//                                }
-//                            }
-//                        }
-                        Timber.d("Connected ${result.isConnectable}")
-                    }
-
-//                    Timber.d("Time ${result.timestampNanos}")
-//                    Timber.d("[s] ServiceData ===========================================")
-//                    scanRecord.serviceData.forEach { entry ->
-//                        Timber.d("UUID:${entry.key.uuid} Data:${entry.value.contentToString()}")
-//                    }
-//                    Timber.d("[e] ServiceData ===========================================")
-//                    Timber.d("[s] Manufacture ===========================================")
-//                    scanRecord.manufacturerSpecificData.forEach { key, value ->
-//                        Timber.d("Key:$key Value:${value.contentToString()}")
-//                    }
-//                    Timber.d("[s] Manufacture ===========================================")
-//                    Timber.w("[e] ======================================================")
-                }
-            }
         }
         val setting = ScanSettings.Builder()
             .setNumOfMatches(ScanSettings.MATCH_NUM_MAX_ADVERTISEMENT)
