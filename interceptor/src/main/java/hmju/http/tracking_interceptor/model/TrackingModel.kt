@@ -48,6 +48,16 @@ class TrackingModel {
         summaryModel = SummaryModel(req, sendTimeMs, err)
     }
 
+    constructor(
+        req: List<ChildModel>,
+        res: List<ChildModel>,
+        summary: SummaryModel
+    ) {
+        reqModels = req
+        resModels = res
+        summaryModel = summary
+    }
+
     /**
      * Getter HTTP Request UiModels
      * @param req HTTP Request
