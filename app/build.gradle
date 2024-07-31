@@ -24,19 +24,19 @@ android {
         debug {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            // buildConfigField "String", "TEST_HOST", '"www.test.com"'
-            // buildConfigField "String", "TEST_AUTH", '"www.test.com"'
-            buildConfigField "String", "TEST_HOST", properties["TEST_HOST"]
-            buildConfigField "String", "TEST_AUTH", properties["TEST_AUTH"]
+             buildConfigField "String", "TEST_HOST", '"www.test.com"'
+             buildConfigField "String", "TEST_AUTH", '"www.test.com"'
+//            buildConfigField "String", "TEST_HOST", properties["TEST_HOST"]
+//            buildConfigField "String", "TEST_AUTH", properties["TEST_AUTH"]
         }
 
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            // buildConfigField "String", "TEST_HOST", '"www.test.com"'
-            // buildConfigField "String", "TEST_AUTH", '"www.test.com"'
-            buildConfigField "String", "TEST_HOST", properties["TEST_HOST"]
-            buildConfigField "String", "TEST_AUTH", properties["TEST_AUTH"]
+             buildConfigField "String", "TEST_HOST", '"www.test.com"'
+             buildConfigField "String", "TEST_AUTH", '"www.test.com"'
+//            buildConfigField "String", "TEST_HOST", properties["TEST_HOST"]
+//            buildConfigField "String", "TEST_AUTH", properties["TEST_AUTH"]
         }
     }
     compileOptions {
