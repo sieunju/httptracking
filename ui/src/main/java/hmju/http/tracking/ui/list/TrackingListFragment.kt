@@ -7,16 +7,12 @@ import android.view.View
 import android.widget.EditText
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
 import hmju.http.tracking.R
-import hmju.http.tracking.models.BaseTrackingUiModel
-import hmju.http.tracking.models.TrackingListDefaultUiModel
-import hmju.http.tracking.models.TrackingListErrorUiModel
-import hmju.http.tracking.models.TrackingListTimeOutUiModel
+import hmju.http.tracking.models.TrackingSummaryUiModel
 import hmju.http.tracking.ui.adapter.TrackingAdapter
 import hmju.http.tracking_interceptor.TrackingDataManager
 import hmju.http.tracking_interceptor.model.TrackingModel
@@ -38,7 +34,9 @@ import kotlinx.coroutines.withContext
  *
  * Created by juhongmin on 2023/01/06
  */
-internal class TrackingListFragment : Fragment(R.layout.f_tracking_list) {
+internal class TrackingListFragment : Fragment(
+    R.layout.f_tracking_list
+) {
 
     private lateinit var rvContents: RecyclerView
     private lateinit var etKeyword: AppCompatEditText
@@ -70,17 +68,9 @@ internal class TrackingListFragment : Fragment(R.layout.f_tracking_list) {
     }
 
     private fun setTrackingData(newList: List<TrackingModel>) {
-        lifecycle.coroutineScope.launch(Dispatchers.Main) {
-            val uiList = withContext(Dispatchers.IO) { newList.map { toUiModel(it) } }
+        lifecycleScope.launch {
+            val uiList = withContext(Dispatchers.IO) {newList.map { TrackingSummaryUiModel(it) }}
             adapter.submitList(uiList)
-        }
-    }
-
-    private fun toUiModel(model: TrackingModel): BaseTrackingUiModel {
-        return when (model) {
-            is TrackingModel.Default -> TrackingListDefaultUiModel(model)
-            is TrackingModel.TimeOut -> TrackingListTimeOutUiModel(model)
-            is TrackingModel.Error -> TrackingListErrorUiModel(model)
         }
     }
 
@@ -115,26 +105,10 @@ internal class TrackingListFragment : Fragment(R.layout.f_tracking_list) {
 
     @OptIn(FlowPreview::class)
     private fun initSearchKeyword() {
-        lifecycleScope.launch {
-            etKeyword.textChangeObserver()
-                .debounce(100)
-                .onEach { searchTrackingList(it.toString()) }
-                .launchIn(this)
-        }
-        /*lifecycleScope.launchWhenResumed {
-            currentKeyword
-                .debounce(100)
-                .collectLatest { searchTrackingList(it) }
-        }
-        etKeyword.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
-            override fun afterTextChanged(s: Editable?) {
-                currentKeyword.value = s.toString()
-            }
-        })*/
+        etKeyword.textChangeObserver()
+            .debounce(100)
+            .onEach { searchTrackingList(it.toString()) }
+            .launchIn(lifecycleScope)
     }
 
     /**
@@ -150,8 +124,8 @@ internal class TrackingListFragment : Fragment(R.layout.f_tracking_list) {
         if (keyword.isEmpty() || keyword == "null") {
             setTrackingData(trackingList)
         } else {
-            val filterList = trackingList.filter { it.getPath().contains(keyword) }
-            setTrackingData(filterList)
+//            val filterList = trackingList.filter { it.getPath().contains(keyword) }
+            // setTrackingData(filterList)
         }
     }
 

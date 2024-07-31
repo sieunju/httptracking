@@ -1,16 +1,17 @@
 package hmju.http.tracking.models
 
 import hmju.http.tracking.R
+import hmju.http.tracking_interceptor.model.TitleModel
 
 internal data class TrackingTitleUiModel(
-    val title: String = ""
+    val item: TitleModel
 ) : BaseTrackingUiModel(R.layout.vh_tracking_title) {
 
     override fun getClassName() = "TrackingTitleUiModel"
 
     override fun areItemsTheSame(diffItem: Any): Boolean {
         return if (diffItem is TrackingTitleUiModel) {
-            title == diffItem.title
+            item == diffItem.item
         } else {
             false
         }
@@ -18,7 +19,7 @@ internal data class TrackingTitleUiModel(
 
     override fun areContentsTheSame(diffItem: Any): Boolean {
         return if (diffItem is TrackingTitleUiModel) {
-            title == diffItem.title
+            item == diffItem.item
         } else {
             false
         }

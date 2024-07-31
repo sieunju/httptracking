@@ -4,8 +4,12 @@ import androidx.annotation.WorkerThread
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
+import hmju.http.tracking_interceptor.model.ChildModel
+import hmju.http.tracking_interceptor.model.ContentsModel
+import hmju.http.tracking_interceptor.model.HttpBodyModel
+import hmju.http.tracking_interceptor.model.HttpMultipartModel
+import hmju.http.tracking_interceptor.model.TitleModel
 import hmju.http.tracking_interceptor.model.TrackingModel
-import hmju.http.tracking_interceptor.model.TrackingRequest
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.InetAddress
@@ -71,7 +75,9 @@ internal class WifiShareManager {
     /**
      * WifiShare Setting Log Data
      */
-    fun setLogData(data: TrackingModel?) {
+    fun setLogData(
+        data: TrackingModel?
+    ) {
         logData = data
     }
 
@@ -179,8 +185,9 @@ internal class WifiShareManager {
     }
 
     private fun getMethodAndBaseUrl(): CharSequence {
-        val data = logData ?: return ""
-        return "<h4>[${data.getMethod()}] ${data.getHost()}${data.getPath()}"
+        val wifiSummary = logData
+            ?.summaryModel?.wifiSummary ?: return ""
+        return "<h4>${wifiSummary}</h4>"
     }
 
     private fun getHttpTrackingJson(): String {
@@ -189,101 +196,11 @@ internal class WifiShareManager {
         str.append("<h3>Android HTTP Tracking Log by.hmju</h3>")
         val data = logData
         if (data != null) {
-            // Log Print Format
-            // 1. {MethodType} {BaseUrl + Path}
-            // 2. {Request Query Parameter}
-            // 3. {Request Body}
-            // 4. {Request Headers}
-            // 5. Response Code
-            // 6. Response Header
-            // 7. Response Body
-            // 8. Response Error
-
-            // 1. {MethodType} {BaseUrl + Path}
             str.append(getMethodAndBaseUrl())
-
-            // 2. {Request Query Parameter or Request Body}
-            val reqQueryList = data.getRequest().getQueryParams()?.split("&")
-            if (!reqQueryList.isNullOrEmpty()) {
-                str.append("<h5>[Request Query Parameters]</h5>")
-                reqQueryList.forEach { str.append(it.plus("<br>")) }
-            }
-
-            // 3. {Request Body}
-            if (data is TrackingModel.Default) {
-                val req = data.request
-                if (req is TrackingRequest.Default) {
-                    if (!req.body.isNullOrEmpty()) {
-                        str.append("<h5>[Request Body - Json]</h5>")
-                        str.append("<pre>")
-                        str.append(toJsonBody(req.body).replace("\n", "<br>"))
-                    }
-                } else if (req is TrackingRequest.MultiPart) {
-                    str.append("<h5>[Request Body - MultipartType]</h5>")
-                    req.binaryList.forEach {
-                        str.append("MultiPart-MediaType: ")
-                        str.append(it.type)
-                        str.append(" Length: ")
-                        str.append(it.bytes?.size)
-                        str.append("<br>")
-                    }
-                }
-            }
-
-            // 4. {Request Headers}
-            val reqHeaderMap = data.getRequest().getHeaderMap()
-            if (reqHeaderMap.isNotEmpty()) {
-                str.append("<h5>[Request Headers]</h5>")
-                reqHeaderMap.forEach { entry ->
-                    str.append(entry.key)
-                    str.append(" : ")
-                    str.append(entry.value)
-                    str.append("<br>")
-                }
-            }
-
-            // 5. Response Code
-            if (data is TrackingModel.Default) {
-                if (data.isSuccess) {
-                    str.append("<H4><font color=\"#03A9F4\">${data.code}</font></H4>")
-                } else {
-                    str.append("<H4><font color=\"#C62828\">${data.code}</font></H4>")
-                }
-
-                // 6. Response Header
-                val resHeaderMap = data.response.getHeaderMap()
-                if (resHeaderMap.isNotEmpty()) {
-                    str.append("<h5>[Response Headers]</h5>")
-                    resHeaderMap.forEach { entry ->
-                        str.append(entry.key)
-                        str.append(" : ")
-                        str.append(entry.value)
-                        str.append("<br>")
-                    }
-                }
-
-                // 7. Response Body
-                val resBody = data.response.getBody()
-                if (!resBody.isNullOrEmpty()) {
-                    // 7. Response Body
-                    str.append("<h5>[Body]</h5>")
-                    str.append("<pre>")
-                    str.append(toJsonBody(resBody).replace("\n", "<br>"))
-                    str.append("</pre>")
-                }
-            } else if (data is TrackingModel.TimeOut) {
-                // 8. Response Error
-                str.append("<br>")
-                str.append("<h5>[HTTP Error]</h5>")
-                str.append(data.msg)
-                str.append("<br>")
-            } else if (data is TrackingModel.Error) {
-                // 8. Response Error
-                str.append("<br>")
-                str.append("<h5>[HTTP Error]</h5>")
-                str.append(data.msg)
-                str.append("<br>")
-            }
+            str.append("<h2>[Request]</h2>")
+            str.getDescription(data.reqModels)
+            str.append("<h2>[Response]</h2>")
+            str.getDescription(data.resModels)
         }
         return str.toString()
     }
@@ -296,5 +213,40 @@ internal class WifiShareManager {
         } catch (ex: Exception) {
             ""
         }
+    }
+
+    private fun StringBuilder.getDescription(
+        list: List<ChildModel>
+    ): StringBuilder {
+        list.forEach { model ->
+            when (model) {
+                is TitleModel -> {
+                    append("<h4>${model.text}</h4>")
+                }
+
+                is ContentsModel -> {
+                    append(model.text)
+                    append("<br>")
+                }
+
+                is HttpBodyModel -> {
+                    append("<h5>[Body - Json]</h5>")
+                    append(
+                        toJsonBody(
+                            model.json
+                        ).replace("\n", "<br>")
+                    )
+                }
+
+                is HttpMultipartModel -> {
+                    append("<h5>[Body - MultipartType]</h5>")
+                    append(model.mimeType)
+                    append(" Length: ")
+                    append(model.bytes?.size)
+                    append("<br>")
+                }
+            }
+        }
+        return this
     }
 }

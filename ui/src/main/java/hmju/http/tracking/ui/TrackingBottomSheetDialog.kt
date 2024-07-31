@@ -5,7 +5,6 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -124,7 +123,9 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
     /**
      * HTTP Tracking 상세 진입
      */
-    fun moveToDetailFragment(item: TrackingModel) {
+    fun moveToDetailFragment(
+        item: TrackingModel
+    ) {
         detailData?.clear()
         detailData = null
         detailData = WeakReference(item)

@@ -1,264 +1,168 @@
 package hmju.http.tracking_interceptor.model
 
-import hmju.http.tracking_interceptor.Extensions.toDate
 import okhttp3.MultipartBody
 import okhttp3.Request
 import okhttp3.Response
-import java.net.SocketTimeoutException
+import java.net.URLDecoder
 
 /**
- * Description : Tracking 에 데이터 모델
+ * Description : BaseTrackingModel
  *
- * Created by juhongmin on 2023/08/09
+ * Created by juhongmin on 2024. 7. 29.
  */
-sealed class TrackingModel(
-    open var uid: Long = -1
-) {
+@Suppress("MemberVisibilityCanBePrivate")
+class TrackingModel {
+    var uid: Long = -1
+    val reqModels: List<ChildModel>
+    val resModels: List<ChildModel>
+    val summaryModel: SummaryModel
 
-    @Suppress("MemberVisibilityCanBePrivate")
-    class Default(
+    constructor(
         req: Request,
         res: Response
-    ) : TrackingModel(-1) {
-
-        val isSuccess: Boolean
-        val method: String
-        val code: Int
-        val host: String
-        val path: String
-        val fullUrl: String
-        val sentTimeMs: Long
-        val receivedTimeMs: Long
-        val request: TrackingRequest
-        val response: TrackingResponse
-        val takeTimeMs: Long
-        val timeDate: String
-
-        init {
-            isSuccess = res.code in 200..299
-            method = req.method
-            code = res.code
-            host = req.url.host
-            path = req.url.encodedPath
-            fullUrl = req.url.toString()
-            sentTimeMs = res.sentRequestAtMillis
-            receivedTimeMs = res.receivedResponseAtMillis
-            request = getRequest(req)
-            response = TrackingResponse.Default(res)
-            takeTimeMs = (receivedTimeMs - sentTimeMs)
-            val sentTime = res.sentRequestAtMillis.toDate()
-            val receiveTime = res.receivedResponseAtMillis.toDate()
-            timeDate = "$sentTime ~ $receiveTime"
+    ) {
+        reqModels = try {
+            getHttpRequestModels(req)
+        } catch (ex: Exception) {
+            listOf()
         }
-
-        override fun equals(other: Any?): Boolean {
-            return if (other is Default) {
-                uid == other.uid &&
-                        code == other.code &&
-                        host == other.host &&
-                        path == other.path &&
-                        sentTimeMs == other.sentTimeMs &&
-                        receivedTimeMs == other.receivedTimeMs &&
-                        request == other.request &&
-                        response == other.response
-            } else {
-                false
-            }
+        resModels = try {
+            getHttpResponseModels(res)
+        } catch (ex: Exception) {
+            listOf()
         }
-
-        override fun hashCode(): Int {
-            var result = code
-            result = 31 * result + host.hashCode()
-            result = 31 * result + path.hashCode()
-            result = 31 * result + sentTimeMs.hashCode()
-            result = 31 * result + receivedTimeMs.hashCode()
-            result = 31 * result + request.hashCode()
-            result = 31 * result + response.hashCode()
-            return result
-        }
-
-        /**
-         * init Request Model
-         *
-         * @see [TrackingRequest.MultiPart]
-         * @see [TrackingRequest.Default]
-         */
-        private fun getRequest(
-            req: Request
-        ): TrackingRequest {
-            return if (req.body is MultipartBody) {
-                TrackingRequest.MultiPart(req)
-            } else {
-                TrackingRequest.Default(req)
-            }
-        }
+        summaryModel = SummaryModel(req, res)
     }
 
-    @Suppress("MemberVisibilityCanBePrivate")
-    class TimeOut(
-        req: Request,
-        sendTimeMs: Long,
-        err: SocketTimeoutException
-    ) : TrackingModel(-1) {
-
-        val method: String
-        val host: String
-        val path: String
-        val fullUrl: String
-        val msg: String
-        val sendTimeText: String
-        val request: TrackingRequest
-
-        init {
-            method = req.method
-            host = req.url.host
-            path = req.url.encodedPath
-            fullUrl = req.url.toString()
-            msg = err.message ?: ""
-            sendTimeText = sendTimeMs.toDate()
-            request = getRequest(req)
-        }
-
-        override fun equals(other: Any?): Boolean {
-            return if (other is TimeOut) {
-                host == other.host &&
-                        path == other.path &&
-                        fullUrl == other.fullUrl &&
-                        msg == other.msg &&
-                        sendTimeText == other.sendTimeText &&
-                        request == other.request
-            } else {
-                false
-            }
-        }
-
-        override fun hashCode(): Int {
-            var result = method.hashCode()
-            result = 31 * result + host.hashCode()
-            result = 31 * result + path.hashCode()
-            result = 31 * result + fullUrl.hashCode()
-            result = 31 * result + msg.hashCode()
-            result = 31 * result + sendTimeText.hashCode()
-            result = 31 * result + request.hashCode()
-            return result
-        }
-
-        /**
-         * init Request Model
-         *
-         * @see [TrackingRequest.MultiPart]
-         * @see [TrackingRequest.Default]
-         */
-        private fun getRequest(
-            req: Request
-        ): TrackingRequest {
-            return if (req.body is MultipartBody) {
-                TrackingRequest.MultiPart(req)
-            } else {
-                TrackingRequest.Default(req)
-            }
-        }
-    }
-
-    @Suppress("MemberVisibilityCanBePrivate")
-    class Error(
+    constructor(
         req: Request,
         sendTimeMs: Long,
         err: Exception
-    ) : TrackingModel(-1) {
-
-        val method: String
-        val host: String
-        val path: String
-        val fullUrl: String
-        val msg: String
-        val sendTimeText: String
-        val request: TrackingRequest
-
-        init {
-            method = req.method
-            host = req.url.host
-            path = req.url.encodedPath
-            fullUrl = req.url.toString()
-            msg = err.message ?: ""
-            sendTimeText = sendTimeMs.toDate()
-            request = getRequest(req)
+    ) {
+        reqModels = try {
+            getHttpRequestModels(req)
+        } catch (ex: Exception) {
+            listOf()
         }
+        resModels = mutableListOf(ContentsModel(text = err.message.toString()))
+        summaryModel = SummaryModel(req, sendTimeMs, err)
+    }
 
-        override fun equals(other: Any?): Boolean {
-            return if (other is Error) {
-                host == other.host &&
-                        path == other.path &&
-                        fullUrl == other.fullUrl &&
-                        msg == other.msg &&
-                        sendTimeText == other.sendTimeText &&
-                        request == other.request
-            } else {
-                false
+    constructor(
+        req: List<ChildModel>,
+        res: List<ChildModel>,
+        summary: SummaryModel
+    ) {
+        reqModels = req
+        resModels = res
+        summaryModel = summary
+    }
+
+    /**
+     * Getter HTTP Request UiModels
+     * @param req HTTP Request
+     */
+    private fun getHttpRequestModels(
+        req: Request
+    ): List<ChildModel> {
+        val list = mutableListOf<ChildModel>()
+        // full url
+        list.add(ContentsModel(text = req.url.toString()))
+        // path
+        list.add(TitleModel(hexCode = "#C62828", text = "[path]"))
+        list.add(ContentsModel(text = req.url.encodedPath))
+        val headerMap = req.headers.toMap()
+        // headers
+        if (headerMap.isNotEmpty()) {
+            list.add(TitleModel(hexCode = "#C62828", text = "[header]"))
+            headerMap.map {
+                ContentsModel(
+                    hexCode = "#222",
+                    text = it.key + " : " + it.value
+                )
+            }.run { list.addAll(this) }
+        }
+        // query
+        val queryParams = req.url.query
+        if (!queryParams.isNullOrEmpty()) {
+            list.add(TitleModel(hexCode = "#C62828", text = "[query]"))
+            queryParams.split("&").forEach {
+                val query = splitQuery(it) ?: return@forEach
+                val text = "${query.first} : ${query.second}"
+                ContentsModel(
+                    hexCode = "#222222",
+                    text = text
+                ).run { list.add(this) }
             }
         }
 
-        override fun hashCode(): Int {
-            var result = method.hashCode()
-            result = 31 * result + host.hashCode()
-            result = 31 * result + path.hashCode()
-            result = 31 * result + fullUrl.hashCode()
-            result = 31 * result + msg.hashCode()
-            result = 31 * result + sendTimeText.hashCode()
-            result = 31 * result + request.hashCode()
-            return result
+        // Body
+        val body = req.body
+        if (body is MultipartBody) {
+            body.parts
+                .map { HttpMultipartModel(it) }
+                .run { list.addAll(this) }
+        } else if (body != null) {
+            list.add(HttpBodyModel(body))
         }
 
-        /**
-         * init Request Model
-         *
-         * @see [TrackingRequest.MultiPart]
-         * @see [TrackingRequest.Default]
-         */
-        private fun getRequest(
-            req: Request
-        ): TrackingRequest {
-            return if (req.body is MultipartBody) {
-                TrackingRequest.MultiPart(req)
-            } else {
-                TrackingRequest.Default(req)
+        return list
+    }
+
+    /**
+     * Split HTTP Query
+     *
+     * @param txt {Key=Value}
+     */
+    private fun splitQuery(txt: String): Pair<String, String>? {
+        val idx = txt.indexOf("=")
+        return if (idx != -1) {
+            var key = txt.substring(0, idx)
+            key = try {
+                URLDecoder.decode(key, Charsets.UTF_8.name())
+            } catch (ex: UnsupportedOperationException) {
+                key
+            } catch (ex: IllegalArgumentException) {
+                key
             }
+            var value = txt.substring(idx.plus(1))
+            value = try {
+                URLDecoder.decode(value, Charsets.UTF_8.name())
+            } catch (ex: UnsupportedOperationException) {
+                value
+            } catch (ex: IllegalArgumentException) {
+                value
+            }
+            key to value
+        } else {
+            null
         }
     }
 
-    @JvmName("getCommonMethod")
-    fun getMethod(): String {
-        return when (this) {
-            is Default -> this.method
-            is TimeOut -> this.method
-            is Error -> this.method
+    /**
+     * Getter HTTP Response UiModels
+     * @param res HTTP Response
+     */
+    private fun getHttpResponseModels(
+        res: Response
+    ): List<ChildModel> {
+        val list = mutableListOf<ChildModel>()
+        val headerMap = res.headers.toMap()
+        // headers
+        if (headerMap.isNotEmpty()) {
+            list.add(TitleModel(hexCode = "#C62828", text = "[header]"))
+            headerMap.map {
+                ContentsModel(
+                    hexCode = "#222",
+                    text = it.key + " : " + it.value
+                )
+            }.run { list.addAll(this) }
         }
-    }
-
-    @JvmName("getCommonHost")
-    fun getHost(): String {
-        return when (this) {
-            is Default -> this.host
-            is TimeOut -> this.host
-            is Error -> this.host
+        // Body
+        val body = res.body
+        if (body != null) {
+            list.add(HttpBodyModel(res.headers, body))
         }
-    }
-
-    @JvmName("getCommonPath")
-    fun getPath(): String {
-        return when (this) {
-            is Default -> this.path
-            is TimeOut -> this.path
-            is Error -> this.path
-        }
-    }
-
-    @JvmName("getCommonRequest")
-    fun getRequest(): TrackingRequest {
-        return when (this) {
-            is Default -> this.request
-            is TimeOut -> this.request
-            is Error -> this.request
-        }
+        return list
     }
 }

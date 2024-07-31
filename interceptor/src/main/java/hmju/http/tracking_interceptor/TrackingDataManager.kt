@@ -60,9 +60,11 @@ class TrackingDataManager private constructor() {
 
     /**
      * Http 통신 트레킹 추가 함수
-     *
+     * @param model TrackingModel
      */
-    fun add(model: TrackingModel?) {
+    fun add(
+        model: TrackingModel?
+    ) {
         if (model == null) return
 
         // UID 초기화 처리

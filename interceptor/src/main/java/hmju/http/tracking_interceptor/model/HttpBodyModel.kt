@@ -1,45 +1,31 @@
 package hmju.http.tracking_interceptor.model
 
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonParser
 import okhttp3.Headers
-import okhttp3.Response
+import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import okio.Buffer
 import okio.GzipSource
 import java.nio.charset.Charset
 
 /**
- * Description : HttpTracking Request Data Model
+ * Description : HTTP Request or Response Body Model
  *
- * Created by juhongmin on 2023/08/11
+ * Created by juhongmin on 2024. 7. 29.
  */
-sealed class TrackingResponse {
-
-    @Suppress("unused", "MemberVisibilityCanBePrivate")
-    class Default(
-        res: Response
-    ) : TrackingResponse() {
-
-        val headerMap: Map<String, String>
-        val body: String?
-
-        init {
-            headerMap = res.headers.toMap()
-            body = getResBody(res.headers, res.body)
-        }
-
-        override fun equals(other: Any?): Boolean {
-            return if (other is Default) {
-                headerMap == other.headerMap &&
-                        body == other.body
-            } else {
-                false
-            }
-        }
-
-        override fun hashCode(): Int {
-            var result = headerMap.hashCode()
-            result = 31 * result + (body?.hashCode() ?: 0)
-            return result
+data class HttpBodyModel(
+    val json: String
+) : ChildModel {
+    companion object {
+        // Gson
+        private val gson: Gson by lazy {
+            GsonBuilder()
+                .disableHtmlEscaping()
+                .setPrettyPrinting()
+                .serializeNulls()
+                .create()
         }
 
         /**
@@ -69,17 +55,30 @@ sealed class TrackingResponse {
         }
     }
 
-    @JvmName("getCommonHeaderMap")
-    fun getHeaderMap(): Map<String, String> {
-        return when (this) {
-            is Default -> headerMap
+    constructor(
+        body: RequestBody
+    ) : this(
+        json = try {
+            val buffer = Buffer()
+            body.writeTo(buffer)
+            val str = buffer.readString(Charsets.UTF_8)
+            val js = JsonParser.parseString(str)
+            gson.toJson(js)
+        } catch (ex: Exception) {
+            ""
         }
-    }
+    )
 
-    @JvmName("getCommonBody")
-    fun getBody(): String? {
-        return when (this) {
-            is Default -> body
+    constructor(
+        headers: Headers,
+        body: ResponseBody
+    ) : this(
+        json = try {
+            val str = getResBody(headers, body)
+            val js = JsonParser.parseString(str)
+            gson.toJson(js)
+        } catch (ex: Exception) {
+            ""
         }
-    }
+    )
 }
