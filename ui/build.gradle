@@ -9,8 +9,7 @@ android {
     namespace = "hmju.http.tracking"
     compileSdk 34
     defaultConfig {
-        minSdkVersion 23
-        targetSdkVersion 34
+        minSdk 23
         consumerProguardFiles "consumer-rules.pro"
     }
 

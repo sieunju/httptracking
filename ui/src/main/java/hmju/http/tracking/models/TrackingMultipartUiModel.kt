@@ -3,7 +3,7 @@ package hmju.http.tracking.models
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
-import hmju.http.model.HttpMultipartModel
+import hmju.tracking.model.HttpMultipartModel
 import hmju.http.tracking.R
 
 internal data class TrackingMultipartUiModel(

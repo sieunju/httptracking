@@ -17,7 +17,7 @@ import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import hmju.http.model.TrackingModel
+import hmju.tracking.model.TrackingModel
 import hmju.http.tracking.R
 import hmju.http.tracking.ui.TrackingBottomSheetDialog
 import hmju.http.tracking.util.WifiManager

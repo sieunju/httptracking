@@ -1,4 +1,4 @@
-package hmju.http.model
+package hmju.tracking.model
 
 import okhttp3.MultipartBody
 import okhttp3.Request

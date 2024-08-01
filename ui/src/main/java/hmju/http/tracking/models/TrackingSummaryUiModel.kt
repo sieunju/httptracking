@@ -1,6 +1,6 @@
 package hmju.http.tracking.models
 
-import hmju.http.model.TrackingModel
+import hmju.tracking.model.TrackingModel
 import hmju.http.tracking.R
 
 internal data class TrackingSummaryUiModel(

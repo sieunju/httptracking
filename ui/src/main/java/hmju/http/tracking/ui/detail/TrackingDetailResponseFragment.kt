@@ -5,11 +5,11 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import hmju.http.model.ChildModel
-import hmju.http.model.ContentsModel
-import hmju.http.model.HttpBodyModel
-import hmju.http.model.HttpMultipartModel
-import hmju.http.model.TitleModel
+import hmju.tracking.model.ChildModel
+import hmju.tracking.model.ContentsModel
+import hmju.tracking.model.HttpBodyModel
+import hmju.tracking.model.HttpMultipartModel
+import hmju.tracking.model.TitleModel
 import hmju.http.tracking.R
 import hmju.http.tracking.models.BaseTrackingUiModel
 import hmju.http.tracking.models.TrackingBodyUiModel

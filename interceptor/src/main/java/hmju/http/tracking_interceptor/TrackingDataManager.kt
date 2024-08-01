@@ -1,6 +1,6 @@
 package hmju.http.tracking_interceptor
 
-import hmju.http.model.TrackingModel
+import hmju.tracking.model.TrackingModel
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**

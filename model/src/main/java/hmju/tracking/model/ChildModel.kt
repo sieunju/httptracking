@@ -1,4 +1,4 @@
-package hmju.http.model
+package hmju.tracking.model
 
 /**
  * Description : Contents BaseModel
