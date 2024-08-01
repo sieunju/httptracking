@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.le.ScanResult
+import android.nfc.tech.Ndef
 import android.os.Build
 import android.os.SystemClock
 import androidx.core.util.forEach
@@ -36,7 +37,14 @@ class HardwareTrackingModel : TrackingModel {
         gatt: BluetoothGatt,
         byteArray: ByteArray
     ) {
+        setSummary(initSummary(gatt))
+        setReqModels(initReqModels(gatt))
+        setResModels(initResModels(byteArray))
+    }
 
+    constructor(ndef: Ndef) {
+        setSummary(initSummary(ndef))
+        setReqModels(initReqModels(ndef))
     }
 
     /**
@@ -54,9 +62,42 @@ class HardwareTrackingModel : TrackingModel {
                 dateFmt.format(bootTimeMillis + (data.timestampNanos / 1_000_000L))
             ),
             contentsList = listOf(
-                if (!device.name.isNullOrEmpty()) device.name else "Unknown",
+                if (!device.name.isNullOrEmpty()) device.name else "Empty Name",
                 device.address,
                 "${data.rssi}dBm"
+            )
+        )
+    }
+
+    private fun initSummary(data: BluetoothGatt): SummaryModel {
+        val device = data.device
+        return SummaryModel(
+            colorHexCode = "#367CEE",
+            titleList = listOf(
+                "🛜BLE",
+                "Connect",
+                dateFmt.format(System.currentTimeMillis())
+            ),
+            contentsList = listOf(
+                if (!device.name.isNullOrEmpty()) device.name else "Empty Name",
+                device.address,
+                "-"
+            )
+        )
+    }
+
+    private fun initSummary(data: Ndef): SummaryModel {
+        return SummaryModel(
+            colorHexCode = "#FFC619",
+            titleList = listOf(
+                "🏷️NFC",
+                "Tag",
+                dateFmt.format(System.currentTimeMillis())
+            ),
+            contentsList = listOf(
+                data.type,
+                "${data.maxSize}",
+                "-"
             )
         )
     }
@@ -68,7 +109,7 @@ class HardwareTrackingModel : TrackingModel {
     private fun initReqModels(data: ScanResult): List<ChildModel> {
         val list = mutableListOf<ChildModel>()
         val device = data.device
-        list.add(TitleModel("#C62828", "[Device]"))
+        list.add(TitleModel(hexCode = "#C62828", text = "[Device]"))
         if (!device.name.isNullOrEmpty()) {
             list.add(ContentsModel(text = "Name:${device.name}"))
         }
@@ -113,6 +154,87 @@ class HardwareTrackingModel : TrackingModel {
                 }
             }
         }
+        return list
+    }
+
+    private fun initReqModels(
+        gatt: BluetoothGatt
+    ): List<ChildModel> {
+        val list = mutableListOf<ChildModel>()
+        val device = gatt.device
+        list.add(TitleModel("#C62828", "[Device]"))
+        if (!device.name.isNullOrEmpty()) {
+            list.add(ContentsModel(text = "Name:${device.name}"))
+        }
+        list.add(ContentsModel(hexCode = "#222222", text = device.address))
+        when (device.type) {
+            BluetoothDevice.DEVICE_TYPE_LE -> "Low Energy"
+            BluetoothDevice.DEVICE_TYPE_DUAL -> "Dual Mode"
+            BluetoothDevice.DEVICE_TYPE_CLASSIC -> "Classic"
+            BluetoothDevice.DEVICE_TYPE_UNKNOWN -> "Unknown"
+            else -> "Invalid"
+        }.run { list.add(ContentsModel(hexCode = "#222222", text = "Device type:${this}")) }
+        if (!gatt.services.isNullOrEmpty()) {
+            list.add(TitleModel("#C62828", "[UUID]"))
+            gatt.services.forEach { service ->
+                ContentsModel(
+                    hexCode = "#222222",
+                    text = service.uuid.toString()
+                ).run { list.add(this) }
+            }
+        }
+        return list
+    }
+
+    private fun initReqModels(
+        data: Ndef
+    ): List<ChildModel> {
+        val list = mutableListOf<ChildModel>()
+        ContentsModel(
+            hexCode = "#222222",
+            text = "Type: ${data.type}"
+        ).run { list.add(this) }
+        ContentsModel(
+            hexCode = "#222222",
+            text = "Size: ${data.maxSize}"
+        ).run { list.add(this) }
+        val records = data.ndefMessage?.records
+        if (records != null) {
+            TitleModel(
+                hexCode = "#C62828",
+                text = "[RAW]"
+            ).run { list.add(this) }
+            val payload = records[0].payload
+            ContentsModel(
+                hexCode = "#222222",
+                text = payload.joinToString { String.format("%02X", it) }
+            ).run { list.add(this) }
+        }
+        val cacheRecords = data.cachedNdefMessage?.records
+        if (cacheRecords != null) {
+            TitleModel(
+                hexCode = "#C62828",
+                text = "[Cache RAW]"
+            ).run { list.add(this) }
+            val payload = cacheRecords[0].payload
+            ContentsModel(
+                hexCode = "#222222",
+                text = payload.joinToString { String.format("%02X", it) }
+            ).run { list.add(this) }
+        }
+
+        return list
+    }
+
+    private fun initResModels(
+        bytes: ByteArray
+    ): List<ChildModel> {
+        val list = mutableListOf<ChildModel>()
+        list.add(TitleModel(hexCode = "#C62828", text = "[${bytes.size} Bytes]"))
+        ContentsModel(
+            hexCode = "#222222",
+            text = bytes.joinToString { String.format("%02X", it) }
+        ).run { list.add(this) }
         return list
     }
 }

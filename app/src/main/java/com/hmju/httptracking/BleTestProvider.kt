@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.bluetooth.le.ScanCallback
@@ -13,13 +14,17 @@ import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
+import android.os.Build
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import hmju.http.tracking_interceptor.TrackingDataManager
 import hmju.tracking.hardware.HardwareTrackingModel
 import timber.log.Timber
+import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.UUID
+import java.util.concurrent.Executors
 
 
 class BleTestProvider(
@@ -136,18 +141,64 @@ class BleTestProvider(
     }
 
     @SuppressLint("MissingPermission")
-    private fun startConnection(
-        macAddress: String
+    fun startConnection(
+        macAddress: String,
+        findUuid: String
     ) {
         val callback = object : BleGattCallback() {
             override fun onConnected(gatt: BluetoothGatt) {
-                connectionSet.add(macAddress)
-                Timber.d("연결 완료 되었습니다. $macAddress 연결된 개수:${connectionSet.size}")
+                Timber.d("onConnected $gatt")
             }
 
             override fun onDisconnected(gatt: BluetoothGatt) {
-                connectionSet.remove(macAddress)
-                Timber.d("연결 해제 되었습니다. $macAddress 연결된 개수:${connectionSet.size}")
+                Timber.d("onDisconnected $gatt")
+            }
+
+            override fun onServicesDiscovered(gatt: BluetoothGatt) {
+                var characteristic: BluetoothGattCharacteristic? = null
+                for (service in gatt.services) {
+                    for (character in service.characteristics) {
+                        val uuid = character.uuid.toString().uppercase()
+                        if (findUuid.contains(uuid) || uuid.contains(findUuid)) {
+                            characteristic = character
+                            break
+                        }
+                    }
+                }
+                Timber.d("characteristic 찾습니다..$characteristic")
+                if (characteristic == null) return
+                val writeBytes = ByteBuffer.allocate(2)
+                    .putShort(10000.toShort())
+                    .array() + ByteBuffer.allocate(2)
+                    .putShort(10387.toShort()).array()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    Timber.d("데이터 사용합니다. ${writeBytes.contentToString()}")
+                    gatt.writeCharacteristic(
+                        characteristic,
+                        writeBytes,
+                        BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+                    )
+                    Executors.newSingleThreadExecutor().submit {
+                        Thread.sleep(300)
+                        gatt.setCharacteristicNotification(characteristic, true)
+                        val descriptor = characteristic.getDescriptor(
+                            UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
+                        )
+                        gatt.writeDescriptor(
+                            descriptor,
+                            BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                        )
+                    }
+                }
+            }
+
+            override fun onCharacteristicRead(gatt: BluetoothGatt, value: ByteArray) {
+                TrackingDataManager.getInstance().add(HardwareTrackingModel(gatt, value))
+            }
+
+            override fun onCharacteristicChanged(gatt: BluetoothGatt, value: ByteArray) {
+                Timber.d("onCharacteristicChanged ${value.contentToString()}")
+                TrackingDataManager.getInstance().add(HardwareTrackingModel(gatt, value))
             }
         }
         val device = adapter.getRemoteDevice(macAddress)
