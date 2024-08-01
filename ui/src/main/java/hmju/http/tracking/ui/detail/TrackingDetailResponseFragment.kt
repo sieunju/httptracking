@@ -51,7 +51,7 @@ internal class TrackingDetailResponseFragment : Fragment(
         if (dialogFragment !is TrackingBottomSheetDialog) return
         val data = dialogFragment.getTempDetailData()
         if (data != null) {
-            adapter.submitList(data.resModels.mapNotNull { it.toUi() })
+            adapter.submitList(data.getResModels().mapNotNull { it.toUi() })
         }
     }
 

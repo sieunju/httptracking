@@ -186,7 +186,7 @@ internal class WifiShareManager {
 
     private fun getMethodAndBaseUrl(): CharSequence {
         val wifiSummary = logData
-            ?.summaryModel?.wifiSummary ?: return ""
+            ?.getSummaryModel()?.wifiSummary ?: return ""
         return "<h4>${wifiSummary}</h4>"
     }
 
@@ -197,10 +197,14 @@ internal class WifiShareManager {
         val data = logData
         if (data != null) {
             str.append(getMethodAndBaseUrl())
-            str.append("<h2>[Request]</h2>")
-            str.getDescription(data.reqModels)
-            str.append("<h2>[Response]</h2>")
-            str.getDescription(data.resModels)
+            if (data.getReqModels().isNotEmpty()) {
+                str.append("<h2>[Request]</h2>")
+                str.getDescription(data.getReqModels())
+            }
+            if (data.getResModels().isNotEmpty()) {
+                str.append("<h2>[Response]</h2>")
+                str.getDescription(data.getResModels())
+            }
         }
         return str.toString()
     }

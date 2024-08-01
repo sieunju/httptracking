@@ -5,11 +5,6 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import hmju.tracking.model.ChildModel
-import hmju.tracking.model.ContentsModel
-import hmju.tracking.model.HttpBodyModel
-import hmju.tracking.model.HttpMultipartModel
-import hmju.tracking.model.TitleModel
 import hmju.http.tracking.R
 import hmju.http.tracking.models.BaseTrackingUiModel
 import hmju.http.tracking.models.TrackingBodyUiModel
@@ -18,6 +13,11 @@ import hmju.http.tracking.models.TrackingMultipartUiModel
 import hmju.http.tracking.models.TrackingTitleUiModel
 import hmju.http.tracking.ui.TrackingBottomSheetDialog
 import hmju.http.tracking.ui.adapter.TrackingAdapter
+import hmju.tracking.model.ChildModel
+import hmju.tracking.model.ContentsModel
+import hmju.tracking.model.HttpBodyModel
+import hmju.tracking.model.HttpMultipartModel
+import hmju.tracking.model.TitleModel
 
 /**
  * Description : HTTP 요청 상세 Fragment
@@ -51,7 +51,7 @@ internal class TrackingDetailRequestFragment : Fragment(
         if (dialogFragment !is TrackingBottomSheetDialog) return
         val data = dialogFragment.getTempDetailData()
         if (data != null) {
-            adapter.submitList(data.reqModels.mapNotNull { it.toUi() })
+            adapter.submitList(data.getReqModels().mapNotNull { it.toUi() })
         }
     }
 

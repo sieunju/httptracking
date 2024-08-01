@@ -42,7 +42,7 @@ internal class TrackingSummaryViewHolder(
     override fun onBindView(model: BaseTrackingUiModel) {
         if (model !is TrackingSummaryUiModel) return
         this.model = model
-        val summary = model.item.summaryModel
+        val summary = model.item.getSummaryModel()
         llBgStatus.changeBgColor(summary.colorHexCode)
         summary.titleList.getOrNull(0)?.let {
             tvTitle1.changeText(it)

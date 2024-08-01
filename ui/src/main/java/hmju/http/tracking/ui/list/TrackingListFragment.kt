@@ -135,7 +135,7 @@ internal class TrackingListFragment : Fragment(
                 originList.forEach {
                     if (keyword.isEmpty() || keyword == "null") {
                         list.add(TrackingSummaryUiModel(it))
-                    } else if (isFindKeyword(keyword, it.summaryModel)) {
+                    } else if (isFindKeyword(keyword, it.getSummaryModel())) {
                         list.add(TrackingSummaryUiModel(it))
                     }
                 }

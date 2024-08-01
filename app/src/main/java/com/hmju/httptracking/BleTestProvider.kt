@@ -13,18 +13,10 @@ import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
-import android.os.Build
-import android.os.SystemClock
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.util.forEach
-import androidx.core.util.isNotEmpty
-import hmju.tracking.model.ChildModel
-import hmju.tracking.model.ContentsModel
-import hmju.tracking.model.SummaryModel
-import hmju.tracking.model.TitleModel
-import hmju.tracking.model.TrackingModel
 import hmju.http.tracking_interceptor.TrackingDataManager
+import hmju.tracking.hardware.HardwareTrackingModel
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -117,24 +109,23 @@ class BleTestProvider(
 
             override fun onScanResult(callbackType: Int, result: ScanResult?) {
                 if (result == null) return
-//                if (!duplicationSet.contains(result.device.address)) {
-//                    duplicationSet.add(result.device.address)
-//                    TrackingDataManager.getInstance().add(getBleTrackingModel(result, dateFmt))
-//                }
-                TrackingDataManager.getInstance().add(getBleTrackingModel(result, dateFmt))
+                if (!duplicationSet.contains(result.device.address)) {
+                    duplicationSet.add(result.device.address)
+                    TrackingDataManager.getInstance().add(HardwareTrackingModel(result))
+                }
             }
 
             override fun onBatchScanResults(results: MutableList<ScanResult>?) {
                 if (results == null) return
                 results.forEach { result ->
-                    TrackingDataManager.getInstance().add(getBleTrackingModel(result, dateFmt))
+                    TrackingDataManager.getInstance().add(HardwareTrackingModel(result))
                 }
             }
         }
         val setting = ScanSettings.Builder()
             .setNumOfMatches(ScanSettings.MATCH_NUM_MAX_ADVERTISEMENT)
             .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-            .setReportDelay(1000)
+            // .setReportDelay(1000)
             .build()
 
         val filter = ScanFilter.Builder()
@@ -166,79 +157,5 @@ class BleTestProvider(
             callback.origin,
             BluetoothDevice.TRANSPORT_LE
         ).also { it.requestMtu(300) }
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun getBleTrackingModel(
-        data: ScanResult,
-        dateFmt: SimpleDateFormat
-    ): TrackingModel {
-        val bootTimeMillis = System.currentTimeMillis() - SystemClock.elapsedRealtime()
-        val scanTime = bootTimeMillis + (data.timestampNanos / 1_000_000L)
-        val device = data.device
-        val summary = SummaryModel(
-            colorHexCode = "#367CEE",
-            titleList = listOf(
-                "🛜BLE",
-                "Advertising",
-                dateFmt.format(scanTime)
-            ),
-            contentsList = listOf(
-                if (!device.name.isNullOrEmpty()) device.name else "Unknown",
-                device.address,
-                "${data.rssi}dBm"
-            )
-        )
-        val req = mutableSetOf<ChildModel>()
-        req.add(TitleModel("#C62828", "[Device]"))
-        if (!device.name.isNullOrEmpty()) {
-            req.add(ContentsModel(text = "Name:${device.name}"))
-        }
-        req.add(ContentsModel(hexCode = "#222222", text = device.address))
-        when (device.type) {
-            BluetoothDevice.DEVICE_TYPE_LE -> "Low Energy"
-            BluetoothDevice.DEVICE_TYPE_DUAL -> "Dual Mode"
-            BluetoothDevice.DEVICE_TYPE_CLASSIC -> "Classic"
-            BluetoothDevice.DEVICE_TYPE_UNKNOWN -> "Unknown"
-            else -> "Invalid"
-        }.run { req.add(ContentsModel(hexCode = "#222222", text = "Device type:${this}")) }
-        req.add(ContentsModel(hexCode = "#222222", text = "📶${data.rssi}dBm"))
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val phy = when (data.primaryPhy) {
-                BluetoothDevice.PHY_LE_1M -> "LE 1M"
-                BluetoothDevice.PHY_LE_2M -> "LE 2M"
-                BluetoothDevice.PHY_LE_CODED -> "LE Coded"
-                else -> "Unknown"
-            }
-            req.add(ContentsModel(hexCode = "#222222", text = "Phy:${phy}"))
-            req.add(ContentsModel(text = "Connectable:${data.isConnectable}"))
-        }
-        val scanRecord = data.scanRecord
-        if (scanRecord != null) {
-            req.add(TitleModel("#C62828", "[UUID]"))
-            if (!scanRecord.serviceUuids.isNullOrEmpty()) {
-                scanRecord.serviceUuids.forEach {
-                    req.add(ContentsModel(hexCode = "#222222", text = it.uuid.toString()))
-                }
-            }
-            if (scanRecord.manufacturerSpecificData.isNotEmpty()) {
-                req.add(TitleModel("#C62828", "[Manufacture]"))
-                scanRecord.manufacturerSpecificData.forEach { key, value ->
-                    ContentsModel(
-                        hexCode = "#222222",
-                        text = "ID:${String.format("0x%04X", key)}"
-                    ).run { req.add(this) }
-                    ContentsModel(
-                        hexCode = "#222222",
-                        text = value.joinToString { String.format("%02X", it) }
-                    ).run { req.add(this) }
-                }
-            }
-        }
-        return TrackingModel(
-            req = req.toList(),
-            res = listOf(),
-            summary = summary
-        )
     }
 }

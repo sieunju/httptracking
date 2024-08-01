@@ -11,27 +11,39 @@ import java.net.URLDecoder
  * Created by juhongmin on 2024. 7. 29.
  */
 @Suppress("MemberVisibilityCanBePrivate")
-class TrackingModel {
-    var uid: Long = -1
-    val reqModels: List<ChildModel>
-    val resModels: List<ChildModel>
-    val summaryModel: SummaryModel
+open class TrackingModel {
+    private val _reqModels: MutableList<ChildModel> by lazy { mutableListOf() }
+    private val _resModels: MutableList<ChildModel> by lazy { mutableListOf() }
+    private var _summary: SummaryModel? = null
+
+    open var uid: Long = -1
+    open fun getReqModels(): List<ChildModel> {
+        return _reqModels
+    }
+
+    open fun getResModels(): List<ChildModel> {
+        return _resModels
+    }
+
+    open fun getSummaryModel(): SummaryModel {
+        return _summary!!
+    }
 
     constructor(
         req: Request,
         res: Response
     ) {
-        reqModels = try {
-            getHttpRequestModels(req)
+        try {
+            _reqModels.addAll(getHttpRequestModels(req))
         } catch (ex: Exception) {
-            listOf()
+            // ignore
         }
-        resModels = try {
-            getHttpResponseModels(res)
+        try {
+            _resModels.addAll(getHttpResponseModels(res))
         } catch (ex: Exception) {
-            listOf()
+            // ignore
         }
-        summaryModel = SummaryModel(req, res)
+        _summary = SummaryModel(req, res)
     }
 
     constructor(
@@ -39,24 +51,20 @@ class TrackingModel {
         sendTimeMs: Long,
         err: Exception
     ) {
-        reqModels = try {
-            getHttpRequestModels(req)
+        try {
+            _reqModels.addAll(getHttpRequestModels(req))
         } catch (ex: Exception) {
-            listOf()
+            // ignore
         }
-        resModels = mutableListOf(ContentsModel(text = err.message.toString()))
-        summaryModel = SummaryModel(req, sendTimeMs, err)
+        try {
+            _resModels.add(ContentsModel(text = err.message.toString()))
+        } catch (ex: Exception) {
+            // ignore
+        }
+        _summary = SummaryModel(req, sendTimeMs, err)
     }
 
-    constructor(
-        req: List<ChildModel>,
-        res: List<ChildModel>,
-        summary: SummaryModel
-    ) {
-        reqModels = req
-        resModels = res
-        summaryModel = summary
-    }
+    constructor()
 
     /**
      * Getter HTTP Request UiModels
@@ -164,5 +172,19 @@ class TrackingModel {
             list.add(HttpBodyModel(res.headers, body))
         }
         return list
+    }
+
+    fun setReqModels(list: List<ChildModel>) {
+        _reqModels.clear()
+        _reqModels.addAll(list)
+    }
+
+    fun setResModels(list: List<ChildModel>) {
+        _resModels.clear()
+        _resModels.addAll(list)
+    }
+
+    fun setSummary(summary: SummaryModel) {
+        this._summary = summary
     }
 }
