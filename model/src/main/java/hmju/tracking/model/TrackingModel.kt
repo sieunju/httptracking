@@ -66,6 +66,16 @@ open class TrackingModel {
 
     constructor()
 
+    constructor(
+        reqList: List<ChildModel>,
+        resList: List<ChildModel>,
+        summary: SummaryModel
+    ) {
+        _reqModels.addAll(reqList)
+        _resModels.addAll(resList)
+        _summary = summary
+    }
+
     /**
      * Getter HTTP Request UiModels
      * @param req HTTP Request
