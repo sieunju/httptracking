@@ -4,14 +4,18 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.LayoutRes
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.RecyclerView
 import hmju.http.tracking.R
 import hmju.http.tracking.models.*
@@ -22,8 +26,9 @@ internal abstract class BaseTrackingViewHolder(
 ) : RecyclerView.ViewHolder(
     LayoutInflater.from(parent.context).inflate(layoutId, parent, false)
 ) {
-    private val clipboard =
-        itemView.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    private val clipboard = itemView.context.getSystemService(
+        Context.CLIPBOARD_SERVICE
+    ) as ClipboardManager
 
     @Throws(Exception::class)
     abstract fun onBindView(model: BaseTrackingUiModel)
@@ -70,6 +75,49 @@ internal abstract class BaseTrackingViewHolder(
         }.let {
             val shareIntent = Intent.createChooser(it, null)
             itemView.context.startActivity(shareIntent)
+        }
+    }
+
+    internal fun AppCompatTextView.changeColor(hexCode: String) {
+        val color = try {
+            Color.parseColor(hexCode)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            return
+        }
+        setTextColor(color)
+    }
+
+    internal fun View.changeBgColor(hexCode: String) {
+        val color = try {
+            Color.parseColor(hexCode)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            return
+        }
+        val bg = background
+        if (bg is ColorDrawable && bg.color != color) {
+            bg.color = color
+        } else {
+            setBackgroundColor(color)
+        }
+    }
+
+    internal fun View.changeVisible(isVisible: Boolean) {
+        if (isVisible) {
+            if (visibility == View.GONE) {
+                visibility = View.VISIBLE
+            }
+        } else {
+            if (visibility == View.VISIBLE) {
+                visibility = View.GONE
+            }
+        }
+    }
+
+    internal fun AppCompatTextView.changeText(str: CharSequence) {
+        if (text != str) {
+            text = str
         }
     }
 }

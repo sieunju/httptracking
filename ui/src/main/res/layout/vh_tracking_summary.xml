@@ -10,26 +10,36 @@
         android:id="@+id/llBgStatus"
         android:layout_width="80dp"
         android:layout_height="match_parent"
-        android:background="#4A4948"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        tools:background="#03A9F4">
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="ERROR"
-            android:textColor="#FFFFFF"
-            android:textSize="12dp" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvMethod"
+            android:id="@+id/tvTitle1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textColor="#FFFFFF"
             android:textSize="11dp"
             tools:text="GET" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvTitle2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="#FFFFFF"
+            android:textSize="11dp"
+            tools:text="200" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvTitle3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="#FFFFFF"
+            android:textSize="12dp"
+            tools:text="18MS" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -45,7 +55,7 @@
 
         <!-- 도메인 -->
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvHost"
+            android:id="@+id/tvContents1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="1"
@@ -55,7 +65,7 @@
 
         <!-- 요청한 패스 정보 -->
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvPath"
+            android:id="@+id/tvContents2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="14dp"
@@ -63,11 +73,11 @@
 
         <!-- 메소드 타입 -->
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvSendTime"
+            android:id="@+id/tvContents3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14dp"
-            tools:text="T 10:15:333" />
+            tools:text="T 08.10:15:333 - 08.01 10:20:333" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 </androidx.appcompat.widget.LinearLayoutCompat>

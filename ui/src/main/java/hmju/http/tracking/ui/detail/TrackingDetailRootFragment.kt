@@ -218,11 +218,8 @@ internal class TrackingDetailRootFragment : Fragment(
      * Http Tracking Data
      */
     private fun getDetailData(): TrackingModel? {
-        return if (parentFragment is TrackingBottomSheetDialog) {
-            (parentFragment as TrackingBottomSheetDialog).getTempDetailData()
-        } else {
-            null
-        }
+        val fragment = parentFragment as? TrackingBottomSheetDialog ?: return null
+        return fragment.getTempDetailData()
     }
 
     companion object {

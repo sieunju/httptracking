@@ -7,22 +7,20 @@ import android.view.View
 import android.widget.EditText
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
 import hmju.http.tracking.R
 import hmju.http.tracking.models.BaseTrackingUiModel
-import hmju.http.tracking.models.TrackingListDefaultUiModel
-import hmju.http.tracking.models.TrackingListErrorUiModel
-import hmju.http.tracking.models.TrackingListTimeOutUiModel
+import hmju.http.tracking.models.TrackingSummaryUiModel
 import hmju.http.tracking.ui.adapter.TrackingAdapter
 import hmju.http.tracking_interceptor.TrackingDataManager
-import hmju.http.tracking_interceptor.model.TrackingModel
+import hmju.http.tracking_interceptor.model.SummaryModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -38,13 +36,16 @@ import kotlinx.coroutines.withContext
  *
  * Created by juhongmin on 2023/01/06
  */
-internal class TrackingListFragment : Fragment(R.layout.f_tracking_list) {
+internal class TrackingListFragment : Fragment(
+    R.layout.f_tracking_list
+) {
 
     private lateinit var rvContents: RecyclerView
     private lateinit var etKeyword: AppCompatEditText
 
-    // private val currentKeyword: MutableStateFlow<String> by lazy { MutableStateFlow("") }
     private var currentKeyword: CharSequence? = null
+    private var debounceTime = System.currentTimeMillis()
+    private var listJob: Job? = null
 
     private val adapter: TrackingAdapter by lazy { TrackingAdapter(this) }
 
@@ -57,31 +58,11 @@ internal class TrackingListFragment : Fragment(R.layout.f_tracking_list) {
         abl.elevation = 0F
         abl.outlineProvider = null
         rvContents.layoutManager = LinearLayoutManager(view.context)
+        rvContents.itemAnimator = null
         rvContents.adapter = adapter
 
         initSearchKeyword()
-        searchTrackingList(currentKeyword.toString())
-
-        TrackingDataManager.getInstance().setListener(object : TrackingDataManager.Listener {
-            override fun onUpdateTrackingData() {
-                searchTrackingList(currentKeyword.toString())
-            }
-        })
-    }
-
-    private fun setTrackingData(newList: List<TrackingModel>) {
-        lifecycle.coroutineScope.launch(Dispatchers.Main) {
-            val uiList = withContext(Dispatchers.IO) { newList.map { toUiModel(it) } }
-            adapter.submitList(uiList)
-        }
-    }
-
-    private fun toUiModel(model: TrackingModel): BaseTrackingUiModel {
-        return when (model) {
-            is TrackingModel.Default -> TrackingListDefaultUiModel(model)
-            is TrackingModel.TimeOut -> TrackingListTimeOutUiModel(model)
-            is TrackingModel.Error -> TrackingListErrorUiModel(model)
-        }
+        initDebounceList()
     }
 
     /**
@@ -115,50 +96,61 @@ internal class TrackingListFragment : Fragment(R.layout.f_tracking_list) {
 
     @OptIn(FlowPreview::class)
     private fun initSearchKeyword() {
-        lifecycleScope.launch {
-            etKeyword.textChangeObserver()
-                .debounce(100)
-                .onEach { searchTrackingList(it.toString()) }
-                .launchIn(this)
-        }
-        /*lifecycleScope.launchWhenResumed {
-            currentKeyword
-                .debounce(100)
-                .collectLatest { searchTrackingList(it) }
-        }
-        etKeyword.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
-            override fun afterTextChanged(s: Editable?) {
-                currentKeyword.value = s.toString()
+        etKeyword.textChangeObserver()
+            .debounce(100)
+            .onEach {
+                currentKeyword = it
+                handleSetList(it.toString())
             }
-        })*/
+            .launchIn(lifecycleScope)
     }
 
     /**
-     * 검색하고자 하는 Tracking List
-     * @param keyword 키워드
+     * 1초 단위로 리스트 셋팅하는 함수
      */
-    private fun searchTrackingList(
-        keyword: String
-    ) {
-        currentKeyword = keyword
-        val trackingList = TrackingDataManager.getInstance().getTrackingList()
-
-        if (keyword.isEmpty() || keyword == "null") {
-            setTrackingData(trackingList)
-        } else {
-            val filterList = trackingList.filter { it.getPath().contains(keyword) }
-            setTrackingData(filterList)
+    private fun initDebounceList() {
+        var prevTime = System.currentTimeMillis()
+        val delay = 1000
+        TrackingDataManager.getInstance().setListener {
+            if (System.currentTimeMillis().minus(prevTime) > delay) {
+                handleSetList(currentKeyword.toString())
+                prevTime = System.currentTimeMillis()
+            }
         }
     }
 
-    private fun View.changeVisible(visible: Int) {
-        if (visibility != visible) {
-            visibility = visible
+    /**
+     * Set UiList
+     * @param keyword 검색할 키워드
+     */
+    private fun handleSetList(
+        keyword: String
+    ) {
+        debounceTime = System.currentTimeMillis()
+        listJob?.cancel()
+        listJob = lifecycleScope.launch(Dispatchers.Main) {
+            val newList = withContext(Dispatchers.IO) {
+                val originList = TrackingDataManager.getInstance().getTrackingList()
+                val list = mutableListOf<BaseTrackingUiModel>()
+                originList.forEach {
+                    if (keyword.isEmpty() || keyword == "null") {
+                        list.add(TrackingSummaryUiModel(it))
+                    } else if (isFindKeyword(keyword, it.summaryModel)) {
+                        list.add(TrackingSummaryUiModel(it))
+                    }
+                }
+                return@withContext list
+            }
+            adapter.submitList(newList.toList())
         }
+    }
+
+    private fun isFindKeyword(
+        keyword: String,
+        model: SummaryModel
+    ): Boolean {
+        return model.titleList.find { it.contains(keyword, true) } != null ||
+                model.contentsList.find { it.contains(keyword, true) } != null
     }
 
     companion object {
