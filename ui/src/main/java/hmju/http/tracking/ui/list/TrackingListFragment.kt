@@ -105,6 +105,9 @@ internal class TrackingListFragment : Fragment(
             .launchIn(lifecycleScope)
     }
 
+    /**
+     * 1초 단위로 리스트 셋팅하는 함수
+     */
     private fun initDebounceList() {
         var prevTime = System.currentTimeMillis()
         val delay = 1000
@@ -116,6 +119,10 @@ internal class TrackingListFragment : Fragment(
         }
     }
 
+    /**
+     * Set UiList
+     * @param keyword 검색할 키워드
+     */
     private fun handleSetList(
         keyword: String
     ) {
