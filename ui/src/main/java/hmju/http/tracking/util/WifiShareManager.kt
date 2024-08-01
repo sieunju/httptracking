@@ -192,8 +192,8 @@ internal class WifiShareManager {
 
     private fun getHttpTrackingJson(): String {
         val str = StringBuilder()
-        // Android Http Tracking Log
-        str.append("<h3>Android HTTP Tracking Log by.hmju</h3>")
+        // Android Tracking Log
+        str.append("<h3>Android Tracking Log by.hmju</h3>")
         val data = logData
         if (data != null) {
             str.append(getMethodAndBaseUrl())
