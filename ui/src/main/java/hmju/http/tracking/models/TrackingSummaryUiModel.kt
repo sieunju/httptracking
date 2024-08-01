@@ -1,7 +1,7 @@
 package hmju.http.tracking.models
 
+import hmju.tracking.model.TrackingModel
 import hmju.http.tracking.R
-import hmju.http.tracking_interceptor.model.TrackingModel
 
 internal data class TrackingSummaryUiModel(
     val item: TrackingModel

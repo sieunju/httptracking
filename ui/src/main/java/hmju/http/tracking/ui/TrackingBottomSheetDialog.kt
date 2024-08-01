@@ -16,11 +16,11 @@ import androidx.fragment.app.DialogFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import hmju.tracking.model.TrackingModel
 import hmju.http.tracking.R
 import hmju.http.tracking.ui.detail.TrackingDetailRootFragment
 import hmju.http.tracking.ui.list.TrackingListFragment
 import hmju.http.tracking_interceptor.TrackingDataManager
-import hmju.http.tracking_interceptor.model.TrackingModel
 import java.lang.ref.WeakReference
 
 /**

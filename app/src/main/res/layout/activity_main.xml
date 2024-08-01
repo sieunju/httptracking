@@ -21,10 +21,17 @@
         android:text="NFC 테스트" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/bBle"
+        android:id="@+id/bBleAdv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="BLE 테스트" />
+        android:text="BLE ADV 테스트" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/bBleConnect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="BLE Connect 테스트" />
+
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/bFileUpload"

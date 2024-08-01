@@ -1,6 +1,6 @@
-package hmju.http.tracking_interceptor.model
+package hmju.tracking.model
 
-import hmju.http.tracking_interceptor.Extensions.toDate
+import hmju.tracking.model.Extensions.toDate
 import okhttp3.Request
 import okhttp3.Response
 import java.net.SocketTimeoutException

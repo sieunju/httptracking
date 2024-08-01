@@ -1,4 +1,4 @@
-package hmju.http.tracking_interceptor.model
+package hmju.tracking.model
 
 import okhttp3.MultipartBody
 import okio.Buffer
