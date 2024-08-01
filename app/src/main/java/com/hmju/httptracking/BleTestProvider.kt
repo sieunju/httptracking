@@ -117,8 +117,16 @@ class BleTestProvider(
 
             override fun onScanResult(callbackType: Int, result: ScanResult?) {
                 if (result == null) return
-                if (!duplicationSet.contains(result.device.address)) {
-                    duplicationSet.add(result.device.address)
+//                if (!duplicationSet.contains(result.device.address)) {
+//                    duplicationSet.add(result.device.address)
+//                    TrackingDataManager.getInstance().add(getBleTrackingModel(result, dateFmt))
+//                }
+                TrackingDataManager.getInstance().add(getBleTrackingModel(result, dateFmt))
+            }
+
+            override fun onBatchScanResults(results: MutableList<ScanResult>?) {
+                if (results == null) return
+                results.forEach {result ->
                     TrackingDataManager.getInstance().add(getBleTrackingModel(result, dateFmt))
                 }
             }
@@ -126,11 +134,10 @@ class BleTestProvider(
         val setting = ScanSettings.Builder()
             .setNumOfMatches(ScanSettings.MATCH_NUM_MAX_ADVERTISEMENT)
             .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-            // .setReportDelay(200)
+            .setReportDelay(1000)
             .build()
 
         val filter = ScanFilter.Builder()
-            // .setServiceUuid(ParcelUuid.fromString("0000FF10-0000-1000-8000-1078CE9E8B00"))
             .build()
         val scanner = adapter.bluetoothLeScanner
 
@@ -187,15 +194,15 @@ class BleTestProvider(
         if (!device.name.isNullOrEmpty()) {
             req.add(ContentsModel(text = "Name:${device.name}"))
         }
-        req.add(ContentsModel(hexCode = "#222", text = device.address))
+        req.add(ContentsModel(hexCode = "#222222", text = device.address))
         when (device.type) {
             BluetoothDevice.DEVICE_TYPE_LE -> "Low Energy"
             BluetoothDevice.DEVICE_TYPE_DUAL -> "Dual Mode"
             BluetoothDevice.DEVICE_TYPE_CLASSIC -> "Classic"
             BluetoothDevice.DEVICE_TYPE_UNKNOWN -> "Unknown"
             else -> "Invalid"
-        }.run { req.add(ContentsModel(hexCode = "#222", text = "Device type:${this}")) }
-        req.add(ContentsModel(hexCode = "#222", text = "📶${data.rssi}dBm"))
+        }.run { req.add(ContentsModel(hexCode = "#222222", text = "Device type:${this}")) }
+        req.add(ContentsModel(hexCode = "#222222", text = "📶${data.rssi}dBm"))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val phy = when (data.primaryPhy) {
                 BluetoothDevice.PHY_LE_1M -> "LE 1M"
@@ -203,7 +210,7 @@ class BleTestProvider(
                 BluetoothDevice.PHY_LE_CODED -> "LE Coded"
                 else -> "Unknown"
             }
-            req.add(ContentsModel(hexCode = "#222", text = "Phy:${phy}"))
+            req.add(ContentsModel(hexCode = "#222222", text = "Phy:${phy}"))
             req.add(ContentsModel(text = "Connectable:${data.isConnectable}"))
         }
         val scanRecord = data.scanRecord
@@ -211,18 +218,18 @@ class BleTestProvider(
             req.add(TitleModel("#C62828", "[UUID]"))
             if (!scanRecord.serviceUuids.isNullOrEmpty()) {
                 scanRecord.serviceUuids.forEach {
-                    req.add(ContentsModel(hexCode = "#222", text = it.uuid.toString()))
+                    req.add(ContentsModel(hexCode = "#222222", text = it.uuid.toString()))
                 }
             }
             if (scanRecord.manufacturerSpecificData.isNotEmpty()) {
                 req.add(TitleModel("#C62828", "[Manufacture]"))
                 scanRecord.manufacturerSpecificData.forEach { key, value ->
                     ContentsModel(
-                        hexCode = "#222",
+                        hexCode = "#222222",
                         text = "ID:${String.format("0x%04X", key)}"
                     ).run { req.add(this) }
                     ContentsModel(
-                        hexCode = "#222",
+                        hexCode = "#222222",
                         text = value.joinToString { String.format("%02X", it) }
                     ).run { req.add(this) }
                 }

@@ -11,7 +11,7 @@ class MyApplication : Application() {
         HttpTracking.Builder()
             .setBuildType(true)
             .setWifiShare(true)
-            .setLogMaxSize(50)
+            .setLogMaxSize(1000)
             .build(this)
 
     }

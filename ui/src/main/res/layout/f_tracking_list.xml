@@ -28,7 +28,7 @@
             android:paddingRight="10dp"
             android:paddingBottom="5dp"
             android:textSize="12dp"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed" />
+            app:layout_scrollFlags="scroll|enterAlways" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -38,9 +38,10 @@
         android:layout_height="wrap_content"
         android:clipToPadding="false"
         android:focusable="false"
+        android:scrollbars="vertical"
         android:splitMotionEvents="false"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
         app:layout_constraintTop_toBottomOf="@+id/etKeyword"
-        tools:listitem="@layout/vh_child_tracking" />
+        tools:listitem="@layout/vh_tracking_summary" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

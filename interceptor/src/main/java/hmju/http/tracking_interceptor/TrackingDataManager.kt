@@ -26,8 +26,8 @@ class TrackingDataManager private constructor() {
         }
     }
 
-    interface Listener {
-        fun onUpdateTrackingData()
+    fun interface Listener {
+        fun callback()
     }
 
     // [s] Variable
@@ -82,7 +82,7 @@ class TrackingDataManager private constructor() {
                 httpTrackingList.removeAt(httpTrackingList.size.minus(1))
             }
         }
-        this.listener?.onUpdateTrackingData()
+        this.listener?.callback()
     }
 
     fun getTrackingList(): List<TrackingModel> {
@@ -98,6 +98,6 @@ class TrackingDataManager private constructor() {
     }
 
     fun refresh() {
-        this.listener?.onUpdateTrackingData()
+        this.listener?.callback()
     }
 }
