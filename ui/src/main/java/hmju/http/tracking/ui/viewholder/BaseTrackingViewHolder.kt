@@ -19,7 +19,6 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.RecyclerView
 import hmju.http.tracking.R
 import hmju.http.tracking.models.*
-import hmju.http.tracking.models.BaseTrackingUiModel
 
 internal abstract class BaseTrackingViewHolder(
     parent: ViewGroup,

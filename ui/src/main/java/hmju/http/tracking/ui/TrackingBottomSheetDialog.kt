@@ -186,9 +186,12 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
     /**
      * BottomSheet Device 비율에 맞게 높이값 조정 하는 함수
      */
-    private fun setupRatio(bottomSheetDialog: BottomSheetDialog) {
-        val bottomSheet =
-            bottomSheetDialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet) as View
+    private fun setupRatio(
+        bottomSheetDialog: BottomSheetDialog
+    ) {
+        val bottomSheet = bottomSheetDialog.findViewById<View>(
+            com.google.android.material.R.id.design_bottom_sheet
+        ) as View
         val behavior = BottomSheetBehavior.from(bottomSheet)
         val layoutParams = bottomSheet.layoutParams
         layoutParams.height = getBottomSheetHeight()
@@ -201,8 +204,7 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
      */
     private fun getBottomSheetHeight(): Int {
         val realContentsHeight = getDeviceHeight()
-            .minus(getNavigationBarHeight())
-            .minus(getStatusBarHeight())
+            .minus(150)
         return (realContentsHeight * 0.9F).toInt()
     }
 
@@ -215,19 +217,5 @@ internal class TrackingBottomSheetDialog : BottomSheetDialogFragment() {
             windowManager.defaultDisplay.getMetrics(displayMetrics)
             displayMetrics.heightPixels
         }
-    }
-
-    private fun getNavigationBarHeight(): Int {
-        val id: Int = resources.getIdentifier("navigation_bar_height", "dimen", "android")
-        return if (id > 0) {
-            resources.getDimensionPixelSize(id)
-        } else 0
-    }
-
-    private fun getStatusBarHeight(): Int {
-        val id: Int = resources.getIdentifier("status_bar_height", "dimen", "android")
-        return if (id > 0) {
-            resources.getDimensionPixelSize(id)
-        } else 0
     }
 }

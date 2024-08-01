@@ -11,7 +11,7 @@ import java.net.SocketTimeoutException
  * Created by juhongmin on 2024. 7. 29.
  */
 data class SummaryModel(
-    val colorHexCode: String = "#222",
+    val colorHexCode: String = "#222222",
     val titleList: List<String> = listOf(),
     val contentsList: List<String> = listOf(),
     val wifiSummary: String? = null

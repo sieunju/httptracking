@@ -77,7 +77,7 @@ class TrackingModel {
             list.add(TitleModel(hexCode = "#C62828", text = "[header]"))
             headerMap.map {
                 ContentsModel(
-                    hexCode = "#222",
+                    hexCode = "#222222",
                     text = it.key + " : " + it.value
                 )
             }.run { list.addAll(this) }
@@ -153,7 +153,7 @@ class TrackingModel {
             list.add(TitleModel(hexCode = "#C62828", text = "[header]"))
             headerMap.map {
                 ContentsModel(
-                    hexCode = "#222",
+                    hexCode = "#222222",
                     text = it.key + " : " + it.value
                 )
             }.run { list.addAll(this) }
