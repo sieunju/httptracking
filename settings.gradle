@@ -2,3 +2,4 @@ rootProject.name = "httptracking"
 include ':app'
 include ':ui'
 include ':interceptor'
+include ':model'

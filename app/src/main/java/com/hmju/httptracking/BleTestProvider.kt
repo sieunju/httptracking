@@ -19,12 +19,12 @@ import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.util.forEach
 import androidx.core.util.isNotEmpty
+import hmju.http.model.ChildModel
+import hmju.http.model.ContentsModel
+import hmju.http.model.SummaryModel
+import hmju.http.model.TitleModel
+import hmju.http.model.TrackingModel
 import hmju.http.tracking_interceptor.TrackingDataManager
-import hmju.http.tracking_interceptor.model.ChildModel
-import hmju.http.tracking_interceptor.model.ContentsModel
-import hmju.http.tracking_interceptor.model.SummaryModel
-import hmju.http.tracking_interceptor.model.TitleModel
-import hmju.http.tracking_interceptor.model.TrackingModel
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -126,7 +126,7 @@ class BleTestProvider(
 
             override fun onBatchScanResults(results: MutableList<ScanResult>?) {
                 if (results == null) return
-                results.forEach {result ->
+                results.forEach { result ->
                     TrackingDataManager.getInstance().add(getBleTrackingModel(result, dateFmt))
                 }
             }

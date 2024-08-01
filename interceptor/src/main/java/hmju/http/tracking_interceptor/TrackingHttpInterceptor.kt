@@ -1,6 +1,6 @@
 package hmju.http.tracking_interceptor
 
-import hmju.http.tracking_interceptor.model.TrackingModel
+import hmju.http.model.TrackingModel
 import okhttp3.*
 import java.io.IOException
 

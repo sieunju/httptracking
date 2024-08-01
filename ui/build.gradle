@@ -30,7 +30,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":interceptor"))
+    api(project(":interceptor"))
 
     /**
      * Android X
