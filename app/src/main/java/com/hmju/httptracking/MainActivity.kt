@@ -12,6 +12,7 @@ internal class MainActivity : AppCompatActivity() {
 
     private lateinit var httpTest: HttpTestProvider
     private lateinit var bleTest: BleTestProvider
+    private lateinit var nfcTest: NfcTestProvider
 
     private val permissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -32,13 +33,21 @@ internal class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         httpTest = HttpTestProvider(this).onInit()
         bleTest = BleTestProvider(this)
+        nfcTest = NfcTestProvider(this)
 
         findViewById<Button>(R.id.bFileUpload).setOnClickListener {
             httpTest.startFileUpload()
         }
+        findViewById<Button>(R.id.bNfc).setOnClickListener { nfcTest.startTag() }
 
         findViewById<Button>(R.id.bHttp).setOnClickListener { httpTest.startHttpTest() }
-        findViewById<Button>(R.id.bBle).setOnClickListener { bleTest.startBleAdv() }
+        findViewById<Button>(R.id.bBleAdv).setOnClickListener { bleTest.startBleAdv() }
+        findViewById<Button>(R.id.bBleConnect).setOnClickListener {
+            bleTest.startConnection(
+                macAddress = "01:A1:02:14:89:27",
+                findUuid = "02001201-4202-EAB5-ED11"
+            )
+        }
 
         permissionsLauncher.launch(getPermissions())
         onBackPressedDispatcher.addCallback(this, backPressCallback)

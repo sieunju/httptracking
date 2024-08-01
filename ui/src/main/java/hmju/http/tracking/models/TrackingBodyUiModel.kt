@@ -1,7 +1,7 @@
 package hmju.http.tracking.models
 
+import hmju.tracking.model.HttpBodyModel
 import hmju.http.tracking.R
-import hmju.http.tracking_interceptor.model.HttpBodyModel
 
 internal data class TrackingBodyUiModel(
     val item: HttpBodyModel

@@ -10,7 +10,6 @@ java {
 }
 
 dependencies {
-    api(project(":model"))
     /**
      * Network
      */
@@ -29,7 +28,7 @@ afterEvaluate {
             deploy(MavenPublication) {
                 from components.java
                 groupId = 'com.github.sieunju.httptracking'
-                artifactId = 'interceptor'
+                artifactId = 'model'
                 version = deps.release
             }
         }

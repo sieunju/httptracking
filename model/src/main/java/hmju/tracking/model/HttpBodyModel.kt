@@ -1,4 +1,4 @@
-package hmju.http.tracking_interceptor.model
+package hmju.tracking.model
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder

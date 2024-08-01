@@ -4,12 +4,12 @@ import androidx.annotation.WorkerThread
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
-import hmju.http.tracking_interceptor.model.ChildModel
-import hmju.http.tracking_interceptor.model.ContentsModel
-import hmju.http.tracking_interceptor.model.HttpBodyModel
-import hmju.http.tracking_interceptor.model.HttpMultipartModel
-import hmju.http.tracking_interceptor.model.TitleModel
-import hmju.http.tracking_interceptor.model.TrackingModel
+import hmju.tracking.model.ChildModel
+import hmju.tracking.model.ContentsModel
+import hmju.tracking.model.HttpBodyModel
+import hmju.tracking.model.HttpMultipartModel
+import hmju.tracking.model.TitleModel
+import hmju.tracking.model.TrackingModel
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.InetAddress
@@ -186,21 +186,25 @@ internal class WifiShareManager {
 
     private fun getMethodAndBaseUrl(): CharSequence {
         val wifiSummary = logData
-            ?.summaryModel?.wifiSummary ?: return ""
+            ?.getSummaryModel()?.wifiSummary ?: return ""
         return "<h4>${wifiSummary}</h4>"
     }
 
     private fun getHttpTrackingJson(): String {
         val str = StringBuilder()
-        // Android Http Tracking Log
-        str.append("<h3>Android HTTP Tracking Log by.hmju</h3>")
+        // Android Tracking Log
+        str.append("<h3>Android Tracking Log by.hmju</h3>")
         val data = logData
         if (data != null) {
             str.append(getMethodAndBaseUrl())
-            str.append("<h2>[Request]</h2>")
-            str.getDescription(data.reqModels)
-            str.append("<h2>[Response]</h2>")
-            str.getDescription(data.resModels)
+            if (data.getReqModels().isNotEmpty()) {
+                str.append("<h2>[Request]</h2>")
+                str.getDescription(data.getReqModels())
+            }
+            if (data.getResModels().isNotEmpty()) {
+                str.append("<h2>[Response]</h2>")
+                str.getDescription(data.getResModels())
+            }
         }
         return str.toString()
     }

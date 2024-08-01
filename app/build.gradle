@@ -57,6 +57,7 @@ dependencies {
 //    implementation("com.github.sieunju.httptracking:interceptor:1.3.2")
     implementation(project(':ui'))
     implementation(project(':interceptor'))
+    implementation(project(":hardware"))
 
     /**
      * Android X
