@@ -6,7 +6,6 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.bluetooth.le.ScanCallback
@@ -14,17 +13,14 @@ import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
-import android.os.Build
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import hmju.http.tracking_interceptor.TrackingDataManager
 import hmju.tracking.hardware.HardwareTrackingModel
 import timber.log.Timber
-import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.UUID
-import java.util.concurrent.Executors
 
 
 class BleTestProvider(
@@ -36,7 +32,13 @@ class BleTestProvider(
         open fun onConnected(gatt: BluetoothGatt) {}
         open fun onDisconnected(gatt: BluetoothGatt) {}
         open fun onServicesDiscovered(gatt: BluetoothGatt) {}
-        open fun onCharacteristicRead(gatt: BluetoothGatt, value: ByteArray) {}
+        open fun onCharacteristicRead(
+            gatt: BluetoothGatt,
+            characteristic: BluetoothGattCharacteristic,
+            value: ByteArray
+        ) {
+        }
+
         open fun onCharacteristicChanged(gatt: BluetoothGatt, value: ByteArray) {}
 
         val origin = object : BluetoothGattCallback() {
@@ -65,7 +67,7 @@ class BleTestProvider(
                 status: Int
             ) {
                 if (gatt == null || characteristic == null) return
-                onCharacteristicRead(gatt, characteristic.value)
+                onCharacteristicRead(gatt, characteristic, characteristic.value)
             }
 
             override fun onCharacteristicRead(
@@ -74,7 +76,7 @@ class BleTestProvider(
                 value: ByteArray,
                 status: Int
             ) {
-                onCharacteristicRead(gatt, value)
+                onCharacteristicRead(gatt, characteristic, value)
             }
 
             @Suppress("DEPRECATION")
@@ -97,15 +99,11 @@ class BleTestProvider(
         }
     }
 
-    private val connectionSet = mutableSetOf<String>()
     private val manager: BluetoothManager by lazy {
         activity.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     }
 
     private val adapter: BluetoothAdapter by lazy { manager.adapter }
-    private val dateFmt: SimpleDateFormat by lazy {
-        SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault())
-    }
 
     @SuppressLint("MissingPermission")
     fun startBleAdv() {
@@ -165,39 +163,20 @@ class BleTestProvider(
                         }
                     }
                 }
-                Timber.d("characteristic 찾습니다..$characteristic")
                 if (characteristic == null) return
-                val writeBytes = ByteBuffer.allocate(2)
-                    .putShort(10000.toShort())
-                    .array() + ByteBuffer.allocate(2)
-                    .putShort(10387.toShort()).array()
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    Timber.d("데이터 사용합니다. ${writeBytes.contentToString()}")
-                    gatt.writeCharacteristic(
-                        characteristic,
-                        writeBytes,
-                        BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
-                    )
-                    Executors.newSingleThreadExecutor().submit {
-                        Thread.sleep(300)
-                        gatt.setCharacteristicNotification(characteristic, true)
-                        val descriptor = characteristic.getDescriptor(
-                            UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
-                        )
-                        gatt.writeDescriptor(
-                            descriptor,
-                            BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                        )
-                    }
-                }
+                gatt.readCharacteristic(characteristic)
             }
 
-            override fun onCharacteristicRead(gatt: BluetoothGatt, value: ByteArray) {
+
+            override fun onCharacteristicRead(
+                gatt: BluetoothGatt,
+                characteristic: BluetoothGattCharacteristic,
+                value: ByteArray
+            ) {
                 TrackingDataManager.getInstance().add(HardwareTrackingModel(gatt, value))
             }
 
             override fun onCharacteristicChanged(gatt: BluetoothGatt, value: ByteArray) {
-                Timber.d("onCharacteristicChanged ${value.contentToString()}")
                 TrackingDataManager.getInstance().add(HardwareTrackingModel(gatt, value))
             }
         }

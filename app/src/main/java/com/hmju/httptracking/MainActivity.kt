@@ -44,8 +44,8 @@ internal class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.bBleAdv).setOnClickListener { bleTest.startBleAdv() }
         findViewById<Button>(R.id.bBleConnect).setOnClickListener {
             bleTest.startConnection(
-                macAddress = "01:A1:02:14:89:27",
-                findUuid = "02001201-4202-EAB5-ED11"
+                macAddress = "11:22:33:44:55:66",
+                findUuid = "00002a00-0000-1000-8000-00805f9b34fb" // GAP, Device Name (표준 UUID)
             )
         }
 
