@@ -169,12 +169,12 @@ class BleTestProvider(
                         }
                     }
                 }
-                if (characteristic == null) return
-                gatt.readCharacteristic(characteristic)
                 Executors.newCachedThreadPool().submit {
                     Thread.sleep(3000)
                     gatt.disconnect()
                 }
+                if (characteristic == null) return
+                gatt.readCharacteristic(characteristic)
             }
 
 
