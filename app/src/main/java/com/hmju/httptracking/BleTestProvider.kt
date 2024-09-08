@@ -17,10 +17,15 @@ import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import hmju.http.tracking_interceptor.TrackingDataManager
 import hmju.tracking.hardware.HardwareTrackingModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.UUID
+import java.util.concurrent.Executors
 
 
 class BleTestProvider(
@@ -153,6 +158,7 @@ class BleTestProvider(
             }
 
             override fun onServicesDiscovered(gatt: BluetoothGatt) {
+                TrackingDataManager.getInstance().add(HardwareTrackingModel(gatt))
                 var characteristic: BluetoothGattCharacteristic? = null
                 for (service in gatt.services) {
                     for (character in service.characteristics) {
@@ -165,6 +171,10 @@ class BleTestProvider(
                 }
                 if (characteristic == null) return
                 gatt.readCharacteristic(characteristic)
+                Executors.newCachedThreadPool().submit {
+                    Thread.sleep(3000)
+                    gatt.disconnect()
+                }
             }
 
 
