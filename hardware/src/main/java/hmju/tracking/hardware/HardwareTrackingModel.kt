@@ -3,6 +3,8 @@ package hmju.tracking.hardware
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattService
 import android.bluetooth.le.ScanResult
 import android.nfc.tech.Ndef
 import android.os.Build
@@ -31,6 +33,11 @@ class HardwareTrackingModel : TrackingModel {
     ) {
         setSummary(initSummary(data))
         setReqModels(initReqModels(data))
+    }
+
+    constructor(gatt: BluetoothGatt) {
+        setSummary(initSummary(gatt))
+        setReqModels(initReqModels(gatt))
     }
 
     constructor(
@@ -106,7 +113,9 @@ class HardwareTrackingModel : TrackingModel {
      * Ble Advertising Data
      * @param data BLE ADV Data
      */
-    private fun initReqModels(data: ScanResult): List<ChildModel> {
+    private fun initReqModels(
+        data: ScanResult
+    ): List<ChildModel> {
         val list = mutableListOf<ChildModel>()
         val device = data.device
         list.add(TitleModel(hexCode = "#C62828", text = "[Device]"))
@@ -173,14 +182,49 @@ class HardwareTrackingModel : TrackingModel {
             BluetoothDevice.DEVICE_TYPE_CLASSIC -> "Classic"
             BluetoothDevice.DEVICE_TYPE_UNKNOWN -> "Unknown"
             else -> "Invalid"
-        }.run { list.add(ContentsModel(hexCode = "#222222", text = "Device type:${this}")) }
+        }.run { list.add(ContentsModel(hexCode = "#222222", text = "DeviceType\n${this}")) }
         if (!gatt.services.isNullOrEmpty()) {
-            list.add(TitleModel("#C62828", "[UUID]"))
             gatt.services.forEach { service ->
-                ContentsModel(
-                    hexCode = "#222222",
-                    text = service.uuid.toString()
-                ).run { list.add(this) }
+                list.add(TitleModel("#C62828", "Service: ${service.uuid}"))
+                when (service.type) {
+                    BluetoothGattService.SERVICE_TYPE_PRIMARY -> "PRIMARY"
+                    BluetoothGattService.SERVICE_TYPE_SECONDARY -> "SECONDARY"
+                    else -> "Unknown Type"
+                }.run { list.add(ContentsModel(hexCode = "#222222", text = "ServiceType: $this")) }
+                service.characteristics.forEach { characteristic ->
+                    val str = StringBuilder("Characteristic")
+                    str.appendLine("\t${characteristic.uuid}")
+                    when (characteristic.writeType) {
+                        BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT -> "DEFAULT"
+                        BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE -> "NO_RESPONSE"
+                        BluetoothGattCharacteristic.WRITE_TYPE_SIGNED -> "SIG"
+                        else -> "Unknown"
+                    }.run { str.appendLine("WriteType: $this") }
+                    if (!characteristic.descriptors.isNullOrEmpty()) {
+                        str.appendLine("Descriptors")
+                        characteristic.descriptors.forEach { descriptor ->
+                            str.appendLine("\t${descriptor.uuid}")
+                        }
+                    }
+                    characteristic.properties.also { properties ->
+                        str.append("Properties:")
+                        val propertyList = mutableListOf<String>()
+                        if (properties and BluetoothGattCharacteristic.PROPERTY_NOTIFY != 0) {
+                            propertyList.add("NOTIFICATION")
+                        }
+                        if (properties and BluetoothGattCharacteristic.PROPERTY_INDICATE != 0) {
+                            propertyList.add("INDICATE")
+                        }
+                        if (properties and BluetoothGattCharacteristic.PROPERTY_READ != 0) {
+                            propertyList.add("READ")
+                        }
+                        if (properties and BluetoothGattCharacteristic.PROPERTY_WRITE != 0) {
+                            propertyList.add("WRITE")
+                        }
+                        str.appendLine(propertyList.joinToString(", "))
+                    }
+                    list.add(TitleModel("#222222", str))
+                }
             }
         }
         return list
