@@ -31,6 +31,33 @@ afterEvaluate {
                 groupId = 'com.github.sieunju.httptracking'
                 artifactId = 'interceptor'
                 version = deps.release
+
+                pom {
+                    name = 'HTTP Tracking Interceptor'
+                    description = 'OkHttp Interceptor for tracking HTTP requests/response'
+                    url = 'https://github.com/sieunju/httptracking'
+
+                    licenses {
+                        license {
+                            name = 'MIT License'
+                            url = 'https://opensource.org/licenses/MIT'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id = 'sieunju'
+                            name = 'jimbo'
+                            email = 'j.sieun73@gmail.com'
+                        }
+                    }
+
+                    scm {
+                        connection = 'scm:git:git://github.com/sieunju/httptracking.git'
+                        developerConnection = 'scm:git:ssh://git@github.com:sieunju/httptracking.git'
+                        url = 'https://github.com/sieunju/httptracking'
+                    }
+                }
             }
         }
     }
