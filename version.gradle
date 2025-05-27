@@ -2,7 +2,7 @@ ext.deps = [:]
 
 def deps = [:]
 
-deps.release = "1.3.7"
+deps.release = "1.3.7-beta02"
 
 ext.deps = deps
 
