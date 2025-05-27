@@ -10,48 +10,6 @@ buildscript {
 
 allprojects {
     addRepos(repositories)
-
-    if (plugins.hasPlugin('com.android.library') || project.plugins.hasPlugin('com.android.library')) {
-        apply plugin: 'maven-publish'
-
-        publishing {
-            publications {
-                release(MavenPublication) {
-                    // afterEvaluate에서 설정하던 내용들을 여기로 이동
-                    afterEvaluate {
-                        from components.release
-                    }
-
-                    pom {
-                        name = project.name
-                        description = 'HTTP tracking library for Android'
-                        url = 'https://github.com/sieunju/httptracking'
-
-                        licenses {
-                            license {
-                                name = 'MIT License'
-                                url = 'https://opensource.org/licenses/MIT'
-                            }
-                        }
-
-                        developers {
-                            developer {
-                                id = 'sieunju'
-                                name = 'Dev ju'
-                                email = 'j.sieun73@gmail.com'
-                            }
-                        }
-
-                        scm {
-                            connection = 'scm:git:git://github.com/sieunju/httptracking.git'
-                            developerConnection = 'scm:git:ssh://git@github.com:sieunju/httptracking.git'
-                            url = 'https://github.com/sieunju/httptracking'
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 tasks.register('clean', Delete) {
