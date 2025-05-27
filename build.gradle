@@ -11,45 +11,41 @@ buildscript {
 allprojects {
     addRepos(repositories)
 
-    afterEvaluate {
-        if (plugins.hasPlugin('com.android.library')) {
-            apply plugin: 'maven-publish'
+    if (plugins.hasPlugin('com.android.library') || project.plugins.hasPlugin('com.android.library')) {
+        apply plugin: 'maven-publish'
 
-            publishing {
-                publications {
-                    maven(MavenPublication) {
+        publishing {
+            publications {
+                release(MavenPublication) {
+                    // afterEvaluate에서 설정하던 내용들을 여기로 이동
+                    afterEvaluate {
                         from components.release
+                    }
 
-                        // 공통 메타데이터
-                        pom {
+                    pom {
+                        name = project.name
+                        description = 'HTTP tracking library for Android'
+                        url = 'https://github.com/sieunju/httptracking'
+
+                        licenses {
+                            license {
+                                name = 'MIT License'
+                                url = 'https://opensource.org/licenses/MIT'
+                            }
+                        }
+
+                        developers {
+                            developer {
+                                id = 'sieunju'
+                                name = 'Dev ju'
+                                email = 'j.sieun73@gmail.com'
+                            }
+                        }
+
+                        scm {
+                            connection = 'scm:git:git://github.com/sieunju/httptracking.git'
+                            developerConnection = 'scm:git:ssh://git@github.com:sieunju/httptracking.git'
                             url = 'https://github.com/sieunju/httptracking'
-
-                            licenses {
-                                license {
-                                    name = 'MIT License'
-                                    url = 'https://opensource.org/licenses/MIT'
-                                    distribution = 'repo'
-                                }
-                            }
-
-                            developers {
-                                developer {
-                                    id = 'sieunju'
-                                    name = 'Dev Ju'
-                                    email = 'j.sieun73@gmail.com'
-                                }
-                            }
-
-                            scm {
-                                connection = 'scm:git:git://github.com/sieunju/httptracking.git'
-                                developerConnection = 'scm:git:ssh://git@github.com:sieunju/httptracking.git'
-                                url = 'https://github.com/sieunju/httptracking'
-                            }
-
-                            issueManagement {
-                                system = 'GitHub'
-                                url = 'https://github.com/sieunju/httptracking/issues'
-                            }
                         }
                     }
                 }
@@ -58,6 +54,6 @@ allprojects {
     }
 }
 
-task clean(type: Delete) {
+tasks.register('clean', Delete) {
     delete rootProject.buildDir
 }
