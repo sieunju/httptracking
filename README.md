@@ -1,3 +1,4 @@
+![Frame 8](https://github.com/user-attachments/assets/03d5151e-7404-4772-8f33-2dedcb962bd3)
 > [![](https://jitpack.io/v/sieunju/httptracking.svg)](https://jitpack.io/#sieunju/httptracking)   
 > 앱 개발시 Log.d 보지 않고 BottomSheetDialog 로 간단하게 볼수 있는 개발용 라이브러리입니다.
 ---
@@ -90,4 +91,5 @@ HttpTracking.Builder()
 위에 화면처럼 원하는 로그를 선택하시고 공유 하기 버튼을 선택하시면 http://{ip}:{port}/tracking 주소가 노출되는데 해당 주소를 PC에 입력하시면 선택한 로그를 볼수 있습니다. 🤩
 
 #### 🙏 공공장소에서 사용은 절대로 지양합니다. (본인의 HTTP 통신 로그를 누군가 볼수 있습니다..)
+
 
