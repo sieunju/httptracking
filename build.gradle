@@ -10,6 +10,52 @@ buildscript {
 
 allprojects {
     addRepos(repositories)
+
+    afterEvaluate {
+        if (plugins.hasPlugin('com.android.library')) {
+            apply plugin: 'maven-publish'
+
+            publishing {
+                publications {
+                    maven(MavenPublication) {
+                        from components.release
+
+                        // 공통 메타데이터
+                        pom {
+                            url = 'https://github.com/sieunju/httptracking'
+
+                            licenses {
+                                license {
+                                    name = 'MIT License'
+                                    url = 'https://opensource.org/licenses/MIT'
+                                    distribution = 'repo'
+                                }
+                            }
+
+                            developers {
+                                developer {
+                                    id = 'sieunju'
+                                    name = 'Dev Ju'
+                                    email = 'j.sieun73@gmail.com'
+                                }
+                            }
+
+                            scm {
+                                connection = 'scm:git:git://github.com/sieunju/httptracking.git'
+                                developerConnection = 'scm:git:ssh://git@github.com:sieunju/httptracking.git'
+                                url = 'https://github.com/sieunju/httptracking'
+                            }
+
+                            issueManagement {
+                                system = 'GitHub'
+                                url = 'https://github.com/sieunju/httptracking/issues'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 task clean(type: Delete) {
