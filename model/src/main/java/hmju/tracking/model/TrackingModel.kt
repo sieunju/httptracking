@@ -85,7 +85,8 @@ open class TrackingModel {
     ): List<ChildModel> {
         val list = mutableListOf<ChildModel>()
         // full url
-        list.add(ContentsModel(text = req.url.toString()))
+        val fullUrl = req.url.toString()
+        list.add(ContentsModel(text = fullUrl))
         // path
         list.add(TitleModel(hexCode = "#C62828", text = "[path]"))
         list.add(ContentsModel(text = req.url.encodedPath))
@@ -101,16 +102,35 @@ open class TrackingModel {
             }.run { list.addAll(this) }
         }
         // query
-        val queryParams = req.url.query
-        if (!queryParams.isNullOrEmpty()) {
-            list.add(TitleModel(hexCode = "#C62828", text = "[query]"))
-            queryParams.split("&").forEach {
-                val query = splitQuery(it) ?: return@forEach
-                val text = "${query.first} : ${query.second}"
-                ContentsModel(
-                    hexCode = "#222222",
-                    text = text
-                ).run { list.add(this) }
+        try {
+            val decodedUrl = URLDecoder.decode(fullUrl, "UTF-8")
+            // 디코딩된 URL에서 ? 찾기
+            val queryStartIndex = decodedUrl.indexOf('?')
+            if (queryStartIndex != -1) {
+                list.add(TitleModel(hexCode = "#C62828", text = "[query]"))
+                val queryString = decodedUrl.substring(queryStartIndex + 1)
+
+                queryString.split("&").forEach { param ->
+                    val query = splitQuery(param) ?: return@forEach
+                    val text = "${query.first} : ${query.second}"
+                    ContentsModel(
+                        hexCode = "#222222",
+                        text = text
+                    ).run { list.add(this) }
+                }
+            }
+        } catch (e: Exception) {
+            val queryParams = req.url.query
+            if (!queryParams.isNullOrEmpty()) {
+                list.add(TitleModel(hexCode = "#C62828", text = "[query]"))
+                queryParams.split("&").forEach {
+                    val query = splitQuery(it) ?: return@forEach
+                    val text = "${query.first} : ${query.second}"
+                    ContentsModel(
+                        hexCode = "#222222",
+                        text = text
+                    ).run { list.add(this) }
+                }
             }
         }
 
@@ -166,6 +186,9 @@ open class TrackingModel {
     ): List<ChildModel> {
         val list = mutableListOf<ChildModel>()
         val headerMap = res.headers.toMap()
+        // path
+        list.add(TitleModel(hexCode = "#C62828", text = "[path]"))
+        list.add(ContentsModel(text = res.request.url.encodedPath))
         // headers
         if (headerMap.isNotEmpty()) {
             list.add(TitleModel(hexCode = "#C62828", text = "[header]"))
