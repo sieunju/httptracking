@@ -74,6 +74,65 @@ OkHttpClient.Builder().apply{
 |:--:|
 |![UI](https://raw.githubusercontent.com/sieunju/httptracking/develop/storage/list_example_1.png)|
 
+## HTTP 로그 노출 가이드
+
+HTTP Method (GET, POST, PUT, PATCH, DELETE ...) 와 상관없이 요청에 담긴 데이터 타입에 따라 로그가 노출됩니다.
+
+### Request
+
+| 항목 | 노출 조건 | 예시 (Retrofit) |
+|--|--|--|
+| (Full URL) | 항상 | |
+| `[path]` | 항상 | `@Path` |
+| `[header]` | Header 가 있는 경우 | `@Header`, `@Headers` |
+| `[query]` | URL 에 Query 가 있는 경우 | `@Query`, `@QueryMap` |
+| `[field]` | Body 가 FormBody 인 경우 | `@FormUrlEncoded` + `@Field`, `@FieldMap` |
+| `[multipart]` | Body 가 MultipartBody 인 경우 | `@Multipart` + `@Part`, `@PartMap` |
+| `[body]` | 그외 Body 가 있는 경우 | `@Body` |
+
+- `[query]`, `[field]` 는 `key : value` 형태로 디코딩되어 노출됩니다.
+- `[multipart]` 는 이미지 Part 는 이미지로, 텍스트 Part 는 `name : value`, 그외 파일은 `파일명 (Content-Type, 크기)` 로 노출됩니다.
+- `[body]` 는 JSON 이면 정렬(Pretty)해서, 그외 (text, xml 등) 는 원문 그대로 노출됩니다.
+- one-shot / duplex Body 는 실제 요청에 영향이 없도록 읽지 않고 Content-Type 만 노출됩니다.
+
+```
+https://api.example.com/v1/users?page=1&keyword=한글
+[path]
+/v1/users
+[header]
+Authorization : Bearer xxx
+[query]
+page : 1
+keyword : 한글
+[field]
+id : user
+pw : 1234
+```
+
+### Response
+
+| 항목 | 노출 조건 |
+|--|--|
+| `[status]` | 항상 (`http/1.1 200 OK`) |
+| `[path]` | 항상 |
+| `[header]` | Header 가 있는 경우 |
+| `[body]` | Body 가 있는 경우 (JSON 은 정렬, 그외 원문) |
+
+통신 중 에러 (Timeout 등) 가 발생한 경우 Response 에는 에러 메시지가 노출됩니다.
+
+```
+[status]
+http/1.1 200 OK
+[path]
+/v1/users
+[header]
+Content-Type : application/json
+[body]
+{
+  "ok": true
+}
+```
+
 ## PC로 로그 확인 하는 방법
 
 setWifiShare(true)

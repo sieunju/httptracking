@@ -5,7 +5,6 @@ import okhttp3.MultipartBody
 import okhttp3.Request
 import okhttp3.Response
 import okio.Buffer
-import java.net.URLDecoder
 
 /**
  * Description : BaseTrackingModel
@@ -104,35 +103,14 @@ open class TrackingModel {
             }.run { list.addAll(this) }
         }
         // query
-        try {
-            val decodedUrl = URLDecoder.decode(fullUrl, "UTF-8")
-            // 디코딩된 URL에서 ? 찾기
-            val queryStartIndex = decodedUrl.indexOf('?')
-            if (queryStartIndex != -1) {
-                list.add(TitleModel(hexCode = "#C62828", text = "[query]"))
-                val queryString = decodedUrl.substring(queryStartIndex + 1)
-
-                queryString.split("&").forEach { param ->
-                    val query = splitQuery(param) ?: return@forEach
-                    val text = "${query.first} : ${query.second}"
-                    ContentsModel(
-                        hexCode = "#222222",
-                        text = text
-                    ).run { list.add(this) }
-                }
-            }
-        } catch (e: Exception) {
-            val queryParams = req.url.query
-            if (!queryParams.isNullOrEmpty()) {
-                list.add(TitleModel(hexCode = "#C62828", text = "[query]"))
-                queryParams.split("&").forEach {
-                    val query = splitQuery(it) ?: return@forEach
-                    val text = "${query.first} : ${query.second}"
-                    ContentsModel(
-                        hexCode = "#222222",
-                        text = text
-                    ).run { list.add(this) }
-                }
+        val url = req.url
+        if (url.querySize > 0) {
+            list.add(TitleModel(hexCode = "#C62828", text = "[query]"))
+            for (idx in 0 until url.querySize) {
+                ContentsModel(
+                    hexCode = "#222222",
+                    text = "${url.queryParameterName(idx)} : ${url.queryParameterValue(idx).orEmpty()}"
+                ).run { list.add(this) }
             }
         }
 
@@ -194,36 +172,6 @@ open class TrackingModel {
             }
         }
         return ContentsModel(hexCode = "#222222", text = "$name : $text")
-    }
-
-    /**
-     * Split HTTP Query
-     *
-     * @param txt {Key=Value}
-     */
-    private fun splitQuery(txt: String): Pair<String, String>? {
-        val idx = txt.indexOf("=")
-        return if (idx != -1) {
-            var key = txt.substring(0, idx)
-            key = try {
-                URLDecoder.decode(key, Charsets.UTF_8.name())
-            } catch (ex: UnsupportedOperationException) {
-                key
-            } catch (ex: IllegalArgumentException) {
-                key
-            }
-            var value = txt.substring(idx.plus(1))
-            value = try {
-                URLDecoder.decode(value, Charsets.UTF_8.name())
-            } catch (ex: UnsupportedOperationException) {
-                value
-            } catch (ex: IllegalArgumentException) {
-                value
-            }
-            key to value
-        } else {
-            null
-        }
     }
 
     /**
