@@ -94,6 +94,9 @@ HTTP Method (GET, POST, PUT, PATCH, DELETE ...) 와 상관없이 요청에 담�
 - `[multipart]` 는 이미지 Part 는 이미지로, 텍스트 Part 는 `name : value`, 그외 파일은 `파일명 (Content-Type, 크기)` 로 노출됩니다.
 - `[body]` 는 JSON 이면 정렬(Pretty)해서, 그외 (text, xml 등) 는 원문 그대로 노출됩니다.
 - one-shot / duplex Body 는 실제 요청에 영향이 없도록 읽지 않고 Content-Type 만 노출됩니다.
+- 하나의 요청에는 Body 가 하나만 있으므로 `[field]`, `[multipart]`, `[body]` 중 하나만 노출됩니다.
+
+`@FormUrlEncoded` 요청인 경우
 
 ```
 https://api.example.com/v1/users?page=1&keyword=한글
@@ -107,6 +110,23 @@ keyword : 한글
 [field]
 id : user
 pw : 1234
+```
+
+`@Body` 요청인 경우
+
+```
+https://api.example.com/v1/users?page=1
+[path]
+/v1/users
+[header]
+Authorization : Bearer xxx
+[query]
+page : 1
+[body]
+{
+  "id": "user",
+  "pw": "1234"
+}
 ```
 
 ### Response
