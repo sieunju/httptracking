@@ -53,6 +53,19 @@ data class HttpBodyModel(
                 null
             }
         }
+
+        /**
+         * JSON 이면 Pretty 처리, 그외 (text, xml 등) 원문 그대로
+         */
+        private fun toPrettyBody(str: String?): String {
+            if (str.isNullOrEmpty()) return ""
+            return try {
+                val js = JsonParser.parseString(str)
+                if (js.isJsonObject || js.isJsonArray) gson.toJson(js) else str
+            } catch (ex: Exception) {
+                str
+            }
+        }
     }
 
     constructor(
@@ -61,9 +74,7 @@ data class HttpBodyModel(
         json = try {
             val buffer = Buffer()
             body.writeTo(buffer)
-            val str = buffer.readString(Charsets.UTF_8)
-            val js = JsonParser.parseString(str)
-            gson.toJson(js)
+            toPrettyBody(buffer.readString(Charsets.UTF_8))
         } catch (ex: Exception) {
             ""
         }
@@ -74,9 +85,7 @@ data class HttpBodyModel(
         body: ResponseBody
     ) : this(
         json = try {
-            val str = getResBody(headers, body)
-            val js = JsonParser.parseString(str)
-            gson.toJson(js)
+            toPrettyBody(getResBody(headers, body))
         } catch (ex: Exception) {
             ""
         }
