@@ -6,6 +6,11 @@ KO-KR
 > 많은 애용 바랍니다. 그리고 추가 하고 싶은 기능이 있으면 이슈로 남겨주시기 바랍니다.
 
 ### 릴리즈 수정 내역
+- [FEATURE] HTTP Method 와 상관없이 Request Body 타입별 로그 표시 ([field], [multipart], [body])
+- [FEATURE] Response [status] 표시 추가
+- [FIX] JSON 이 아닌 Body (text, xml 등) 가 빈 값으로 표시되던 문제 수정
+- [FIX] Query 값에 인코딩된 문자 (%26 등) 가 포함된 경우 잘못 분리되던 문제 수정
+- [REFACTOR] TrackingModel setReqModels / setResModels / setSummary 체이닝 지원
 
 
 EN-US
@@ -14,4 +19,9 @@ EN-US
 > Please use it a lot. And if there is a function you want to add, please leave it as an issue.
 
 ### Release History
+- [FEATURE] Show request body logs by body type regardless of HTTP method ([field], [multipart], [body])
+- [FEATURE] Add response [status]
+- [FIX] Non-JSON bodies (text, xml, etc.) were shown as empty
+- [FIX] Query values containing encoded characters (e.g. %26) were split incorrectly
+- [REFACTOR] Support chaining for TrackingModel setReqModels / setResModels / setSummary
 
