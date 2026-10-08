@@ -1,9 +1,10 @@
 package hmju.tracking.model
 
+import okhttp3.FormBody
 import okhttp3.MultipartBody
 import okhttp3.Request
 import okhttp3.Response
-import java.net.URLDecoder
+import okio.Buffer
 
 /**
  * Description : BaseTrackingModel
@@ -102,79 +103,75 @@ open class TrackingModel {
             }.run { list.addAll(this) }
         }
         // query
-        try {
-            val decodedUrl = URLDecoder.decode(fullUrl, "UTF-8")
-            // 디코딩된 URL에서 ? 찾기
-            val queryStartIndex = decodedUrl.indexOf('?')
-            if (queryStartIndex != -1) {
-                list.add(TitleModel(hexCode = "#C62828", text = "[query]"))
-                val queryString = decodedUrl.substring(queryStartIndex + 1)
-
-                queryString.split("&").forEach { param ->
-                    val query = splitQuery(param) ?: return@forEach
-                    val text = "${query.first} : ${query.second}"
-                    ContentsModel(
-                        hexCode = "#222222",
-                        text = text
-                    ).run { list.add(this) }
-                }
-            }
-        } catch (e: Exception) {
-            val queryParams = req.url.query
-            if (!queryParams.isNullOrEmpty()) {
-                list.add(TitleModel(hexCode = "#C62828", text = "[query]"))
-                queryParams.split("&").forEach {
-                    val query = splitQuery(it) ?: return@forEach
-                    val text = "${query.first} : ${query.second}"
-                    ContentsModel(
-                        hexCode = "#222222",
-                        text = text
-                    ).run { list.add(this) }
-                }
+        val url = req.url
+        if (url.querySize > 0) {
+            list.add(TitleModel(hexCode = "#C62828", text = "[query]"))
+            for (idx in 0 until url.querySize) {
+                ContentsModel(
+                    hexCode = "#222222",
+                    text = "${url.queryParameterName(idx)} : ${url.queryParameterValue(idx).orEmpty()}"
+                ).run { list.add(this) }
             }
         }
 
-        // Body
-        val body = req.body
-        if (body is MultipartBody) {
-            body.parts
-                .map { HttpMultipartModel(it) }
-                .run { list.addAll(this) }
-        } else if (body != null) {
-            list.add(HttpBodyModel(body))
+        // Body (HTTP Method 와 상관없이 Body 타입 기준으로 처리)
+        val body = req.body ?: return list
+        if (body.isOneShot() || body.isDuplex()) {
+            list.add(TitleModel(hexCode = "#C62828", text = "[body]"))
+            list.add(ContentsModel(text = "${body.contentType()} (one-shot or duplex body)"))
+            return list
+        }
+        when (body) {
+            is FormBody -> {
+                // @Field, @FieldMap
+                list.add(TitleModel(hexCode = "#C62828", text = "[field]"))
+                for (idx in 0 until body.size) {
+                    ContentsModel(
+                        hexCode = "#222222",
+                        text = "${body.name(idx)} : ${body.value(idx)}"
+                    ).run { list.add(this) }
+                }
+            }
+
+            is MultipartBody -> {
+                // @Part, @PartMap
+                list.add(TitleModel(hexCode = "#C62828", text = "[multipart]"))
+                body.parts.forEach { list.add(getMultipartModel(it)) }
+            }
+
+            else -> {
+                // @Body
+                list.add(TitleModel(hexCode = "#C62828", text = "[body]"))
+                list.add(HttpBodyModel(body))
+            }
         }
 
         return list
     }
 
     /**
-     * Split HTTP Query
-     *
-     * @param txt {Key=Value}
+     * Multipart Part 에서 이미지는 HttpMultipartModel, 그외는 Text 로 처리
      */
-    private fun splitQuery(txt: String): Pair<String, String>? {
-        val idx = txt.indexOf("=")
-        return if (idx != -1) {
-            var key = txt.substring(0, idx)
-            key = try {
-                URLDecoder.decode(key, Charsets.UTF_8.name())
-            } catch (ex: UnsupportedOperationException) {
-                key
-            } catch (ex: IllegalArgumentException) {
-                key
-            }
-            var value = txt.substring(idx.plus(1))
-            value = try {
-                URLDecoder.decode(value, Charsets.UTF_8.name())
-            } catch (ex: UnsupportedOperationException) {
-                value
-            } catch (ex: IllegalArgumentException) {
-                value
-            }
-            key to value
-        } else {
-            null
+    private fun getMultipartModel(part: MultipartBody.Part): ChildModel {
+        val disposition = part.headers?.get("Content-Disposition").orEmpty()
+        val name = Regex("name=\"([^\"]*)\"").find(disposition)?.groupValues?.get(1) ?: ""
+        val fileName = Regex("filename=\"([^\"]*)\"").find(disposition)?.groupValues?.get(1)
+        val contentType = part.body.contentType()
+        if (contentType?.type == "image") {
+            return HttpMultipartModel(part)
         }
+        val text = if (fileName != null) {
+            "$fileName ($contentType, ${part.body.contentLength()} bytes)"
+        } else {
+            try {
+                val buffer = Buffer()
+                part.body.writeTo(buffer)
+                buffer.readString(contentType?.charset() ?: Charsets.UTF_8)
+            } catch (ex: Exception) {
+                ""
+            }
+        }
+        return ContentsModel(hexCode = "#222222", text = "$name : $text")
     }
 
     /**
@@ -186,6 +183,9 @@ open class TrackingModel {
     ): List<ChildModel> {
         val list = mutableListOf<ChildModel>()
         val headerMap = res.headers.toMap()
+        // status
+        list.add(TitleModel(hexCode = "#C62828", text = "[status]"))
+        list.add(ContentsModel(text = "${res.protocol} ${res.code} ${res.message}"))
         // path
         list.add(TitleModel(hexCode = "#C62828", text = "[path]"))
         list.add(ContentsModel(text = res.request.url.encodedPath))
@@ -202,22 +202,26 @@ open class TrackingModel {
         // Body
         val body = res.body
         if (body != null) {
+            list.add(TitleModel(hexCode = "#C62828", text = "[body]"))
             list.add(HttpBodyModel(res.headers, body))
         }
         return list
     }
 
-    fun setReqModels(list: List<ChildModel>) {
+    fun setReqModels(list: List<ChildModel>): TrackingModel {
         _reqModels.clear()
         _reqModels.addAll(list)
+        return this
     }
 
-    fun setResModels(list: List<ChildModel>) {
+    fun setResModels(list: List<ChildModel>): TrackingModel {
         _resModels.clear()
         _resModels.addAll(list)
+        return this
     }
 
-    fun setSummary(summary: SummaryModel) {
+    fun setSummary(summary: SummaryModel): TrackingModel {
         this._summary = summary
+        return this
     }
 }
