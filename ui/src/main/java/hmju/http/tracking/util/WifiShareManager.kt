@@ -213,9 +213,9 @@ internal class WifiShareManager {
         if (body == null) return ""
         return try {
             val je = JsonParser.parseString(body)
-            gson.toJson(je)
+            if (je.isJsonObject || je.isJsonArray) gson.toJson(je) else body
         } catch (ex: Exception) {
-            ""
+            body
         }
     }
 
